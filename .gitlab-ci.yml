@@ -8,8 +8,8 @@ build:
   - trustlab
   script:
   - sudo /bin/systemctl stop gunicorn@contenttrustlab.service
-  - sudo chown -R gitlab-runner:www-gitlab $SRC
-  - /bin/rm -rf $SRC
+  - sudo chown -R gitlab-runner:www-gitlab $SRC_RM
+  - /bin/rm -rf $SRC_RM
   - /bin/cp -arf ./* $SRC
   - cd $SRC
   - mkdir -p deploy/contentrustlab/static
