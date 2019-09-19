@@ -1,7 +1,7 @@
 variables:
   SRC: "/var/www/contenttrustlab/src"
   SRC_RM: "/var/www/contenttrustlab/src/*"
-  DBKEY_SCRIPT: "/var/www/contentrustlab/dbkey.sh"
+  DBKEY_SCRIPT: "/var/www/contenttrustlab/dbkey.sh"
 
 build:
   stage: build
