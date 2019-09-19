@@ -1,12 +1,14 @@
 variables:
   SRC: "/var/www/contenttrustlab/src"
   SRC_RM: "/var/www/contenttrustlab/src/*"
+  DBKEY_SCRIPT: "/var/www/contentrustlab/dbkey.sh"
 
 build:
   stage: build
   tags:
   - trustlab
   script:
+  - . $DBKEY_SCRIPT
   - sudo /bin/systemctl stop gunicorn@contenttrustlab.service
   - sudo chown -R gitlab-runner:www-gitlab $SRC
   - /bin/rm -rf $SRC_RM
