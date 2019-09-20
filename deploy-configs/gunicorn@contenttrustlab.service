@@ -1,0 +1,12 @@
+[Unit]
+Description=gunicorn daemon
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/contenttrustlab/src/
+ExecStart=/var/www/contenttrustlab/trustlab-env/bin/gunicorn --access-logfile /var/www/contenttrustlab/gunicorn_access.log --error-logfile /var/www/contenttrustlab/gunicorn_error.log --workers 3 --bind unix:/var/www/contenttrustlab/src/trustlab.sock djtrustlab.wsgi:application 
+
+[Install]
+WantedBy=multi-user.target

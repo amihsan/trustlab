@@ -1,0 +1,31 @@
+server {
+    listen [::]:80;
+    listen 80;
+    server_name 134.109.192.107, vsr-dem0.informatik.tu-chemnitz.de;
+
+    error_log /var/log/nginx/error.log debug;
+
+    location / {
+        return 301 http://vsr-dem0.informatik.tu-chemnitz.de/contenttrustlab/;
+    }
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+
+    location /contenttrustlab/static/ {
+        root /var/www/contenttrustlab/src/deploy;
+    }
+
+    location /contenttrustlab/media/ {
+        root /var/www/contenttrustlab/src/deploy;
+    }
+
+
+    location /contenttrustlab/ {
+        include proxy_params;
+        proxy_pass http://unix:/var/www/contenttrustlab/src/trustlab.sock;
+        proxy_set_header SCRIPT_NAME /contenttrustlab;
+        proxy_pass_header X-CSRFToken;
+        proxy_pass_header csrftoken;
+        proxy_pass_header sessionid;
+    }
+}

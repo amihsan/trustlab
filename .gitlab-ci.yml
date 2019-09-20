@@ -40,4 +40,4 @@ build:
   - sudo /bin/systemctl start gunicorn@contenttrustlab.service
   - sudo /bin/systemctl restart nginx
   only:
-    - develop
+    - master
