@@ -2,6 +2,11 @@ variables:
   SRC: "/var/www/contenttrustlab/src"
   SRC_RM: "/var/www/contenttrustlab/src/*"
   DBKEY_SCRIPT: "/var/www/contenttrustlab/dbkey.sh"
+  MEDIA_PRE: "/var/www/contenttrustlab/src/deploy/exms/media"
+  MEDIA_POST: "/var/www/contenttrustlab/src/deploy/exms/"
+  MEDIATMP_PRE: "/tmp/contenttrustlabMedia"
+  MEDIATMP_POST: "/tmp/contenttrustlabMedia/media"
+
 
 build:
   stage: build
@@ -10,15 +15,22 @@ build:
   script:
   - . $DBKEY_SCRIPT
   - sudo /bin/systemctl stop gunicorn@contenttrustlab.service
+  - /bin/rm -rf $MEDIATMP_PRE
+  - mkdir $MEDIATMP_PRE
+  - /bin/cp -arf $MEDIA_PRE $MEDIATMP_PRE
   - sudo chown -R gitlab-runner:www-gitlab $SRC
   - /bin/rm -rf $SRC_RM
   - /bin/cp -arf ./* $SRC
   - cd $SRC
   - mkdir -p deploy/contentrustlab/static
+  - /bin/cp -arf $MEDIATMP_POST $MEDIA_POST
   - sed -i -E "s/('NAME'..')trustlab-dev'/\1trustlab'/" djtrustlab/settings.py
   - sed -i -E "s/('USER'..').*'/\1trustlab'/" djtrustlab/settings.py
   - sed -i -E "s/('PASSWORD'..').*'/\1"$PRODUCTION_DBKEY"'/" djtrustlab/settings.py
   - sed -i "s#STATIC_ROOT = '.*'#STATIC_ROOT = 'deploy/contentrustlab/static'#" djtrustlab/settings.py
+  - sed -i "s#STATIC_URL = '.*'#STATIC_URL = '/contenttrustlab/static/'#" djtrustlab/settings.py
+  - sed -i "s#MEDIA_ROOT = '.*'#MEDIA_ROOT = 'deploy/contentrustlab/media'#" djtrustlab/settings.py
+  - sed -i "s#MEDIA_URL = '.*'#MEDIA_URL = '/contenttrustlab/media/'#" djtrustlab/settings.py
   - source ../trustlab-env/bin/activate
   - pip install -r requirements.pip --exists-action w
   - python manage.py migrate
