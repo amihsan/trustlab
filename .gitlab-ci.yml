@@ -2,8 +2,8 @@ variables:
   SRC: "/var/www/contenttrustlab/src"
   SRC_RM: "/var/www/contenttrustlab/src/*"
   DBKEY_SCRIPT: "/var/www/contenttrustlab/dbkey.sh"
-  MEDIA_PRE: "/var/www/contenttrustlab/src/deploy/exms/media"
-  MEDIA_POST: "/var/www/contenttrustlab/src/deploy/exms/"
+  MEDIA_PRE: "/var/www/contenttrustlab/src/deploy/contenttrustlab/media"
+  MEDIA_POST: "/var/www/contenttrustlab/src/deploy/contenttrustlab/"
   MEDIATMP_PRE: "/tmp/contenttrustlabMedia"
   MEDIATMP_POST: "/tmp/contenttrustlabMedia/media"
 
