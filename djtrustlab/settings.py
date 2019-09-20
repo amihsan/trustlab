@@ -80,8 +80,8 @@ DATABASES = {
         'HOST': 'stratus.informatik.tu-chemnitz.de',
         'PORT': '1433',
         'USER': 'trustlab-dev',
-        'PASSWORD':'dev@17092019#',
-        'OPTIONS':{
+        'PASSWORD': 'dev@17092019#',
+        'OPTIONS': {
                 'driver': 'ODBC Driver 17 for SQL Server',
         }
     }
