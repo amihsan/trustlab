@@ -1,6 +1,6 @@
 # ContentTrustLab
 
-Laboratory of Content Trust
+Laboratory of Trust. Latest online version: [http://vsr-dem0.informatik.tu-chemnitz.de/trustlab/](http://vsr-dem0.informatik.tu-chemnitz.de/trustlab/)
 
 ## Information
 1. Python 3
@@ -34,7 +34,7 @@ Laboratory of Content Trust
 
 - Add all new python packages to ``requirements.pip`` 
 
-- djtrustlab is the main Django project with settings.py, contenttrustlab is the subproject with all the code
+- djtrustlab is the main Django project with settings.py, trustlab is the subproject with all the code
 
 - All deploy-configs for gunicorn and nginx are in ``deploy-configs/``
 
@@ -42,7 +42,7 @@ Laboratory of Content Trust
 
 - Project is deployed at master branch via a CI gitlabrunner by ``.gitlab-ci.yml``.
 
-- Password of the db user for the database is provided to ``settings.py`` at the deploy process via the script at ``/var/www/cotenttrustlab/dbkey.sh``.
+- Password of the db user for the database is provided to ``settings.py`` at the deploy process via the script at ``/var/www/trustlab/dbkey.sh``.
 
 - The deploy script is exchanging following strings in ``settings.py``
 DB NAME, DB USER, DB PASSWORD, STATIC URL & ROOT, MEDIA URL & ROOT
