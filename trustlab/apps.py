@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
 
-class ContenttrustlabConfig(AppConfig):
-    name = 'contenttrustlab'
+class TrustlabConfig(AppConfig):
+    name = 'trustlab'

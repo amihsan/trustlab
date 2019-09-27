@@ -4,8 +4,8 @@ variables:
   DBKEY_SCRIPT: "/var/www/trustlab/dbkey.sh"
   MEDIA_PRE: "/var/www/trustlab/src/deploy/trustlab/media"
   MEDIA_POST: "/var/www/trustlab/src/deploy/trustlab/"
-  MEDIATMP_PRE: "/tmp/contenttrustlabMedia"
-  MEDIATMP_POST: "/tmp/contenttrustlabMedia/media"
+  MEDIATMP_PRE: "/tmp/trustlabMedia"
+  MEDIATMP_POST: "/tmp/trustlabMedia/media"
 
 
 build:
