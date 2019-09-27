@@ -27,7 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
-FORCE_SCRIPT_NAME = '/contenttrustlab'
+FORCE_SCRIPT_NAME = '/trustlab'
 # Application definition
 
 INSTALLED_APPS = [
