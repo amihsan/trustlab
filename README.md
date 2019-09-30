@@ -1,4 +1,4 @@
-# ContentTrustLab
+# TrustLab
 
 Laboratory of Trust. Latest online version: [http://vsr-dem0.informatik.tu-chemnitz.de/trustlab/](http://vsr-dem0.informatik.tu-chemnitz.de/trustlab/)
 
