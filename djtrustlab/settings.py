@@ -54,7 +54,7 @@ ROOT_URLCONF = 'djtrustlab.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR + '/trustlab/templates/', ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
