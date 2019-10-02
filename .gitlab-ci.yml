@@ -27,6 +27,7 @@ build:
   - sed -i -E "s/('NAME'..')trustlab-dev'/\1trustlab'/" djtrustlab/settings.py
   - sed -i -E "s/('USER'..').*'/\1trustlab'/" djtrustlab/settings.py
   - sed -i -E "s/('PASSWORD'..').*'/\1"$PRODUCTION_DBKEY"'/" djtrustlab/settings.py
+  - sed -i "s#DEBUG = True#DEBUG = False#" djtrustlab/settings.py
   - sed -i "s#STATIC_ROOT = '.*'#STATIC_ROOT = 'deploy/trustlab/static'#" djtrustlab/settings.py
   - sed -i "s#STATIC_URL = '.*'#STATIC_URL = '/trustlab/static/'#" djtrustlab/settings.py
   - sed -i "s#MEDIA_ROOT = '.*'#MEDIA_ROOT = 'deploy/trustlab/media'#" djtrustlab/settings.py
