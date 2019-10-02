@@ -27,7 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
-FORCE_SCRIPT_NAME = '/trustlab'
+# FORCE_SCRIPT_NAME = '/trustlab'
 # Application definition
 
 INSTALLED_APPS = [
@@ -123,6 +123,10 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'trustlab/static'),
+]
 
 STATIC_URL = '/static/'
 STATIC_ROOT = 'deploy/static'
