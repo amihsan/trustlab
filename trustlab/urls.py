@@ -1,13 +1,12 @@
 import os
-from django.urls import path
+from django.urls import path, re_path
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.staticfiles import views
-from django.urls import re_path
 from .views.index_view import IndexView
 
 urlpatterns = [
-    path(r'', IndexView.as_view(), name='index'),
+    re_path(r'^$', IndexView.as_view(), name='index'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
