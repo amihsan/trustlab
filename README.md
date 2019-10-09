@@ -48,5 +48,7 @@ Laboratory of Trust. Latest online version: [http://vsr-dem0.informatik.tu-chemn
 DB NAME, DB USER, DB PASSWORD, STATIC URL & ROOT, MEDIA URL & ROOT
 
 ## Links To Know
+* CSS Style from CreativeIT https://github.com/CreativeIT/material-dashboard-lite http://creativeit.io/material-dashboard-lite/
+* NVD3: Re-usable chart for d3.js http://nvd3.org/
 * Links for deploy
 https://www.digitalocean.com/community/tutorials/how-to-set-up-django-with-postgres-nginx-and-gunicorn-on-ubuntu-16-04
