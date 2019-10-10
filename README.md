@@ -38,6 +38,13 @@ Laboratory of Trust. Latest online version: [http://vsr-dem0.informatik.tu-chemn
 
 - All deploy-configs for gunicorn and nginx are in ``deploy-configs/``
 
+- ODBC on MAC:
+    - If you installed this formula with the registration option (default), you'll
+        need to manually remove ``[ODBC Driver 17 for SQL Server]`` section from
+        odbcinst.ini after the formula is uninstalled. This can be done by executing
+        the following command:
+            ``odbcinst -u -d -n "ODBC Driver 17 for SQL Server"``
+
 ## Deploy
 
 - Project is deployed at master branch via a CI gitlabrunner by ``.gitlab-ci.yml``.
