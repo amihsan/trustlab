@@ -43,3 +43,7 @@ footer.mdl-mini-footer div.mdl-logo {
 footer.mdl-mini-footer a {
   line-height:36px;
 }
+
+.not-displayed {
+    display: none;
+}
