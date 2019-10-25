@@ -1,7 +1,7 @@
+# basic scenario for testing
 
-
-NAME = "Basic"
-DESC = "This is a basic scenario of 3 Agents exchanging messages"
+NAME = "Basic Scenario"
+DESCRIPTION = "This is a basic scenario of 3 Agents exchanging messages"
 
 
 AGENTS = ["A", "B", "C"]

@@ -45,6 +45,16 @@ Laboratory of Trust. Latest online version: [http://vsr-dem0.informatik.tu-chemn
         the following command:
             ``odbcinst -u -d -n "ODBC Driver 17 for SQL Server"``
 
+## How To Scenario
+
+- Currently scenario configurations can be placed in ``trustlab/lab/scenarios``.
+
+- Every scenario configuration file has to end with ``_scenario.py``.
+
+- All scenario parameters require to be the upperCase version of the respective Scenario.\_\_init\_\_ arguments
+
+- Possible scenario arguments derive from Scenario.\_\_init\_\_ arguments list, where parameters without default value are mandatory for scenario configuration file as well
+
 ## Deploy
 
 - Project is deployed at master branch via a CI gitlabrunner by ``.gitlab-ci.yml``.
