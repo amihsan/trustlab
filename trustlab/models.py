@@ -1,10 +1,13 @@
 from django.db import models
+import re
 import importlib
 import importlib.util
 import inspect
 from os import listdir
 from os.path import isfile, join, dirname, abspath
 
+SCENARIO_PATH = '/trustlab/lab/scenarios'
+SCENARIO_PACKAGE = "trustlab.lab.scenarios"
 
 class Scenario:
     @staticmethod
@@ -34,18 +37,19 @@ class Scenario:
 
 
 class ScenarioFactory:
+
     # load all scenarios in /trustlab/lab/scenarios with dynamic read of parameters from Scenario.__init__
     @staticmethod
     def load_scenarios():
         scenarios = []
         project_path = abspath(dirname(__name__))
         # path of scenario_config files
-        scenario_path = project_path + '/trustlab/lab/scenarios'
+        scenario_path = project_path + SCENARIO_PATH
         scenario_file_names = [file for file in listdir(scenario_path)
                                if isfile(join(scenario_path, file)) and file.endswith("_scenario.py")]
         for file_name in scenario_file_names:
             # python package path
-            import_package = "trustlab.lab.scenarios" + '.' + file_name.split(".")[0]
+            import_package = SCENARIO_PACKAGE + '.' + file_name.split(".")[0]
             # ensure package is accessible
             implementation_spec = importlib.util.find_spec(import_package)
             if implementation_spec is not None:
@@ -55,9 +59,9 @@ class ScenarioFactory:
                 scenario_args = inspect.getfullargspec(Scenario.__init__)
                 # get only args without default value and not self parameter and capitalize them
                 mandatory_args = [a.upper() for a in scenario_args.args[1:-len(scenario_args.defaults)]]
-                # all attr
+                # all args
                 all_args = [a.upper() for a in scenario_args.args[1:]]
-                # check if all mandatory attrs are in scenario config
+                # check if all mandatory args are in scenario config
                 if all(hasattr(scenario_config, attr) for attr in mandatory_args):
                     scenario_attrs = []
                     for attr in all_args:
@@ -74,15 +78,66 @@ class ScenarioFactory:
                     if any(scen.name == scenario.name for scen in scenarios):
                         # TODO log non-loading of scenario due to name is already given
                         continue
+                    scenario.file_name = file_name
                     scenarios.append(scenario)
         return scenarios
 
+    def stringify_arg_value(self, obj, arg):
+        value = getattr(obj, arg.lower())
+        # add surrounding " if variable is of type string
+        if isinstance(getattr(obj, arg.lower()), str):
+            value = '"' + value + '"'
+        return str(value)
+
     def save_scenarios(self):
         for scenario in self.scenarios:
-            pass
+            # create or use existing file name for config file of scenario
+            scenario_path = abspath(dirname(__name__)) + SCENARIO_PATH + "/"
+            # get all parameters of scenario init
+            scenario_args = inspect.getfullargspec(Scenario.__init__)
+            # all attr
+            all_args = [a.upper() for a in scenario_args.args[1:]]
+            if hasattr(scenario, "file_name"):
+                config_path = scenario_path + scenario.file_name
+                with open(config_path, 'r+') as config_file:
+                    # read in file
+                    config_data = config_file.read()
+                    # exchange all args which are in config file data
+                    for arg in all_args:
+                        # create regex to find argument with value
+                        replacement = re.compile(arg + r' = .*\n')
+                        value = self.stringify_arg_value(scenario, arg)
+                        if re.search(replacement, config_data):
+                            # substitute current value in config_data
+                            config_data = replacement.sub(arg + ' = ' + value + '\n', config_data)
+                        else:
+                            # get position of last non whitespace char in config data
+                            position = config_data.rfind(next((char for char in reversed(config_data) if char != "\n"
+                                                               and char != "\t" and char != " "))) + 1
+                            arg_value = "\n" + arg + " = " + value
+                            # append argument configuration at position -> end of file + whitespace tail
+                            config_data = config_data[:position] + arg_value + config_data[position:]
+                    # jump back to begin of file and write new data
+                    config_file.seek(0)
+                    config_file.write(config_data)
+                    config_file.truncate()
+            else:
+                # create file name without spaces _ and alphanumeric chars only
+                file_name = re.sub('[^A-Za-z0-9_ ]+', '', scenario.name).replace(" ", "_") + "_scenario.py"
+                config_path = scenario_path + file_name
+                with open(config_path, 'w+') as config_file:
+                    config_file.write('"""\n')
+                    config_file.write('This file was auto-generated by ScenarioFactory of aTLAS\n')
+                    config_file.write('"""\n')
+                    config_file.write("\n\n")
+                    for arg in all_args:
+                        value = self.stringify_arg_value(scenario, arg)
+                        config_file.write(arg + " = " + value + "\n")
+                    config_file.write("\n\n")
 
     def __init__(self):
         self.scenarios = ScenarioFactory.load_scenarios()
+        self.init_scenario_number = len(self.scenarios)
 
     def __del__(self):
         self.save_scenarios()
