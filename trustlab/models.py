@@ -77,9 +77,12 @@ class ScenarioFactory:
                     scenarios.append(scenario)
         return scenarios
 
+    def save_scenarios(self):
+        for scenario in self.scenarios:
+            pass
+
     def __init__(self):
         self.scenarios = ScenarioFactory.load_scenarios()
-        if not self.scenarios:
-            raise AssertionError("ScenarioFactory object found no scenarios at init.")
 
-
+    def __del__(self):
+        self.save_scenarios()

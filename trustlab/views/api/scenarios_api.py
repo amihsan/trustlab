@@ -30,9 +30,6 @@ class ScenariosAPI(APIView):
                 scenario_factory = ScenarioFactory()
                 scenario = serializer.create(serializer.data)
                 scenario_factory.scenarios.append(scenario)
-            except AssertionError as assert_error:
-                # TODO return assert_error as additional info to WebUI
-                pass
             except ValueError as value_error:
                 return Response(str(value_error), status=status.HTTP_400_BAD_REQUEST)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
