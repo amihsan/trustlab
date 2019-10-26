@@ -13,8 +13,10 @@ class IndexView(generic.TemplateView):
         try:
             # ScenarioFactory throws AssertionError if no predefined scenarios could be loaded
             scenario_factory = ScenarioFactory()
+            context["scenarios"] = scenario_factory.scenarios
+            # for manipulation of scenarios via JS, send them also as JSON
             scenario_serializer = ScenarioSerializer(scenario_factory.scenarios, many=True)
-            context["scenarios"] = JSONRenderer().render(scenario_serializer.data)
+            context["scenarios_JSON"] = JSONRenderer().render(scenario_serializer.data)
         except AssertionError as assert_error:
             # TODO bring assert_error to scenario_error_msg on index.html
             pass

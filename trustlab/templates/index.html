@@ -13,7 +13,7 @@ Trust Laboratory
 <script>
     var scenarios;
     {% if scenarios %}
-        scenarios = {{ scenarios|safe }};
+        scenarios = {{ scenarios_JSON|safe }};
     {% endif %}
 </script>
 {% endblock %}
@@ -66,9 +66,9 @@ Trust Laboratory
                               <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                                 <select class="mdl-textfield__input" id="selector-scenario" name="scenario">
                                   <option></option>
-                                  <option value="basic">Basic</option>
-                                  <option value="newNode">New Node</option>
-                                  <option value="system">System with new Trustlayer</option>
+                                  {% for scenario in scenarios %}
+                                  <option value="{{scenario.name|safe}}">{{scenario.name|safe}}</option>
+                                  {% endfor %}
 {#                                  <option value="91" disabled="disabled">91</option>#}
                                 </select>
                                 <label class="mdl-textfield__label" for="selector-scenario">Scenario</label>

@@ -77,3 +77,5 @@ class ScenarioFactory:
         self.scenarios = ScenarioFactory.load_scenarios()
         if not self.scenarios:
             raise AssertionError("ScenarioFactory object found no scenarios at init.")
+
+
