@@ -18,7 +18,7 @@ class Scenario:
             raise ValueError("Description must be string.")
         return True
 
-    def __init__(self, name, agents, schedule, description=""):
+    def __init__(self, name, agents, schedule, description="No one described this scenario so far."):
         self.check_consistency(name, agents, schedule, description)
         self.name = name
         self.agents = agents

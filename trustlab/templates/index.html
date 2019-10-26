@@ -10,6 +10,12 @@ Trust Laboratory
 
 {% block scripts %}
 <script src="{% static 'trustlab/scripts/trustlab.js' %}"></script>
+<script>
+    var scenarios;
+    {% if scenarios %}
+        scenarios = {{ scenarios|safe }};
+    {% endif %}
+</script>
 {% endblock %}
 
 {% block body %}

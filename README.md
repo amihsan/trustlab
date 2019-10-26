@@ -55,6 +55,18 @@ Laboratory of Trust. Latest online version: [http://vsr-dem0.informatik.tu-chemn
 
 - Possible scenario arguments derive from Scenario.\_\_init\_\_ arguments list, where parameters without default value are mandatory for scenario configuration file as well
 
+## For Later
+
+- pip install markdown \- Markdown support for the browsable API.
+
+- pip install pygments \- Add syntax highlighting (to Markdown processing).
+
+- pip install django-filter \- Filtering support in Request via parameter and in REST Framework
+
+- NetworkX for graph structure in backend: https://networkx.github.io/
+
+- NVD3 for graphs and diagrams in frontend: http://nvd3.org/
+
 ## Deploy
 
 - Project is deployed at master branch via a CI gitlabrunner by ``.gitlab-ci.yml``.
