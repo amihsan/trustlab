@@ -1,5 +1,6 @@
 from django.db import models
 import importlib
+import importlib.util
 import inspect
 from os import listdir
 from os.path import isfile, join, dirname, abspath
@@ -68,7 +69,10 @@ class ScenarioFactory:
                         scenario = Scenario(*scenario_attrs)
                     # catch all ValueErrors, print and continue
                     except ValueError as value_error:
-                        print(str(value_error))
+                        # TODO log value_error
+                        continue
+                    if any(scen.name == scenario.name for scen in scenarios):
+                        # TODO log non-loading of scenario due to name is already given
                         continue
                     scenarios.append(scenario)
         return scenarios
