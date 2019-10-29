@@ -16,7 +16,7 @@ class IndexView(generic.TemplateView):
             context["scenarios"] = scenario_factory.scenarios
             # for manipulation of scenarios via JS, send them also as JSON
             scenario_serializer = ScenarioSerializer(scenario_factory.scenarios, many=True)
-            context["scenarios_JSON"] = JSONRenderer().render(scenario_serializer.data)
+            context["scenarios_JSON"] = JSONRenderer().render(scenario_serializer.data).decode('utf-8')
         except AssertionError as assert_error:
             # TODO bring assert_error to scenario_error_msg on index.html
             pass
