@@ -123,7 +123,11 @@ class ScenarioFactory:
                     config_file.truncate()
             else:
                 # create file name without spaces _ and alphanumeric chars only
-                file_name = re.sub('[^A-Za-z0-9_ ]+', '', scenario.name).replace(" ", "_") + "_scenario.py"
+                file_name = re.sub('[^A-Za-z0-9_ ]+', '', scenario.name).replace(" ", "_").lower()
+                if file_name.endswith("scenario"):
+                    file_name += ".py"
+                else:
+                    file_name += "_scenario.py"
                 config_path = scenario_path + file_name
                 with open(config_path, 'w+') as config_file:
                     config_file.write('"""\n')
@@ -133,7 +137,7 @@ class ScenarioFactory:
                     for arg in all_args:
                         value = self.stringify_arg_value(scenario, arg)
                         config_file.write(arg + " = " + value + "\n")
-                    config_file.write("\n\n")
+                    config_file.write("\n\n\n\n")
 
     def __init__(self):
         self.scenarios = ScenarioFactory.load_scenarios()
