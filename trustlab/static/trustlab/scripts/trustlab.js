@@ -19,10 +19,17 @@ function openLabRuntimeCard() {
     }, 2000);
 }
 
+function showScenarioDescription() {
+    var val = $(this).children("option:selected").val();
+    $(".scenario-ul:not(.not-displayed)").addClass("not-displayed")
+    $(".scenario-ul[data-scenario='"+val+"']").removeClass("not-displayed");
+}
+
 
 //OnClick Events
 $("#btn-specify-scenario").click(openSpecifyScenarioCard);
 $("#btn-run-scenario").click(openLabRuntimeCard);
 $("#btn-specify-scenario2").click(openSpecifyScenarioCard2);
+$("#selector-scenario").change(showScenarioDescription);
 
 

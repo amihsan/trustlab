@@ -74,6 +74,19 @@ Trust Laboratory
                                 <label class="mdl-textfield__label" for="selector-scenario">Scenario</label>
                               </div>
                         </form>
+                        {% for scenario in scenarios %}
+                        <ul class="mdl-list scenario-ul not-displayed" data-scenario="{{scenario.name|safe}}">
+                          <li class="mdl-list__item mdl-list__item--three-line">
+                            <span class="mdl-list__item-primary-content">
+                              <span>Description</span>
+                              <span class="mdl-list__item-text-body">
+                                {{scenario.description|safe}}
+                              </span>
+                            </span>
+                          </li>
+{#                        For each important aspect in the scenario you can print it out here within this list #}
+                        </ul>
+                        {% endfor %}
                         <div class="mdl-card__actions mdl-card--border">
                             <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect"
                                     id="btn-run-scenario">Start laboratory runtime</button>

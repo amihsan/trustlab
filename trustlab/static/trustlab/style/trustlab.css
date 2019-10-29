@@ -47,3 +47,14 @@ footer.mdl-mini-footer a {
 .not-displayed {
     display: none;
 }
+
+.scenario-ul {
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.scenario-ul li {
+    padding-top: 0;
+}
