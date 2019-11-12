@@ -3,76 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A front-end template that helps you build fast, modern mobile web apps.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
     <title>{% block title %}{% endblock %}</title>
     {% load static %}
 {#    <link rel="stylesheet" type="text/css" href="{% static 'exms/style/jumbotron.css' %}" />#}
-    <!-- Compressed CSS Foundation 6.5.3 -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/foundation-sites@6.5.3/dist/css/foundation.min.css" integrity="sha256-GSio8qamaXapM8Fq9JYdGNTvk/dgs+cMLgPeevOYEx0= sha384-wAweiGTn38CY2DSwAaEffed6iMeflc0FMiuptanbN4J+ib+342gKGpvYRWubPd/+ sha512-QHEb6jOC8SaGTmYmGU19u2FhIfeG+t/hSacIWPpDzOp5yygnthL3JwnilM7LM1dOAbJv62R+/FICfsrKUqv4Gg==" crossorigin="anonymous">
-
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+    <!-- Material Design Lite MDL -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.orange-amber.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
+{#    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">#}
+{#    <link rel="stylesheet" type="text/css" href="{% static 'trustlab/style/MDL-template.css' %}" />#}
+{#    <link rel="stylesheet" type="text/css" href="{% static 'trustlab/style/getmdl-select.min.css' %}" />#}
+{#    <link rel="stylesheet" type="text/css" href="{% static 'trustlab/style/darkMaterial.min.css' %}" />#}
+    <link rel="stylesheet" type="text/css" href="{% static 'trustlab/style/trustlab.css' %}" />
     {% block header %}
     {% endblock %}
 </head>
+
 <body>
-    {% comment %}<div class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="{% url 'index' %}">exms</a>
-            </div>
-            <div id="navbar" class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <li {% block nav_home %}{% endblock %}><a href="{% url 'index' %}">Home</a></li>
-                    <li {% block nav_tasks %}{% endblock %}><a href="{% url 'tasks' %}">Tasks</a></li>
-                    <li {% block nav_exams %}{% endblock %}><a href="{% url 'exams' %}">Examinations</a></li>
-                </ul>
-                <p class="nav navbar-text navbar-right">{% if request.user.is_authenticated %}Hello, {{ request.user.first_name }}. <a class="navbar-inverse nav-item nav-link" href="{% url 'logout' %}">Logout</a>{% endif %}</p>
-            </div>
+
+    <!-- Always shows a header, even in smaller screens. -->
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+      <header class="mdl-layout__header">
+        <div class="mdl-layout__header-row">
+          <!-- Title -->
+          <span class="mdl-layout-title">
+              <a href="{% url 'index' %}">
+{#                  <img src="">#}
+                  <span class="mdl-layout--hide-on-tablet mdl-layout--hide-on-phone">TrustLab</span>
+              </a>
+          </span>
+          <!-- Add spacer, to align navigation to the right -->
+          <div class="mdl-layout-spacer"></div>
+          <!-- Navigation. We hide it in small screens. -->
+{#          <nav class="mdl-navigation mdl-layout--large-screen-only">#}
+{#            <a class="mdl-navigation__link" href="">Link</a>#}
+{#            <a class="mdl-navigation__link" href="">Link</a>#}
+{#            <a class="mdl-navigation__link" href="">Link</a>#}
+{#            <a class="mdl-navigation__link" href="">Link</a>#}
+{#          </nav>#}
+          <!-- Right aligned menu below button -->
+          <button id="demo-menu-lower-right" class="mdl-button mdl-js-button mdl-button--icon">
+            <i class="material-icons">more_vert</i>
+          </button>
+
+          <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect"
+              for="demo-menu-lower-right">
+            <a class="mdl-menu__item mdl-js-ripple-effect" href="{% url 'index' %}">About</a>
+          </ul>
         </div>
+      </header>
+      <main class="mdl-layout__content">
+        <div class="page-content">
+            {% block body %}
+            {% endblock %}
+        </div>
+      </main>
+      <div class="component-footer">
+          <footer class="mdl-mini-footer">
+              <div class="mdl-logo">
+                  <span class="version-info" style="margin-left: 5px; margin-right: 5px;">v 0.0.1</span>
+                  © {% now "Y" %}
+              </div>
+              <ul class="mdl-mini-footer__link-list">
+                  <li>
+                      <a href="https://vsr.informatik.tu-chemnitz.de/" target="_blank">VSR@TU Chemnitz</a>
+                  </li>
+              </ul>
+          </footer>
+      </div>
     </div>
-    <div class="container-fluid">
-        {% block body %}
-        {% endblock %}
-        <hr id="hr_footer"/>
-        <footer id="footer" class="container-fluid text-right"><p>&copy; {% now "Y" %} - exms</p></footer>
-    </div>
-    <span class="alert alert-success" role="alert" id="exms-alert"></span>
-    <input type="hidden" id="hdfChangeNotSave" value="false"/>{% endcomment %}
+
     <!-- Compressed JavaScript -->
-    <script src="https://cdn.jsdelivr.net/npm/foundation-sites@6.5.3/dist/js/foundation.min.js" integrity="sha256-mRYlCu5EG+ouD07WxLF8v4ZAZYCA6WrmdIXyn1Bv9Vk= sha384-KzKofw4qqetd3kvuQ5AdapWPqV1ZI+CnfyfEwZQgPk8poOLWaabfgJOfmW7uI+AV sha512-0gHfaMkY+Do568TgjJC2iMAV0dQlY4NqbeZ4pr9lVUTXQzKu8qceyd6wg/3Uql9qA2+3X5NHv3IMb05wb387rA==" crossorigin="anonymous"></script>
-    {% comment %}<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>{% endcomment %}
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8=" crossorigin="anonymous"></script>
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+{#    <script src="{% static 'trustlab/scripts/miscFunctions.js' %}"></script>#}
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 
-    {% comment %}<script src="{% static 'exms/scripts/miscFunctions.js' %}"></script>
-    <script src="{% static 'exms/scripts/helper.js' %}"></script>{% endcomment %}
-
-    <script>
-        {% comment %}//urls for exam
-        var EXAMS_URL = "{{ exams_url }}";
-        //urls for task
-        var TASKS_URL = "{{ tasks_url }}";
-        var TASKS_API_URL = "{{ tasks_api_url }}";
-        var IMPORT_TASK_LIST_URL = "{{ import_task_list_url }}";
-        var IMPORT_TASK_API_URL = "{{ import_task_api_url }}";
-        //urls for subtasks
-        var SUBTASKS_API_URL = "{{ subtasks_api_url }}";
-        var IMPORT_SUBTASK_LIST_URL = "{{ import_subtask_list_url }}";
-        var IMPORT_SUBTASK_API_URL = "{{ import_subtask_api_url }}";
-        //url for task components
-        var TASKCOMPS_API_URL = "{{ taskcomps_api_url }}";{% endcomment %}
-        $(document).foundation();
-    </script>
     {% block scripts %}
     {% endblock %}
 </body>
