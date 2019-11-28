@@ -5,7 +5,8 @@ DESCRIPTION = "This is a basic scenario with 3 Agents."
 
 
 AGENTS = ['A', 'B', 'C']
-SCHEDULE = {'A': 3}
+SCHEDULE = ['A']
+
 
 
 
