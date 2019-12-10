@@ -1,4 +1,4 @@
-# <img src="/logos/atlas_orange.svg"  width="3%" height="3%"> TrustLab
+# <img src="/logos/atlas_orange.svg" alt="aTLAS orange" width="3%" height="3%"> TrustLab
 
 Laboratory of Trust. Latest online version: [http://vsr-dem0.informatik.tu-chemnitz.de/trustlab/](http://vsr-dem0.informatik.tu-chemnitz.de/trustlab/)
 
