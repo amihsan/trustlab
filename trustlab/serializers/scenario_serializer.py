@@ -6,7 +6,7 @@ from trustlab.serializers.stringList_field import StringListField
 class ScenarioSerializer(serializers.Serializer):
     name = serializers.CharField()
     agents = StringListField()
-    schedule = serializers.DictField()
+    schedule = StringListField()
     description = serializers.CharField(allow_null=True, allow_blank="True")
 
     def create(self, validated_data):
