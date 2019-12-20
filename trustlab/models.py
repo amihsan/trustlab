@@ -16,7 +16,7 @@ class Scenario:
             raise ValueError("Scenario names must be string and not empty.")
         if not isinstance(agents, list) or len(agents) <= 1:
             raise ValueError("Scenario agents must be list and describe at least 2 agents.")
-        if not isinstance(schedule, list) or len(schedule) <= 1:
+        if not isinstance(schedule, list) or len(schedule) < 1:
             raise ValueError("Scenario schedule must be list and not empty.")
         if not isinstance(description, str):
             raise ValueError("Description must be string.")
