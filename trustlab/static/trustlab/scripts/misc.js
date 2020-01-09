@@ -20,17 +20,35 @@ function getCookie(name) {
     return cookieValue;
 }
 
-function alertMessage(isErrorMsg = false, message = "") {
+function snackMessage(isErrorMsg = false, message = "", action = null, actionText = "Got it") {
     const GENERAL_ERROR_MSG = "Something went wrong. Please try again.";
-    const GENERAL_SUCCESS_MSG = "Success!"
+    const GENERAL_SUCCESS_MSG = "Success!";
     if (message === "")
     {
         message = isErrorMsg ? GENERAL_ERROR_MSG: GENERAL_SUCCESS_MSG;
     }
-    $("#alert").removeClass()
-        .addClass(isErrorMsg ? "alert alert-danger" : "alert alert-success")
-        .text(message)
-        .fadeIn().delay(2000).fadeOut();
+    let snack = document.querySelector("#snack");
+    let snack_icon = $("#snack_icon");
+    let snack_action = $("#snack_action");
+    if (isErrorMsg)
+    {
+        snack_icon.text("cancel");
+        snack_icon.css("color", "#FE2B36");
+        snack_action.css("color", "#FE2B36");
+    }
+    else
+    {
+        snack_icon.text("check_circle");
+        snack_icon.css("color", "#29EB36");
+        snack_action.css("color", "#29EB36");
+    }
+    let data = {
+      message: message,
+      timeout: 3000,
+      actionHandler: action,
+      actionText: actionText
+    };
+    snack.MaterialSnackbar.showSnackbar(data);
 }
 
 function ajaxFunc(url, method, data, successHandler, dataType = "json", contentType = "application/json") {
@@ -50,9 +68,9 @@ function ajaxFunc(url, method, data, successHandler, dataType = "json", contentT
                 successHandler(result);
             },
             error: function () {
-                alertMessage(true);
+                snackMessage(true);
             }
         });
-    }
+}
 
 

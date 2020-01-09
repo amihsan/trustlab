@@ -58,3 +58,12 @@ footer.mdl-mini-footer a {
 .scenario-ul li {
     padding-top: 0;
 }
+
+.mdl-snackbar__icon {
+  color: #29EB36;
+  padding: 13px 0 0 24px;
+}
+
+.mdl-snackbar__action {
+    color: #29EB36;
+}
