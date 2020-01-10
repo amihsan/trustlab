@@ -73,4 +73,13 @@ function ajaxFunc(url, method, data, successHandler, dataType = "json", contentT
         });
 }
 
+function errorInSelector(selector, message = "")
+{
+    if (message !== "")
+    {
+        selector.parent().children("span.mdl-selectfield__error").text(message);
+    }
+    selector.parent().addClass("is-invalid is-dirty");
+}
+
 

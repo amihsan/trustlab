@@ -34,6 +34,10 @@ class Scenario:
     def __unicode__(self):
         return '%s' % self.name
 
+    def __eq__(self, other):
+        return self.name == other.name and self.agents == other.agents and self.schedule == other.schedule and \
+               self.description == other.description
+
 
 class ScenarioFactory:
 
