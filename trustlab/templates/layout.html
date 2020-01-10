@@ -18,6 +18,7 @@
 {#    <link rel="stylesheet" type="text/css" href="{% static 'trustlab/style/getmdl-select.min.css' %}" />#}
 {#    <link rel="stylesheet" type="text/css" href="{% static 'trustlab/style/darkMaterial.min.css' %}" />#}
     <link rel="stylesheet" type="text/css" href="{% static 'trustlab/style/trustlab.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'trustlab/style/mdl-selectfield.min.css' %}" />
     <link rel="shortcut icon" type="image/png" href="{% static 'trustlab/logos/favicon.ico' %}"/>
     {% block header %}
     {% endblock %}
@@ -87,7 +88,7 @@
       </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
     <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -95,6 +96,15 @@
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 
     <script src="{% static 'trustlab/scripts/misc.js' %}"></script>
+    <!-- mdl-selectfield.min.js requires componentHandler of mdl, which requires some time to load -->
+    <script>
+        var mdlSelectorUrl = "{% static 'trustlab/scripts/mdl-selectfield.min.js' %}";
+        $(document).ready(function () {
+            setTimeout(function () {
+                jQuery.getScript(mdlSelectorUrl);
+            }, 2);
+        });
+    </script>
 
     {% block scripts %}
     {% endblock %}
