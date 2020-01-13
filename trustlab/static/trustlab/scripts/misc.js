@@ -2,7 +2,6 @@
 /*
 This file includes miscellaneous JS functions for the trustlab aTLAS.
  */
-"use strict";
 
 function getCookie(name) {
     let cookieValue = null;
@@ -73,7 +72,7 @@ function ajaxFunc(url, method, data, successHandler, dataType = "json", contentT
         });
 }
 
-function errorInSelector(selector, message = "")
+function errorInTextfield(selector, message = "")
 {
     if (message !== "")
     {

@@ -2,7 +2,6 @@
 /*
 This file includes the business logic and workflow for a user-agent surfing aTLAS.
  */
-"use strict";
 
 function openSpecifyScenarioCard() {
     $("#c-start").addClass("not-displayed");
@@ -15,14 +14,15 @@ function openSpecifyScenarioCardFromResults() {
 }
 
 function openLabRuntimeCard() {
-    let scenarioName = $("#selector-scenario").children("option:selected").val();
+    let scenarioSelector = $("#selector-scenario");
+    let scenarioName = scenarioSelector.children("option:selected").val();
     if (scenarioName !== "")
     {
         console.log(scenarioName);
     }
     else
     {
-        errorInSelector($("#selector-scenario"));
+        errorInTextfield(scenarioSelector);
         snackMessage(true);
     }
     $("#c-scenario").addClass("not-displayed");
@@ -34,8 +34,8 @@ function openLabRuntimeCard() {
 }
 
 function showScenarioDescription() {
-    let value = $(this).children("option:selected").val();
-    $(".scenario-ul:not(.not-displayed)").addClass("not-displayed")
+    let value = $("#selector-scenario").children("option:selected").val();
+    $(".scenario-ul:not(.not-displayed)").addClass("not-displayed");
     $(".scenario-ul[data-scenario='"+value+"']").removeClass("not-displayed");
 }
 
