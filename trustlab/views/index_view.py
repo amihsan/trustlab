@@ -1,9 +1,10 @@
+import json
 from django.views import generic
 from trustlab.models import *
 from trustlab.serializers.scenario_serializer import ScenarioSerializer
 from rest_framework.renderers import JSONRenderer
-from rest_framework.response import Response
-from rest_framework import status
+from rest_framework.reverse import reverse
+from django.http import HttpResponse
 
 class IndexView(generic.TemplateView):
     template_name = 'index.html'
@@ -19,23 +20,26 @@ class IndexView(generic.TemplateView):
             # for manipulation of scenarios via JS, send them also as JSON
             scenario_serializer = ScenarioSerializer(scenario_factory.scenarios, many=True)
             context["scenarios_JSON"] = JSONRenderer().render(scenario_serializer.data).decode('utf-8')
+            # add URL of index.html to PUT scenario
+            context["index_url"] = reverse('index')
         except AssertionError as assert_error:
             # TODO bring assert_error to scenario_error_msg on index.html
             pass
         return context
 
     def put(self, request, *args, **kwargs):
-        serializer = ScenarioSerializer(data=request.data)
+        json_scenario = json.loads(request.body.decode())
+        serializer = ScenarioSerializer(data=json_scenario)
         if serializer.is_valid():
             try:
                 scenario_factory = ScenarioFactory()
                 scenario = serializer.create(serializer.data)
-                scenario_factory.scenarios.append(scenario)
             except ValueError as value_error:
-                return Response(str(value_error), status=status.HTTP_400_BAD_REQUEST)
-            return Response(serializer.data, status=status.HTTP_200_OK) if scenario in scenario_factory.scenarios else \
-                Response("Scenario not found!", status=status.HTTP_404_NOT_FOUND)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                return HttpResponse(str(value_error), status=400)
+            return HttpResponse("Starting Lab Runtime according to Scenario", status=200) \
+                if scenario in scenario_factory.scenarios \
+                else HttpResponse("Scenario not found!", status=404)
+        return HttpResponse(serializer.errors, status=400)
 
 
 

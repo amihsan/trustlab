@@ -11,10 +11,11 @@ aTLAS
 {% block scripts %}
 <script src="{% static 'trustlab/scripts/trustlab.js' %}"></script>
 <script>
-    var scenarios;
+    let scenarios;
     {% if scenarios %}
         scenarios = {{ scenarios_JSON|safe }};
     {% endif %}
+    const INDEX_URL = "{{ index_url }}"
 </script>
 {% endblock %}
 

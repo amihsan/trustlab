@@ -13,18 +13,22 @@ function openSpecifyScenarioCardFromResults() {
     $("#c-scenario").removeClass("not-displayed");
 }
 
-function openLabRuntimeCard() {
+function startLabRuntime() {
     let scenarioSelector = $("#selector-scenario");
     let scenarioName = scenarioSelector.children("option:selected").val();
     if (scenarioName !== "")
     {
-        console.log(scenarioName);
+        let scenario = scenarios.filter(scenario => scenario.name === scenarioName)[0];
+        ajaxFunc(INDEX_URL,"PUT", JSON.stringify(scenario), openLabRuntimeCard, "html");
     }
     else
     {
         errorInTextfield(scenarioSelector);
         snackMessage(true);
     }
+}
+
+function openLabRuntimeCard() {
     $("#c-scenario").addClass("not-displayed");
     $("#c-runtime").removeClass("not-displayed");
     setTimeout(function(){
@@ -42,7 +46,7 @@ function showScenarioDescription() {
 
 //OnClick Events
 $("#btn-specify-scenario").click(openSpecifyScenarioCard);
-$("#btn-run-scenario").click(openLabRuntimeCard);
+$("#btn-run-scenario").click(startLabRuntime);
 $("#btn-specify-scenario2").click(openSpecifyScenarioCardFromResults);
 $("#selector-scenario").change(showScenarioDescription);
 

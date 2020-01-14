@@ -88,8 +88,11 @@
 
     // Custom Globals
     "globals"       : { // additional predefined global variables
-      "console": true,
-      "errorInTextfield": true,
-      "snackMessage": true
+        "console": true,
+        "errorInTextfield": true,
+        "snackMessage": true,
+        "scenarios": true,
+        "ajaxFunc": true,
+        "INDEX_URL": true
     }
 }
