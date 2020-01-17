@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -139,4 +140,16 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
 #X_FRAME_OPTIONS = 'DENY'
 X_FRAME_OPTIONS = 'SAMEORIGIN'
+
+# Configurations for Django channels with Redis
+ASGI_APPLICATION = "djtrustlab.routing.application"
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "asgi_redis.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("lachs.informatik.tu-chemnitz.de", 6379)],
+        },
+        "ROUTING": "realtime.routing.channel_routing",
+    },
+}
 

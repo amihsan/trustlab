@@ -14,7 +14,7 @@ build:
   - trustlab
   script:
   - . $DBKEY_SCRIPT
-  - sudo /bin/systemctl stop gunicorn@trustlab.service
+  - sudo /bin/systemctl stop daphne@trustlab.service
   - /bin/rm -rf $MEDIATMP_PRE
   - mkdir $MEDIATMP_PRE
   - /bin/cp -arf $MEDIA_PRE $MEDIATMP_PRE
@@ -38,7 +38,7 @@ build:
   - python manage.py collectstatic --noinput
   - deactivate
   - sudo chown -R www-data:www-data ./
-  - sudo /bin/systemctl start gunicorn@trustlab.service
+  - sudo /bin/systemctl start daphne@trustlab.service
   - sudo /bin/systemctl restart nginx
   only:
     - master
