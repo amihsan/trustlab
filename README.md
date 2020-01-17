@@ -1,4 +1,4 @@
-# TrustLab
+# <img src="/logos/atlas_orange.svg" alt="aTLAS orange" width="3%" height="3%"> TrustLab
 
 Laboratory of Trust. Latest online version: [http://vsr-dem0.informatik.tu-chemnitz.de/trustlab/](http://vsr-dem0.informatik.tu-chemnitz.de/trustlab/)
 
@@ -81,4 +81,12 @@ DB NAME, DB USER, DB PASSWORD, STATIC URL & ROOT, MEDIA URL & ROOT
 * NVD3: Re-usable chart for d3.js http://nvd3.org/
 * Links for deploy
 https://www.digitalocean.com/community/tutorials/how-to-set-up-django-with-postgres-nginx-and-gunicorn-on-ubuntu-16-04
+* DEPRICATED mdl-selectfield https://github.com/meyvn/mdl-selectfield
 * DEPRICATED Dark MDL CSS Style from CreativeIT https://github.com/CreativeIT/material-dashboard-lite http://creativeit.io/material-dashboard-lite/
+
+
+
+<!-- Identifiers, in alphabetical order -->
+[atlas-logo-orange]: /logos/atlas_orange.svg
+
+
