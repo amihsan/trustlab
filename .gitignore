@@ -5,3 +5,4 @@ deploy/
 .vscode
 env/
 trustlab/lab/log/
+venv/
