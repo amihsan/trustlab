@@ -11,21 +11,28 @@ SCENARIO_PACKAGE = "trustlab.lab.scenarios"
 
 class Scenario:
     @staticmethod
-    def check_consistency(name, agents, schedule, description):
+    def check_consistency(name, agents, observations, description):
         if not isinstance(name, str) or len(name) == 0:
             raise ValueError("Scenario names must be string and not empty.")
         if not isinstance(agents, list) or len(agents) <= 1:
             raise ValueError("Scenario agents must be list and describe at least 2 agents.")
-        if not isinstance(schedule, list) or len(schedule) < 1:
+        if not isinstance(observations, list) or len(observations) < 1:
             raise ValueError("Scenario schedule must be list and not empty.")
         if not isinstance(description, str):
             raise ValueError("Description must be string.")
 
-    def __init__(self, name, agents, schedule, description="No one described this scenario so far."):
-        self.check_consistency(name, agents, schedule, description)
+    def __init__(self, name, agents, observations, authority, instant_feedback, trust_threshold, weights, trust_behavior_1,
+                 trust_behavior_2, description="No one described this scenario so far."):
+        self.check_consistency(name, agents, observations, description)
         self.name = name
         self.agents = agents
-        self.schedule = schedule
+        self.observations = observations
+        self.authority = authority
+        self.instant_feedback = instant_feedback
+        self.trust_threshold = trust_threshold
+        self.weights = weights
+        self.trust_behavior_1 = trust_behavior_1
+        self.trust_behavior_2 = trust_behavior_2
         self.description = description
 
     def __str__(self):
@@ -35,7 +42,7 @@ class Scenario:
         return '%s' % self.name
 
     def __eq__(self, other):
-        return self.name == other.name and self.agents == other.agents and self.schedule == other.schedule and \
+        return self.name == other.name and self.agents == other.agents and self.observations == other.observations and \
                self.description == other.description
 
 
