@@ -5,7 +5,7 @@ from trustlab.lab.exec.AgentServer import AgentServer
 from trustlab.lab.exec.AgentClient import AgentClient
 
 
-from trustlab.lab.scenarios.h_basic_scenario import INSTANTFEEDBACK, AGENTS
+from trustlab.lab.scenarios.h_basic_scenario import INSTANT_FEEDBACK, AGENTS
 from trustlab.lab.scenarios.h_basic_scenario import WEIGHTS
 
 
@@ -17,7 +17,7 @@ class Director:
         thread_server = []
         for n in range(len(scenario.agents)):
             thread_server.append(n)
-            thread_server[n] = AgentServer(n, 2000 + int(n))
+            thread_server[n] = AgentServer(n, 2000 + int(n), scenario.instant_feedback)
             thread_server[n].start()
 
         observations = scenario.observations
@@ -49,7 +49,7 @@ class Director:
                                                                                                    'UTF-8') +
                 bytes(observation_elements[0], 'UTF-8') + bytes(', author:', 'UTF-8') +
                 bytes(str(observation_elements[2]), 'UTF-8') + bytes(', tag:', 'UTF-8') + bytes(str(observation_elements[3]), 'UTF-8') +
-                bytes(',', 'UTF-8') + bytes(str(INSTANTFEEDBACK[observation_elements[3]]), 'UTF-8') +
+                bytes(',', 'UTF-8') + bytes(str(scenario.instant_feedback[observation_elements[3]]), 'UTF-8') +
                 bytes(' |message:', 'UTF-8') + bytes(str(observation_elements[4]), 'UTF-8') + bytes('\n', 'UTF-8'))
             fo.close()
             time.sleep(0.1)
