@@ -22,24 +22,26 @@ class IndexView(generic.TemplateView):
             context["scenarios_JSON"] = JSONRenderer().render(scenario_serializer.data).decode('utf-8')
             # add URL of index.html to PUT scenario
             context["index_url"] = reverse('index')
+            context["lab_url"] = reverse('lab')
         except AssertionError as assert_error:
             # TODO bring assert_error to scenario_error_msg on index.html
             pass
         return context
 
-    def put(self, request, *args, **kwargs):
-        json_scenario = json.loads(request.body.decode())
-        serializer = ScenarioSerializer(data=json_scenario)
-        if serializer.is_valid():
-            try:
-                scenario_factory = ScenarioFactory()
-                scenario = serializer.create(serializer.data)
-            except ValueError as value_error:
-                return HttpResponse(str(value_error), status=400)
-            return HttpResponse("Starting Lab Runtime according to Scenario", status=200) \
-                if scenario in scenario_factory.scenarios \
-                else HttpResponse("Scenario not found!", status=404)
-        return HttpResponse(serializer.errors, status=400)
+    # currently unused method
+    # def put(self, request, *args, **kwargs):
+    #     json_scenario = json.loads(request.body.decode())
+    #     serializer = ScenarioSerializer(data=json_scenario)
+    #     if serializer.is_valid():
+    #         try:
+    #             scenario_factory = ScenarioFactory()
+    #             scenario = serializer.create(serializer.data)
+    #         except ValueError as value_error:
+    #             return HttpResponse(str(value_error), status=400)
+    #         return HttpResponse("Starting Lab Runtime according to Scenario", status=200) \
+    #             if scenario in scenario_factory.scenarios \
+    #             else HttpResponse("Scenario not found!", status=404)
+    #     return HttpResponse(serializer.errors, status=400)
 
 
 

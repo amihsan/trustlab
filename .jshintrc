@@ -93,6 +93,7 @@
         "snackMessage": true,
         "scenarios": true,
         "ajaxFunc": true,
-        "INDEX_URL": true
+        "INDEX_URL": true,
+        "LAB_URL": true
     }
 }
