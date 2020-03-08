@@ -25,6 +25,10 @@ Laboratory of Trust. Latest online version: [http://vsr-dem0.informatik.tu-chemn
 6. Run pip to install all necessary python packages:
 
         pip3 install -r requirements.pip --exists-action w
+        
+7. Modify ``Additional Options`` of your django configuration (for no auto-reload after editing scenario files) with:
+
+        --noreload
 
 7. Get to work! 
 
