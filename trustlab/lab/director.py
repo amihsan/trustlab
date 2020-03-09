@@ -11,7 +11,7 @@ class Director:
     def get_current_time(self):
         return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    def runScenario(self, scenario):
+    def run_scenario(self, scenario):
         thread_server = []
         for n in range(len(scenario.agents)):
             thread_server.append(n)
@@ -52,6 +52,7 @@ class Director:
                 bytes(' |message:', 'UTF-8') + bytes(str(observation_elements[4]), 'UTF-8') + bytes('\n', 'UTF-8'))
             fo.close()
             time.sleep(0.1)
+        return Logging.LOG_PATH / "observerlog.txt", Logging.LOG_PATH / "trustlog.txt"
 
     def __init__(self):
         self.HOST = socket.gethostname()
