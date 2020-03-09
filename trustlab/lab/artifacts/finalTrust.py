@@ -1,14 +1,16 @@
 # The fianl trustresult is combined through the sum of the 
 # values in the logfiles and the corresponding weight given by the scenario file
 
-from trustlab.lab.artifacts.authority import authority
-from trustlab.lab.scenarios.h_basic_scenario import WEIGHTS
+
+from trustlab.lab.config import LOG_PATH
 
 turstDict = {
 }
 
 def finalTrust(ID, entity):
-    fo = open(ID + "trust.txt", "r+")
+    file_name = ID + "trust.txt"
+    log_path = LOG_PATH / file_name
+    fo = open(log_path.absolute(), "r+")
     logfile = fo.read()
     filesize = len(logfile)
     fo.seek(0)

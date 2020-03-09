@@ -1,12 +1,10 @@
-import time, socket, threading
+import time, socket
 from datetime import datetime
 from trustlab.models import *
 from trustlab.lab.exec.AgentServer import AgentServer
 from trustlab.lab.exec.AgentClient import AgentClient
+from trustlab.lab.config import LOG_PATH
 
-
-from trustlab.lab.scenarios.h_basic_scenario import INSTANT_FEEDBACK, AGENTS
-from trustlab.lab.scenarios.h_basic_scenario import WEIGHTS
 
 
 class Director:
@@ -17,12 +15,11 @@ class Director:
         thread_server = []
         for n in range(len(scenario.agents)):
             thread_server.append(n)
-            thread_server[n] = AgentServer(n, 2000 + int(n), scenario.instant_feedback)
+            thread_server[n] = AgentServer(n, 2000 + int(n), scenario)
             thread_server[n].start()
 
-        observations = scenario.observations
         # with open(s, "r") as fp:
-        for observation in observations:
+        for observation in scenario.observations:
             observation_elements = observation.split(',')
             if str(observation_elements[1]) == 'A':
                 port = 2000
@@ -43,12 +40,14 @@ class Director:
             clientthread = AgentClient(str(observation_elements[0]), self.HOST, port, str(observation_elements[0]) + ' to ' + str(observation_elements[1]) + ' author: '
                                        + str(observation_elements[2]) + ' tag: ' + str(observation_elements[3]) + ' msg: ' + str(observation_elements[4]))
             clientthread.start()
-            fo = open("observerlog.txt", "ab+")
+            file_path = LOG_PATH / "observerlog.txt"
+            fo = open(file_path.absolute(), "ab+")
             fo.write(
-                bytes(self.get_current_time() + ' Node: ', 'UTF-8') + bytes(observation_elements[1], 'UTF-8') + bytes(', connection from:',
-                                                                                                   'UTF-8') +
+                bytes(self.get_current_time() + ' Node: ', 'UTF-8') + bytes(observation_elements[1], 'UTF-8') +
+                bytes(', connection from:', 'UTF-8') +
                 bytes(observation_elements[0], 'UTF-8') + bytes(', author:', 'UTF-8') +
-                bytes(str(observation_elements[2]), 'UTF-8') + bytes(', tag:', 'UTF-8') + bytes(str(observation_elements[3]), 'UTF-8') +
+                bytes(str(observation_elements[2]), 'UTF-8') + bytes(', tag:', 'UTF-8') +
+                bytes(str(observation_elements[3]), 'UTF-8') +
                 bytes(',', 'UTF-8') + bytes(str(scenario.instant_feedback[observation_elements[3]]), 'UTF-8') +
                 bytes(' |message:', 'UTF-8') + bytes(str(observation_elements[4]), 'UTF-8') + bytes('\n', 'UTF-8'))
             fo.close()

@@ -1,5 +1,5 @@
 # basic scenario for initialization
-NAME = "Default Scenario"
+NAME = "Init Scenario"
 DESCRIPTION = "This is the starting scenario with multiple Agents."
 
 AGENTS = ['A', 'B', 'C', 'D', 'E', 'F', 'G']

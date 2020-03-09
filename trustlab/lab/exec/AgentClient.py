@@ -11,7 +11,7 @@ class AgentClient(Thread):
     def run(self):
         BUFFER_SIZE = 2000
         tcpClient = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        tcpClient.connect(('', self.port))
+        tcpClient.connect(('127.0.0.1', self.port))
         # send message
         tcpClient.send(bytes(self.msg, 'UTF-8'))
         rcvdata = tcpClient.recv(BUFFER_SIZE)

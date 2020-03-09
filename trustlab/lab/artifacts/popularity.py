@@ -2,9 +2,11 @@
 # Popularity check
 # The popularity is calculated by averagingthe recommendation
 
+from trustlab.lab.config import LOG_PATH
 
 def popularity(ID):
-    fo = open("observerlog.txt", "r+")
+    log_path = LOG_PATH / "observerlog.txt"
+    fo = open(log_path.absolute(), "r+")
     logfile = fo.read()
     filesize = len(logfile)
     fo.seek(0)

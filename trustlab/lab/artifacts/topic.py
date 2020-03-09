@@ -2,9 +2,12 @@
 # Topic check
 
 from trustlab.lab.artifacts.directxp import directxp
+from trustlab.lab.config import LOG_PATH
 
 def topic(ID, entity, tag):
-    fo = open(ID + ".txt", "r+")
+    file_name = ID + ".txt"
+    log_path = LOG_PATH / file_name
+    fo = open(log_path.absolute(), "r+")
     logfile = fo.read()
     filesize = len(logfile)
     fo.seek(0)
