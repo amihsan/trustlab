@@ -3,7 +3,7 @@ from datetime import datetime
 from trustlab.models import *
 from trustlab.lab.exec.AgentServer import AgentServer
 from trustlab.lab.exec.AgentClient import AgentClient
-from trustlab.lab.config import LOG_PATH
+from trustlab.lab.config import Logging
 
 
 
@@ -40,7 +40,7 @@ class Director:
             clientthread = AgentClient(str(observation_elements[0]), self.HOST, port, str(observation_elements[0]) + ' to ' + str(observation_elements[1]) + ' author: '
                                        + str(observation_elements[2]) + ' tag: ' + str(observation_elements[3]) + ' msg: ' + str(observation_elements[4]))
             clientthread.start()
-            file_path = LOG_PATH / "observerlog.txt"
+            file_path = Logging.LOG_PATH / "observerlog.txt"
             fo = open(file_path.absolute(), "ab+")
             fo.write(
                 bytes(self.get_current_time() + ' Node: ', 'UTF-8') + bytes(observation_elements[1], 'UTF-8') +
@@ -55,5 +55,6 @@ class Director:
 
     def __init__(self):
         self.HOST = socket.gethostname()
+        Logging.new_log_path()
 
 

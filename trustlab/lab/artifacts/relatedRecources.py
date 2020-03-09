@@ -1,8 +1,8 @@
-from trustlab.lab.config import LOG_PATH
+from trustlab.lab.config import Logging
 
 def related(ID, tag):
     file_name = ID + ".txt"
-    log_path = LOG_PATH / file_name
+    log_path = Logging.LOG_PATH / file_name
     fo = open(log_path.absolute(), "r+")
     logfile = fo.read()
     filesize = len(logfile)

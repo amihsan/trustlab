@@ -3,7 +3,7 @@ from threading import Thread
 from datetime import datetime
 from trustlab.lab.initialization import trust_initialization
 from trustlab.lab.artifacts.finalTrust import finalTrust
-from trustlab.lab.config import LOG_PATH
+from trustlab.lab.config import Logging
 
 untrustedAgents = []
 
@@ -35,7 +35,7 @@ class ClientThread(Thread):
                 nodelog = 'H'
             if msg != bytes('', 'UTF-8'):
                 nodelog_file_name = nodelog + ".txt"
-                nodelog_path = LOG_PATH / nodelog_file_name
+                nodelog_path = Logging.LOG_PATH / nodelog_file_name
                 fos = open(nodelog_path.absolute(), "ab+")
                 logrecord = str(msg)
 
@@ -57,7 +57,7 @@ class ClientThread(Thread):
                 trustEx = finalTrust(nodelog, logrecord[2:3])
 
                 ###Adding the trustvalue to the trustlog
-                trustlog_path = LOG_PATH / "trustlog.txt"
+                trustlog_path = Logging.LOG_PATH / "trustlog.txt"
                 fot = open(trustlog_path.absolute(), 'ab+')
                 fot.write(
                     bytes(get_current_time() + ', node: ', 'UTF-8') + bytes(nodelog, 'UTF-8') +

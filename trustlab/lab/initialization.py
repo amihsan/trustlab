@@ -10,7 +10,7 @@ from trustlab.lab.artifacts.specificity import specifi
 from trustlab.lab.artifacts.provenance import provenance
 from trustlab.lab.artifacts.authority import authority
 from trustlab.lab.artifacts.topic import topic
-from trustlab.lab.config import LOG_PATH
+from trustlab.lab.config import Logging
 
 ############################################################################
 #######---The trust_initilaization function starts with the imported behaviormodels
@@ -26,7 +26,7 @@ def trust_initialization(nodelog, logrecord, scenario):
     credibility_initialization = scenario.trust_behavior_1[nodelog]
     reliability_initialization = scenario.trust_behavior_2[nodelog]
     file_name = nodelog + "trust.txt"
-    log_path = LOG_PATH / file_name
+    log_path = Logging.LOG_PATH / file_name
 
 
     ############################Frist Initialization of Trust#################################################

@@ -3,12 +3,12 @@
 # The logfile is checked for the right tag and 
 # corresponding xp value
 
-from trustlab.lab.config import LOG_PATH
+from trustlab.lab.config import Logging
 from trustlab.lab.artifacts.directxp import directxp
 
 def agreement(ID, entity, tag):
     file_name = ID + ".txt"
-    log_path = LOG_PATH / file_name
+    log_path = Logging.LOG_PATH / file_name
     fo = open(log_path.absolute(), "r+")
     logfile = fo.read()
     filesize = len(logfile)
