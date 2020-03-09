@@ -4,5 +4,5 @@ __pycache__
 deploy/
 .vscode
 env/
-trustlab/lab/log/
+trustlab/lab/log/*
 venv/
