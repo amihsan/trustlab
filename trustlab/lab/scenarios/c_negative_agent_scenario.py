@@ -1,6 +1,6 @@
 #scenario with one heavily negative agent
-NAME = "Negattive agent Scenario"
-DESCRIPTION = "This is a scenario with one heavily negative Agents."
+NAME = "Negative Agent Scenario"
+DESCRIPTION = "This is a scenario with one heavily negative Agent."
 
 AGENTS = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
 

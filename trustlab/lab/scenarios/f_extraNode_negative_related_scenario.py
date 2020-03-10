@@ -1,6 +1,6 @@
 #Authority scenario with negative additional Node
-NAME = "Authority hfocused Scenario"
-DESCRIPTION = "This is a authority focused scenario with an negative added Agents."
+NAME = "Authority focused Scenario with negative Agents"
+DESCRIPTION = "This is an authority focused scenario with an negative added Agents."
 
 AGENTS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
 
