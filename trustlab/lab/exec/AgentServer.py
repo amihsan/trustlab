@@ -7,6 +7,7 @@ from trustlab.lab.config import Logging
 
 untrustedAgents = []
 
+
 def get_current_time():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -39,10 +40,10 @@ class ClientThread(Thread):
                 fos = open(nodelog_path.absolute(), "ab+")
                 logrecord = str(msg)
 
-                ###Function call for the initialization of the trust values
+                # Function call for the initialization of the trust values
                 trust_initialization(nodelog, logrecord, self.scenario)
 
-                ###The incoming message is split and added to the logfiles
+                # The incoming message is split and added to the logfiles
                 fos.write(
                     bytes(get_current_time() + ', connection from:', 'UTF-8') + bytes(logrecord[2:3], 'UTF-8') +
                     bytes(', author:', 'UTF-8') + bytes(logrecord[16:18], 'UTF-8') +
@@ -53,10 +54,10 @@ class ClientThread(Thread):
 
                 fos.close()
 
-                ###Artifact finalTrust calculates the trust based on the saved values in the logfiles
+                # Artifact finalTrust calculates the trust based on the saved values in the logfiles
                 trustEx = finalTrust(nodelog, logrecord[2:3])
 
-                ###Adding the trustvalue to the trustlog
+                # Adding the trustvalue to the trustlog
                 trustlog_path = Logging.LOG_PATH / "trustlog.txt"
                 fot = open(trustlog_path.absolute(), 'ab+')
                 fot.write(
@@ -97,7 +98,6 @@ class AgentServer(Thread):
         tcpServer.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         tcpServer.bind((ip, self.port))
 
-
         while True:
             tcpServer.listen(4)
             print("Node server " + str(self.id) + " Waiting for connections from TCP clients...")
@@ -107,7 +107,6 @@ class AgentServer(Thread):
             newthread.start()
             self.threads.append(newthread)
             # self.threads = [thread for thread in self.threads if thread.is_alive()]
-
 
     def __init__(self, id, port, scenario):
         Thread.__init__(self)

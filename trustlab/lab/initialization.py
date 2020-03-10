@@ -13,10 +13,10 @@ from trustlab.lab.artifacts.topic import topic
 from trustlab.lab.config import Logging
 
 ############################################################################
-#######---The trust_initilaization function starts with the imported behaviormodels
-#######---and checks them for behavior-keywords. Those keywords trigger the specific
-#######---function call to calculate the coresponding value from the artifacts.
-#######---This is needed to calculate the final trust value
+# ---The trust_initialization function starts with the imported behavior models
+# ---and checks them for behavior-keywords. Those keywords trigger the specific
+# ---function call to calculate the corresponding value from the artifacts.
+# ---This is needed to calculate the final trust value
 
 def get_current_time():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -28,8 +28,8 @@ def trust_initialization(nodelog, logrecord, scenario):
     file_name = nodelog + "trust.txt"
     log_path = Logging.LOG_PATH / file_name
 
-
-    ############################Frist Initialization of Trust#################################################
+    #################################################
+    # First Initialization of Trust
 
     if 'direct' in credibility_initialization:
         if logrecord[2:3] in scenario.authority:
@@ -143,8 +143,7 @@ def trust_initialization(nodelog, logrecord, scenario):
         fo.close()
 
     #################################################
-
-    ############################Second Initialization of Trust#################################################
+    # Second Initialization of Trust
     if 'direct' in reliability_initialization:
         if logrecord[2:3] in scenario.authority:
             reliability_value = str(format(float(scenario.weights["direct"]) * float(authority(nodelog, logrecord[2:3], scenario.authority)), '.2f'))
