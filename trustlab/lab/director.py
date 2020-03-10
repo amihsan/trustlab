@@ -13,6 +13,7 @@ class Director:
 
     def run_scenario(self, scenario):
         thread_server = []
+        threads_client = []
         for n in range(len(scenario.agents)):
             thread_server.append(n)
             thread_server[n] = AgentServer(n, 2000 + int(n), scenario)
@@ -37,9 +38,10 @@ class Director:
                 port = 2006
             if str(observation_elements[1]) == 'H':
                 port = 2007
-            clientthread = AgentClient(str(observation_elements[0]), self.HOST, port, str(observation_elements[0]) + ' to ' + str(observation_elements[1]) + ' author: '
+            client_thread = AgentClient(str(observation_elements[0]), self.HOST, port, str(observation_elements[0]) + ' to ' + str(observation_elements[1]) + ' author: '
                                        + str(observation_elements[2]) + ' tag: ' + str(observation_elements[3]) + ' msg: ' + str(observation_elements[4]))
-            clientthread.start()
+            threads_client.append(client_thread)
+            client_thread.start()
             file_path = Logging.LOG_PATH / "observerlog.txt"
             fo = open(file_path.absolute(), "ab+")
             fo.write(
@@ -52,6 +54,13 @@ class Director:
                 bytes(' |message:', 'UTF-8') + bytes(str(observation_elements[4]), 'UTF-8') + bytes('\n', 'UTF-8'))
             fo.close()
             time.sleep(0.1)
+        for thread in threads_client:
+            thread.join()
+        for server in thread_server:
+            for thread in server.threads:
+                thread.join()
+        # while len(threads_client) > 0 or any([len(server.threads) > 0 for server in thread_server]):
+        #     threads_client = [thread for thread in threads_client if thread.is_alive()]
         return Logging.LOG_PATH / "observerlog.txt", Logging.LOG_PATH / "trustlog.txt"
 
     def __init__(self):

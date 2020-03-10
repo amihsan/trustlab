@@ -14,7 +14,7 @@ class ClientThread(Thread):
     def run(self):
         try:
             msg = self.conn.recv(2048)
-            reply = ''
+            reply = 'empty response'
             trust = 0
             nodelog = self.id
             if nodelog == 0:
@@ -76,9 +76,9 @@ class ClientThread(Thread):
                 print("Node " + str(self.id) + " Server received data:", logrecord[2:-1])
                 print("_______________________________________")
             self.conn.send(bytes(str(reply), 'UTF-8'))
-
         except BrokenPipeError:
             pass
+        return True
 
     def __init__(self, conn, id, port, scenario):
         Thread.__init__(self)
@@ -96,24 +96,24 @@ class AgentServer(Thread):
         tcpServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         tcpServer.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         tcpServer.bind((ip, self.port))
-        threads = []
+
 
         while True:
             tcpServer.listen(4)
             print("Node server " + str(self.id) + " Waiting for connections from TCP clients...")
             (conn, (ip, port)) = tcpServer.accept()
-            # TODO where is ID, an IP is added to CLientThread
+            # TODO where is ID, an IP is added to ClientThread in original code
             newthread = ClientThread(conn, self.id, port, self.scenario)
             newthread.start()
-            threads.append(newthread)
+            self.threads.append(newthread)
+            # self.threads = [thread for thread in self.threads if thread.is_alive()]
 
-        for t in threads:
-            t.join()
 
     def __init__(self, id, port, scenario):
         Thread.__init__(self)
         self.port = port
         self.id = id
         self.scenario = scenario
+        self.threads = []
 
 

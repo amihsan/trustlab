@@ -19,6 +19,7 @@ class AgentClient(Thread):
         rcvdata = rcvdata.decode()
         print(rcvdata)
         tcpClient.close()
+        return True
 
     def __init__(self, ID, host, port, msg):
         Thread.__init__(self)
