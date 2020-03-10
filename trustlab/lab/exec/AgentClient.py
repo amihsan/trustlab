@@ -9,16 +9,16 @@ def get_current_time():
 
 class AgentClient(Thread):
     def run(self):
-        BUFFER_SIZE = 2000
-        tcpClient = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        tcpClient.connect(('127.0.0.1', self.port))
+        buffer_size = 2000
+        tcp_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        tcp_client.connect(('127.0.0.1', self.port))
         # send message
-        tcpClient.send(bytes(self.msg, 'UTF-8'))
-        rcvdata = tcpClient.recv(BUFFER_SIZE)
+        tcp_client.send(bytes(self.msg, 'UTF-8'))
+        receive_data = tcp_client.recv(buffer_size)
         # print("data sent at :"  + time.ctime(time.time()))
-        rcvdata = rcvdata.decode()
-        print(rcvdata)
-        tcpClient.close()
+        receive_data = receive_data.decode()
+        print(receive_data)
+        tcp_client.close()
         return True
 
     def __init__(self, ID, host, port, msg):
