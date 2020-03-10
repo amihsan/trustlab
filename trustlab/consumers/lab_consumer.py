@@ -33,12 +33,13 @@ class LabConsumer(WebsocketConsumer):
             # }))
             director = Director()
             director_log_path, trust_log_path = director.run_scenario(scenario)
-            with open(director_log_path.absolute(), 'r+') as director_log_file, open(trust_log_path.absolute(), 'r+') as trust_log_file:
+            with open(director_log_path.absolute(), 'r+') as director_log_file,\
+                    open(trust_log_path.absolute(), 'r+') as trust_log_file:
                 director_log = director_log_file.readlines()
                 trust_log = trust_log_file.readlines()
                 self.send(text_data=json.dumps({
-                    'director_log': "\n".join(director_log),
-                    'trust_log': "\n".join(trust_log),
+                    'director_log': "".join(director_log),
+                    'trust_log': "".join(trust_log),
                     'message': "Execution finished",
                     'status': 200
                 }))
