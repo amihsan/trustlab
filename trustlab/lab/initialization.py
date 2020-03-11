@@ -24,17 +24,15 @@ def get_current_time():
 
 
 def trust_initialization(nodelog, logrecord, scenario):
-    credibility_initialization = scenario.trust_behavior_1[nodelog]
-    reliability_initialization = scenario.trust_behavior_2[nodelog]
     file_name = nodelog + "trust.txt"
     log_path = Logging.LOG_PATH / file_name
 
     #################################################
-    # First Initialization of Trust
+    # Artifact Calculation
 
-    if 'direct' in credibility_initialization:
+    if 'direct experience' in scenario.trust_behavior_1[nodelog]:
         if logrecord[2:3] in scenario.authority:
-            credibility_value = str(format(float(scenario.weights["direct"]) * float(authority(nodelog, logrecord[2:3], scenario.authority)), '.2f'))
+            credibility_value = str(format(float(scenario.weights["direct experience"]) * float(authority(nodelog, logrecord[2:3], scenario.authority)), '.2f'))
             fo = open(log_path.absolute(), "ab+")
             fo.write(
                 bytes(get_current_time() + ', direct experience trustvalue from: ', 'UTF-8') + bytes(logrecord[2:3], 'UTF-8') +
@@ -42,7 +40,7 @@ def trust_initialization(nodelog, logrecord, scenario):
                 bytes("\n", 'UTF-8'))
             fo.close()
         else:
-            credibility_value = str(format(float(scenario.weights["direct"]) * float(directxp(nodelog, logrecord[2:3])), '.2f'))
+            credibility_value = str(format(float(scenario.weights["direct experience"]) * float(directxp(nodelog, logrecord[2:3])), '.2f'))
             fo = open(log_path.absolute(), "ab+")
             fo.write(
                 bytes(get_current_time() + ', direct experience trustvalue from: ', 'UTF-8') + bytes(logrecord[2:3], 'UTF-8') +
@@ -50,8 +48,8 @@ def trust_initialization(nodelog, logrecord, scenario):
                 bytes("\n", 'UTF-8'))
             fo.close()
 
-    if 'recom' in credibility_initialization:
-        credibility_value = str(format(float(scenario.weights["recom"]) * float(recommendation(nodelog, logrecord[2:3],
+    if 'recommendation' in scenario.trust_behavior_1[nodelog]:
+        credibility_value = str(format(float(scenario.weights["recommendation"]) * float(recommendation(nodelog, logrecord[2:3],
                                                                                       directxp(nodelog,
                                                                                                logrecord[2:3]))),
                                        '.2f'))
@@ -62,8 +60,8 @@ def trust_initialization(nodelog, logrecord, scenario):
             bytes("\n", 'UTF-8'))
         fo.close()
 
-    if 'popul' in credibility_initialization:
-        credibility_value = str(format(float(scenario.weights["popul"]) + float(popularity(logrecord[2:3])), '.2f'))
+    if 'popularity' in scenario.trust_behavior_1[nodelog]:
+        credibility_value = str(format(float(scenario.weights["popularity"]) + float(popularity(logrecord[2:3])), '.2f'))
         fo = open(log_path.absolute(), "ab+")
         fo.write(
             bytes(get_current_time() + ', popularity trustvalue from: ', 'UTF-8') + bytes(logrecord[2:3], 'UTF-8') +
@@ -71,9 +69,9 @@ def trust_initialization(nodelog, logrecord, scenario):
             bytes("\n", 'UTF-8'))
         fo.close()
 
-    if 'age' in credibility_initialization:
+    if 'age' in scenario.trust_behavior_1[nodelog]:
         credibility_value = str(format(
-            float(scenario.weights["age_check"]) * age_check(nodelog, logrecord[2:3], logrecord[24:26]),
+            float(scenario.weights["age"]) * age_check(nodelog, logrecord[2:3], logrecord[24:26]),
             '.2f'))
         fo = open(log_path.absolute(), "ab+")
         fo.write(
@@ -82,7 +80,7 @@ def trust_initialization(nodelog, logrecord, scenario):
             bytes("\n", 'UTF-8'))
         fo.close()
 
-    if 'agree' in credibility_initialization:
+    if 'agreement' in scenario.trust_behavior_1[nodelog]:
         credibility_value = str(format(float(scenario.weights["agreement"]) * float(
             agreement(nodelog, logrecord[2:3], logrecord[24:26])), '.2f'))
         fo = open(log_path.absolute(), "ab+")
@@ -92,9 +90,9 @@ def trust_initialization(nodelog, logrecord, scenario):
             bytes("\n", 'UTF-8'))
         fo.close()
 
-    if 'provenance' in credibility_initialization:
+    if 'provenance' in scenario.trust_behavior_1[nodelog]:
         credibility_value = str(
-            format(float(scenario.weights["prov"]) * float(provenance(nodelog, logrecord[16:18])), '.2f'))
+            format(float(scenario.weights["provenance"]) * float(provenance(nodelog, logrecord[16:18])), '.2f'))
         fo = open(log_path.absolute(), "ab+")
         fo.write(
             bytes(get_current_time() + ', provenance trustvalue from: ', 'UTF-8') + bytes(logrecord[2:3], 'UTF-8') +
@@ -102,7 +100,7 @@ def trust_initialization(nodelog, logrecord, scenario):
             bytes("\n", 'UTF-8'))
         fo.close()
 
-    if 'recency' in credibility_initialization:
+    if 'recency' in scenario.trust_behavior_1[nodelog]:
         credibility_value = str(
             format(float(scenario.weights["recency"]) * float(recency(nodelog, logrecord[24:26])), '.2f'))
         fo = open(log_path.absolute(), "ab+")
@@ -112,9 +110,9 @@ def trust_initialization(nodelog, logrecord, scenario):
             bytes("\n", 'UTF-8'))
         fo.close()
 
-    if 'related' in credibility_initialization:
+    if 'related resource' in scenario.trust_behavior_1[nodelog]:
         credibility_value = str(
-            format(float(scenario.weights["related"]) * float(related(nodelog, logrecord[24:26])), '.2f'))
+            format(float(scenario.weights["related resource"]) * float(related(nodelog, logrecord[24:26])), '.2f'))
         fo = open(log_path.absolute(), "ab+")
         fo.write(
             bytes(get_current_time() + ', related resource trustvalue from: ', 'UTF-8') + bytes(logrecord[2:3], 'UTF-8') +
@@ -122,7 +120,7 @@ def trust_initialization(nodelog, logrecord, scenario):
             bytes("\n", 'UTF-8'))
         fo.close()
 
-    if 'specificity' in credibility_initialization:
+    if 'specificity' in scenario.trust_behavior_1[nodelog]:
         credibility_value = str(format(float(scenario.weights["specificity"]) * float(
             specifi(nodelog, logrecord[2:3], logrecord[24:26])), '.2f'))
         fo = open(log_path.absolute(), "ab+")
@@ -132,121 +130,13 @@ def trust_initialization(nodelog, logrecord, scenario):
             bytes("\n", 'UTF-8'))
         fo.close()
 
-    if 'topic' in credibility_initialization:
+    if 'topic' in scenario.trust_behavior_1[nodelog]:
         credibility_value = str(format(
             float(scenario.weights["topic"]) * float(topic(logrecord[24:26], scenario.instant_feedback)), '.2f'))
         fo = open(log_path.absolute(), "ab+")
         fo.write(
             bytes(get_current_time() + ', topic trustvalue from: ', 'UTF-8') + bytes(logrecord[2:3], 'UTF-8') +
             bytes(' ' + credibility_value, 'UTF-8') +
-            bytes("\n", 'UTF-8'))
-        fo.close()
-
-    #################################################
-    # Second Initialization of Trust
-    if 'direct' in reliability_initialization:
-        if logrecord[2:3] in scenario.authority:
-            reliability_value = str(format(float(scenario.weights["direct"]) * float(authority(nodelog, logrecord[2:3], scenario.authority)), '.2f'))
-            fo = open(log_path.absolute(), "ab+")
-            fo.write(
-                bytes(get_current_time() + ', direct experience trustvalue from: ', 'UTF-8') + bytes(logrecord[2:3], 'UTF-8') +
-                bytes(' ' + reliability_value, 'UTF-8') +
-                bytes("\n", 'UTF-8'))
-            fo.close()
-        else:
-            reliability_value = str(format(float(scenario.weights["direct"]) * float(directxp(nodelog, logrecord[2:3])), '.2f'))
-            fo = open(log_path.absolute(), "ab+")
-            fo.write(
-                bytes(get_current_time() + ', direct experience trustvalue from: ', 'UTF-8') + bytes(logrecord[2:3], 'UTF-8') +
-                bytes(' ' + reliability_value, 'UTF-8') +
-                bytes("\n", 'UTF-8'))
-            fo.close()
-
-    if 'recom' in reliability_initialization:
-        reliability_value = str(format(float(scenario.weights["recom"]) * float(recommendation(nodelog, logrecord[2:3],
-                                                                                      directxp(nodelog,
-                                                                                               logrecord[2:3]))),
-                                       '.2f'))
-        fo = open(log_path.absolute(), "ab+")
-        fo.write(
-            bytes(get_current_time() + ', recommendation trustvalue from: ', 'UTF-8') + bytes(logrecord[2:3], 'UTF-8') +
-            bytes(' ' + reliability_value, 'UTF-8') +
-            bytes("\n", 'UTF-8'))
-        fo.close()
-
-    if 'popul' in reliability_initialization:
-        reliability_value = str(format(float(scenario.weights["popul"]) + float(popularity(logrecord[2:3])), '.2f'))
-        fo = open(log_path.absolute(), "ab+")
-        fo.write(
-            bytes(get_current_time() + ', popularity trustvalue from: ', 'UTF-8') + bytes(logrecord[2:3], 'UTF-8') +
-            bytes(' ' + reliability_value, 'UTF-8') +
-            bytes("\n", 'UTF-8'))
-        fo.close()
-
-    if 'age' in reliability_initialization:
-        reliability_value = str(
-            format(float(scenario.weights["age_check"]) * age_check(nodelog, logrecord[2:3], logrecord[24:26]), '.2f'))
-        fo = open(log_path.absolute(), "ab+")
-        fo.write(
-            bytes(get_current_time() + ', age trustvalue from: ', 'UTF-8') + bytes(logrecord[2:3], 'UTF-8') +
-            bytes(' ' + reliability_value, 'UTF-8') +
-            bytes("\n", 'UTF-8'))
-        fo.close()
-
-    if 'agree' in reliability_initialization:
-        reliability_value = str(
-            format(float(scenario.weights["agreement"]) * float(agreement(nodelog, logrecord[2:3], logrecord[24:26])), '.2f'))
-        fo = open(log_path.absolute(), "ab+")
-        fo.write(
-            bytes(get_current_time() + ', agreement trustvalue from: ', 'UTF-8') + bytes(logrecord[2:3], 'UTF-8') +
-            bytes(' ' + reliability_value, 'UTF-8') +
-            bytes("\n", 'UTF-8'))
-        fo.close()
-
-    if 'provenance' in reliability_initialization:
-        reliability_value = str(format(float(scenario.weights["prov"]) * float(provenance(nodelog, logrecord[16:18])), '.2f'))
-        fo = open(log_path.absolute(), "ab+")
-        fo.write(
-            bytes(get_current_time() + ', provenance trustvalue from: ', 'UTF-8') + bytes(logrecord[2:3], 'UTF-8') +
-            bytes(' ' + reliability_value, 'UTF-8') +
-            bytes("\n", 'UTF-8'))
-        fo.close()
-
-    if 'recency' in reliability_initialization:
-        reliability_value = str(format(float(scenario.weights["recency"]) * float(recency(nodelog, logrecord[24:26])), '.2f'))
-        fo = open(log_path.absolute(), "ab+")
-        fo.write(
-            bytes(get_current_time() + ', recency trustvalue from: ', 'UTF-8') + bytes(logrecord[2:3], 'UTF-8') +
-            bytes(' ' + reliability_value, 'UTF-8') +
-            bytes("\n", 'UTF-8'))
-        fo.close()
-
-    if 'related' in reliability_initialization:
-        reliability_value = str(format(float(scenario.weights["related"]) * float(related(nodelog, logrecord[24:26])), '.2f'))
-        fo = open(log_path.absolute(), "ab+")
-        fo.write(
-            bytes(get_current_time() + ', related resource trustvalue from: ', 'UTF-8') + bytes(logrecord[2:3], 'UTF-8') +
-            bytes(' ' + reliability_value, 'UTF-8') +
-            bytes("\n", 'UTF-8'))
-        fo.close()
-
-    if 'specificity' in reliability_initialization:
-        reliability_value = str(
-            format(float(scenario.weights["specificity"]) * float(specifi(nodelog, logrecord[2:3], logrecord[24:26])), '.2f'))
-        fo = open(log_path.absolute(), "ab+")
-        fo.write(
-            bytes(get_current_time() + ', specificity trustvalue from: ', 'UTF-8') + bytes(logrecord[2:3], 'UTF-8') +
-            bytes(' ' + reliability_value, 'UTF-8') +
-            bytes("\n", 'UTF-8'))
-        fo.close()
-
-    if 'topic' in reliability_initialization:
-        reliability_value = str(format(
-            float(scenario.weights["topic"]) * float(topic(logrecord[24:26], scenario.instant_feedback)), '.2f'))
-        fo = open(log_path.absolute(), "ab+")
-        fo.write(
-            bytes(get_current_time() + ', topic trustvalue from: ', 'UTF-8') + bytes(logrecord[2:3], 'UTF-8') +
-            bytes(' ' + reliability_value, 'UTF-8') +
             bytes("\n", 'UTF-8'))
         fo.close()
 

@@ -15,12 +15,9 @@ INSTANT_FEEDBACK = {'k0': 0, 'k1': 0.6, 'k2': 0.3, 'k3': -0.7}
 
 TRUST_THRESHOLD = {'UpperLimit': 0.75, 'LowerLimit': -0.75}
 
-WEIGHTS = {'direct': 1.4, 'recom': 1.3, 'popul': 1.3, 'age_check': 1.1, 'agreement': 1.4, 'authority': 1.6, 'prov': 1.1, 'recency': 1.1, 'related': 1.1, 'specificity': 1.1, 'topic': 1.1}
+WEIGHTS = {'direct experience': 1.4, 'recommendation': 1.3, 'popularity': 1.3, 'age': 1.1, 'agreement': 1.4, 'authority': 1.6, 'provenance': 1.1, 'recency': 1.1, 'related resource': 1.1, 'specificity': 1.1, 'topic': 1.1}
 
 
-#The more importent/focused artifacts for this scenario
-TRUST_BEHAVIOR_1 = {'A': ['direct', 'recom', 'popul', 'authority', 'agree'], 'B': ['direct', 'recom', 'popul', 'authority'], 'C': ['direct', 'recom', 'popul', 'authority', 'agree'], 'D': ['direct', 'recom', 'popul', 'authority', 'agree'], 'E': ['direct', 'recom', 'popul', 'authority'], 'F': ['direct', 'recom', 'popul', 'authority', 'agree'], 'G': ['direct', 'recom', 'popul', 'authority', 'agree']}
+TRUST_BEHAVIOR_1 = {'A': ['age', 'agreement', 'authority', 'direct experience', 'popularity', 'provenance', 'recency', 'recommendation', 'related resource', 'specificity', 'topic'], 'B': ['age', 'agreement', 'authority', 'direct experience', 'popularity', 'provenance', 'recency', 'recommendation', 'related resource', 'specificity', 'topic'], 'C': ['age', 'agreement', 'authority', 'direct experience', 'popularity', 'provenance', 'recency', 'recommendation', 'related resource', 'specificity', 'topic'], 'D': ['age', 'agreement', 'authority', 'direct experience', 'popularity', 'provenance', 'recency', 'recommendation', 'related resource', 'specificity', 'topic'], 'E': ['age', 'agreement', 'authority', 'direct experience', 'popularity', 'provenance', 'recency', 'recommendation', 'related resource', 'specificity', 'topic'], 'F': ['age', 'agreement', 'authority', 'direct experience', 'popularity', 'provenance', 'recency', 'recommendation', 'related resource', 'specificity', 'topic'], 'G': ['age', 'agreement', 'authority', 'direct experience', 'popularity', 'provenance', 'recency', 'recommendation', 'related resource', 'specificity', 'topic']}
 
 
-#he secondary artifacts fpr this scenario
-TRUST_BEHAVIOR_2 = {'A': ['age', 'provenance', 'recency', 'related', 'specificity', 'topic'], 'B': ['age', 'provenance', 'recency', 'related', 'specificity', 'topic'], 'C': ['age', 'provenance', 'recency', 'related', 'specificity', 'topic'], 'D': ['age', 'provenance', 'recency', 'related', 'specificity', 'topic'], 'E': ['age', 'provenance', 'recency', 'related', 'specificity', 'topic'], 'F': ['age', 'provenance', 'recency', 'related', 'specificity', 'topic'], 'G': ['age', 'provenance', 'recency', 'related', 'specificity', 'topic']}
