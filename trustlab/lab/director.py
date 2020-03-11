@@ -15,6 +15,16 @@ class Director:
             thread_server[n] = AgentServer(n, 2000 + int(n), scenario)
             thread_server[n].start()
 
+        # logging for all Agents their trust history
+        for agent in scenario.agents:
+            history_name = agent + "history.txt"
+            history_path = Logging.LOG_PATH / history_name
+            for other_agent, history_value in scenario.history[agent].items():
+                history_file = open(history_path.absolute(), "ab+")
+                history_file.write(bytes(get_current_time() + ', history trust value from: ' + other_agent + ' ' +
+                                         str(history_value) + '\n', 'UTF-8'))
+                history_file.close()
+
         # with open(s, "r") as fp:
         for observation in scenario.observations:
             observation_elements = observation.split(',')
@@ -39,8 +49,8 @@ class Director:
             threads_client.append(client_thread)
             client_thread.start()
             file_path = Logging.LOG_PATH / "observerlog.txt"
-            fo = open(file_path.absolute(), "ab+")
-            fo.write(
+            history_file = open(file_path.absolute(), "ab+")
+            history_file.write(
                 bytes(get_current_time() + ' Node: ', 'UTF-8') + bytes(observation_elements[1], 'UTF-8') +
                 bytes(', connection from:', 'UTF-8') +
                 bytes(observation_elements[0], 'UTF-8') + bytes(', author:', 'UTF-8') +
@@ -48,7 +58,7 @@ class Director:
                 bytes(str(observation_elements[3]), 'UTF-8') +
                 bytes(',', 'UTF-8') + bytes(str(scenario.instant_feedback[observation_elements[3]]), 'UTF-8') +
                 bytes(' |message:', 'UTF-8') + bytes(str(observation_elements[4]), 'UTF-8') + bytes('\n', 'UTF-8'))
-            fo.close()
+            history_file.close()
             time.sleep(0.1)
         for thread in threads_client:
             thread.join()

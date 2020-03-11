@@ -22,7 +22,7 @@ class Scenario:
             raise ValueError("Description must be string.")
 
     def __init__(self, name, agents, observations, authority, instant_feedback, trust_thresholds, weights,
-                 metrics_per_agent, description="No one described this scenario so far."):
+                 metrics_per_agent, history, description="No one described this scenario so far."):
         self.check_consistency(name, agents, observations, description)
         self.name = name
         self.agents = agents
@@ -32,7 +32,12 @@ class Scenario:
         self.trust_thresholds = trust_thresholds
         self.weights = weights
         self.metrics_per_agent = metrics_per_agent
+        self.history = history
         self.description = description
+        if self.history is None:
+            # TODO history should be able to be None at default and then set to 0 for all agents
+            #  -> maybe even not completely set and filled up with 0
+            pass
 
     def __str__(self):
         return self.name
