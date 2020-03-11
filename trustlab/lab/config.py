@@ -13,7 +13,8 @@ class Logging:
         os.mkdir(Logging.LOG_PATH.absolute())
 
 
-
+def get_current_time():
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 
 

@@ -15,12 +15,12 @@ OBSERVATIONS = ['A,B,a,k1,apple', 'B,C,g,k1,banana', 'C,D,e,k3,car', 'D,E,g,k2,c
 INSTANT_FEEDBACK = {'k0': 0, 'k1': 0.6, 'k2': 0.3, 'k3': -0.7}
 
 
-TRUST_THRESHOLD = {'UpperLimit': 0.75, 'LowerLimit': -0.75}
+TRUST_THRESHOLDS = {'upper_limit': 0.75, 'lower_limit': -0.75}
 
 
 WEIGHTS = {'direct experience': 1.2, 'recommendation': 1.2, 'popularity': 1.2, 'age': 1.2, 'agreement': 1.2, 'authority': 1.2, 'provenance': 1.2, 'recency': 1.2, 'related resource': 1.2, 'specificity': 1.2, 'topic': 1.2}
 
 
-TRUST_BEHAVIOR_1 = {'A': ['age', 'agreement', 'authority', 'direct experience', 'popularity', 'provenance', 'recency', 'recommendation', 'related resource', 'specificity', 'topic'], 'B': ['age', 'agreement', 'authority', 'direct experience', 'popularity', 'provenance', 'recency', 'recommendation', 'related resource', 'specificity', 'topic'], 'C': ['age', 'agreement', 'authority', 'direct experience', 'popularity', 'provenance', 'recency', 'recommendation', 'related resource', 'specificity', 'topic'], 'D': ['age', 'agreement', 'authority', 'direct experience', 'popularity', 'provenance', 'recency', 'recommendation', 'related resource', 'specificity', 'topic'], 'E': ['age', 'agreement', 'authority', 'direct experience', 'popularity', 'provenance', 'recency', 'recommendation', 'related resource', 'specificity', 'topic'], 'F': ['age', 'agreement', 'authority', 'direct experience', 'popularity', 'provenance', 'recency', 'recommendation', 'related resource', 'specificity', 'topic'], 'G': ['age', 'agreement', 'authority', 'direct experience', 'popularity', 'provenance', 'recency', 'recommendation', 'related resource', 'specificity', 'topic']}
+METRICS_PER_AGENT = {'A': ['age', 'agreement', 'authority', 'direct experience', 'popularity', 'provenance', 'recency', 'recommendation', 'related resource', 'specificity', 'topic'], 'B': ['age', 'agreement', 'authority', 'direct experience', 'popularity', 'provenance', 'recency', 'recommendation', 'related resource', 'specificity', 'topic'], 'C': ['age', 'agreement', 'authority', 'direct experience', 'popularity', 'provenance', 'recency', 'recommendation', 'related resource', 'specificity', 'topic'], 'D': ['age', 'agreement', 'authority', 'direct experience', 'popularity', 'provenance', 'recency', 'recommendation', 'related resource', 'specificity', 'topic'], 'E': ['age', 'agreement', 'authority', 'direct experience', 'popularity', 'provenance', 'recency', 'recommendation', 'related resource', 'specificity', 'topic'], 'F': ['age', 'agreement', 'authority', 'direct experience', 'popularity', 'provenance', 'recency', 'recommendation', 'related resource', 'specificity', 'topic'], 'G': ['age', 'agreement', 'authority', 'direct experience', 'popularity', 'provenance', 'recency', 'recommendation', 'related resource', 'specificity', 'topic']}
 
 

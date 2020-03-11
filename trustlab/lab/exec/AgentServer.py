@@ -1,15 +1,10 @@
 import socket
 from threading import Thread
-from datetime import datetime
-from trustlab.lab.initialization import trust_initialization
+from trustlab.lab.trust_metrics import calc_trust_metrics
 from trustlab.lab.artifacts.finalTrust import finalTrust
-from trustlab.lab.config import Logging
+from trustlab.lab.config import Logging, get_current_time
 
 untrustedAgents = []
-
-
-def get_current_time():
-    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 
 class ClientThread(Thread):
@@ -39,43 +34,43 @@ class ClientThread(Thread):
                 node_log_file_name = node_log + ".txt"
                 node_log_path = Logging.LOG_PATH / node_log_file_name
                 fos = open(node_log_path.absolute(), "ab+")
-                logrecord = str(msg)
+                current_message = str(msg)
 
                 # The incoming message is split and added to the logfiles
                 fos.write(
-                    bytes(get_current_time() + ', connection from:', 'UTF-8') + bytes(logrecord[2:3], 'UTF-8') +
-                    bytes(', author:', 'UTF-8') + bytes(logrecord[16:18], 'UTF-8') +
-                    bytes(', tag:', 'UTF-8') + bytes(logrecord[23:26], 'UTF-8') + bytes(',', 'UTF-8') +
-                    bytes(str(self.scenario.instant_feedback[logrecord[24:26]]), 'UTF-8') +
-                    bytes(' |message:', 'UTF-8') + bytes(logrecord[31:-1], 'UTF-8') +
+                    bytes(get_current_time() + ', connection from:', 'UTF-8') + bytes(current_message[2:3], 'UTF-8') +
+                    bytes(', author:', 'UTF-8') + bytes(current_message[16:18], 'UTF-8') +
+                    bytes(', tag:', 'UTF-8') + bytes(current_message[23:26], 'UTF-8') + bytes(',', 'UTF-8') +
+                    bytes(str(self.scenario.instant_feedback[current_message[24:26]]), 'UTF-8') +
+                    bytes(' |message:', 'UTF-8') + bytes(current_message[31:-1], 'UTF-8') +
                     bytes('| ', 'UTF-8') + bytes(reply, 'UTF-8') + bytes('\n', 'UTF-8'))
 
                 fos.close()
 
                 # Function call for the initialization of the trust values
-                trust_initialization(node_log, logrecord, self.scenario)
+                calc_trust_metrics(node_log, current_message, self.scenario)
 
                 # Artifact finalTrust calculates the trust based on the saved values in the logfiles
-                trust_value = finalTrust(node_log, logrecord[2:3])
+                trust_value = finalTrust(node_log, current_message[2:3])
 
                 # Adding the trustvalue to the trustlog
                 trustlog_path = Logging.LOG_PATH / "trustlog.txt"
                 fot = open(trustlog_path.absolute(), 'ab+')
                 fot.write(
                     bytes(get_current_time() + ', node: ', 'UTF-8') + bytes(node_log, 'UTF-8') +
-                    bytes(' trustvalue of node: ' + logrecord[2:3], 'UTF-8') + bytes(' ' + trust_value, 'UTF-8') +
+                    bytes(' trustvalue of node: ' + current_message[2:3], 'UTF-8') + bytes(' ' + trust_value, 'UTF-8') +
                     bytes('\n', 'UTF-8')
                 )
                 fot.close()
                 print("_______________________________________")
                 # print("_____________________" + trust_value + "-__________")
 
-                if float(trust_value) < self.scenario.trust_threshold['lower_limit']:  # TRUSTTHRESHOLD['LowerLimit']:
-                    untrustedAgents.append(logrecord[2:3])
-                    print("+++" + node_log + ", nodes beyond redemption: " + logrecord[2:3] + "+++")
-                if float(trust_value) > self.scenario.trust_threshold['upper_limit'] or float(trust_value) > 1:  # TRUSTTHRESHOLD['UpperLimit']:
+                if float(trust_value) < self.scenario.trust_thresholds['lower_limit']:
+                    untrustedAgents.append(current_message[2:3])
+                    print("+++" + node_log + ", nodes beyond redemption: " + current_message[2:3] + "+++")
+                if float(trust_value) > self.scenario.trust_thresholds['upper_limit'] or float(trust_value) > 1:
                     self.scenario.authority.append(node_log[2:3])
-                print("Node " + str(self.id) + " Server received data:", logrecord[2:-1])
+                print("Node " + str(self.id) + " Server received data:", current_message[2:-1])
                 print("_______________________________________")
             self.conn.send(bytes(str(reply), 'UTF-8'))
         except BrokenPipeError:

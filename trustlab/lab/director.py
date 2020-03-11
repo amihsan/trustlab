@@ -3,13 +3,10 @@ from datetime import datetime
 from trustlab.models import *
 from trustlab.lab.exec.AgentServer import AgentServer
 from trustlab.lab.exec.AgentClient import AgentClient
-from trustlab.lab.config import Logging
+from trustlab.lab.config import Logging, get_current_time
 
 
 class Director:
-    def get_current_time(self):
-        return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
     def run_scenario(self, scenario):
         thread_server = []
         threads_client = []
@@ -44,7 +41,7 @@ class Director:
             file_path = Logging.LOG_PATH / "observerlog.txt"
             fo = open(file_path.absolute(), "ab+")
             fo.write(
-                bytes(self.get_current_time() + ' Node: ', 'UTF-8') + bytes(observation_elements[1], 'UTF-8') +
+                bytes(get_current_time() + ' Node: ', 'UTF-8') + bytes(observation_elements[1], 'UTF-8') +
                 bytes(', connection from:', 'UTF-8') +
                 bytes(observation_elements[0], 'UTF-8') + bytes(', author:', 'UTF-8') +
                 bytes(str(observation_elements[2]), 'UTF-8') + bytes(', tag:', 'UTF-8') +
