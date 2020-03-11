@@ -2,6 +2,7 @@ from channels.generic.websocket import WebsocketConsumer
 import json
 from trustlab.models import *
 from trustlab.serializers.scenario_serializer import ScenarioSerializer
+from trustlab.lab.director import Director
 
 
 class LabConsumer(WebsocketConsumer):
@@ -26,13 +27,22 @@ class LabConsumer(WebsocketConsumer):
                 return
             if scenario not in scenario_factory.scenarios:
                 scenario_factory.scenarios.append(scenario)
-
-            # TODO start LAB RUN
-
-            self.send(text_data=json.dumps({
-                'message': "Starting Lab Runtime according to Scenario",
-                'status': 200
-            }))
+            # self.send(text_data=json.dumps({
+            #     'message': "Starting Lab Runtime according to Scenario",
+            #     'status': 200
+            # }))
+            director = Director()
+            director_log_path, trust_log_path = director.run_scenario(scenario)
+            with open(director_log_path.absolute(), 'r+') as director_log_file,\
+                    open(trust_log_path.absolute(), 'r+') as trust_log_file:
+                director_log = director_log_file.readlines()
+                trust_log = trust_log_file.readlines()
+                self.send(text_data=json.dumps({
+                    'director_log': "".join(director_log),
+                    'trust_log': "".join(trust_log),
+                    'message': "Execution finished",
+                    'status': 200
+                }))
         else:
             self.send(text_data=json.dumps({
                 'message': serializer.errors,

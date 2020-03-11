@@ -18,8 +18,11 @@ function onLabSocketClose(closingEvent){
 
 function onLabSocketMessage(messageEvent){
     let data = JSON.parse(messageEvent.data);
-    let message = data.message;
-    console.log(message);
+    if (data.status === 200)
+    {
+        $("#trust_log").text(data.trust_log);
+        $("#director_log").text(data.director_log);
+    }
     $("#c-runtime").addClass("not-displayed");
     $("#c-results").removeClass("not-displayed");
 }
