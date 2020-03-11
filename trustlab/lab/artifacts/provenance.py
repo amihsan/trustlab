@@ -2,7 +2,7 @@
 #Provenance check
 
 from trustlab.lab.config import Logging
-from trustlab.lab.artifacts.directxp import directxp
+from trustlab.lab.artifacts.directxp import direct_experience
 
 
 def provenance(ID, author):
@@ -17,7 +17,7 @@ def provenance(ID, author):
     while fo.tell() < filesize:
         timelog_line = fo.readline()
         if timelog_line[48:49] == author:
-            expresult = directxp(ID, AUTHOR)
+            expresult = direct_experience(ID, AUTHOR)
             #print(expresult)
         expresult = expresult
     fo.close()

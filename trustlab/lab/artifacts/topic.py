@@ -1,7 +1,7 @@
 ###############################################
 # Topic check
 
-from trustlab.lab.artifacts.directxp import directxp
+from trustlab.lab.artifacts.directxp import direct_experience
 from trustlab.lab.config import Logging
 
 

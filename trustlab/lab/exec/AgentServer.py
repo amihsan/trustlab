@@ -13,52 +13,60 @@ class ClientThread(Thread):
             msg = self.conn.recv(2048)
             reply = 'standard response'
             trust = 0
-            node_log = self.id
-            if node_log == 0:
-                node_log = 'A'
-            if node_log == 1:
-                node_log = 'B'
-            if node_log == 2:
-                node_log = 'C'
-            if node_log == 3:
-                node_log = 'D'
-            if node_log == 4:
-                node_log = 'E'
-            if node_log == 5:
-                node_log = 'F'
-            if node_log == 6:
-                node_log = 'G'
-            if node_log == 7:
-                node_log = 'H'
+            agent = self.id
+            if agent == 0:
+                agent = 'A'
+            if agent == 1:
+                agent = 'B'
+            if agent == 2:
+                agent = 'C'
+            if agent == 3:
+                agent = 'D'
+            if agent == 4:
+                agent = 'E'
+            if agent == 5:
+                agent = 'F'
+            if agent == 6:
+                agent = 'G'
+            if agent == 7:
+                agent = 'H'
             if msg != bytes('', 'UTF-8'):
-                node_log_file_name = node_log + ".txt"
+                node_log_file_name = agent + ".txt"
                 node_log_path = Logging.LOG_PATH / node_log_file_name
                 fos = open(node_log_path.absolute(), "ab+")
                 current_message = str(msg)
+                other_agent = current_message[2:3]
 
                 # The incoming message is split and added to the logfiles
                 fos.write(
-                    bytes(get_current_time() + ', connection from:', 'UTF-8') + bytes(current_message[2:3], 'UTF-8') +
+                    bytes(get_current_time() + ', connection from:', 'UTF-8') + bytes(other_agent, 'UTF-8') +
                     bytes(', author:', 'UTF-8') + bytes(current_message[16:18], 'UTF-8') +
                     bytes(', tag:', 'UTF-8') + bytes(current_message[23:26], 'UTF-8') + bytes(',', 'UTF-8') +
                     bytes(str(self.scenario.instant_feedback[current_message[24:26]]), 'UTF-8') +
                     bytes(' |message:', 'UTF-8') + bytes(current_message[31:-1], 'UTF-8') +
                     bytes('| ', 'UTF-8') + bytes(reply, 'UTF-8') + bytes('\n', 'UTF-8'))
-
                 fos.close()
 
                 # Function call for the initialization of the trust values
-                calc_trust_metrics(node_log, current_message, self.scenario)
+                calc_trust_metrics(agent, current_message, self.scenario)
 
-                # Artifact finalTrust calculates the trust based on the saved values in the logfiles
-                trust_value = finalTrust(node_log, current_message[2:3])
+                # Artifact finalTrust calculates the trust based on the saved values in the log file
+                trust_value = finalTrust(agent, other_agent)
+                
+                # Adding the trust value to the history file
+                history_name = agent + "history.txt"
+                history_path = Logging.LOG_PATH / history_name
+                history_file = open(history_path.absolute(), "ab+")
+                history_file.write(bytes(get_current_time() + ', history trust value from: ' + other_agent + ' ' +
+                                         str(trust_value) + '\n', 'UTF-8'))
+                history_file.close()
 
-                # Adding the trustvalue to the trustlog
+                # Adding the trust value to the trust log
                 trustlog_path = Logging.LOG_PATH / "trustlog.txt"
                 fot = open(trustlog_path.absolute(), 'ab+')
                 fot.write(
-                    bytes(get_current_time() + ', node: ', 'UTF-8') + bytes(node_log, 'UTF-8') +
-                    bytes(' trustvalue of node: ' + current_message[2:3], 'UTF-8') + bytes(' ' + trust_value, 'UTF-8') +
+                    bytes(get_current_time() + ', node: ', 'UTF-8') + bytes(agent, 'UTF-8') +
+                    bytes(' trustvalue of node: ' + other_agent, 'UTF-8') + bytes(' ' + trust_value, 'UTF-8') +
                     bytes('\n', 'UTF-8')
                 )
                 fot.close()
@@ -66,10 +74,10 @@ class ClientThread(Thread):
                 # print("_____________________" + trust_value + "-__________")
 
                 if float(trust_value) < self.scenario.trust_thresholds['lower_limit']:
-                    untrustedAgents.append(current_message[2:3])
-                    print("+++" + node_log + ", nodes beyond redemption: " + current_message[2:3] + "+++")
+                    untrustedAgents.append(other_agent)
+                    print("+++" + agent + ", nodes beyond redemption: " + other_agent + "+++")
                 if float(trust_value) > self.scenario.trust_thresholds['upper_limit'] or float(trust_value) > 1:
-                    self.scenario.authority.append(node_log[2:3])
+                    self.scenario.authority.append(agent[2:3])
                 print("Node " + str(self.id) + " Server received data:", current_message[2:-1])
                 print("_______________________________________")
             self.conn.send(bytes(str(reply), 'UTF-8'))

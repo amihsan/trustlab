@@ -4,7 +4,7 @@
 # corresponding xp value
 
 from trustlab.lab.config import Logging
-from trustlab.lab.artifacts.directxp import directxp
+from trustlab.lab.artifacts.directxp import direct_experience
 
 def agreement(ID, entity, tag):
     file_name = ID + ".txt"
@@ -16,9 +16,9 @@ def agreement(ID, entity, tag):
     aggr = 0
     while fo.tell() < file_size:
         timelog_line = fo.readline()
-        if float(directxp(ID, entity)) > 0 and tag == timelog_line[56:58]:
+        if float(direct_experience(ID, entity)) > 0 and tag == timelog_line[56:58]:
             aggr = aggr + 0.1
-        if float(directxp(ID, entity)) < 0 and tag != timelog_line[56:58]:
+        if float(direct_experience(ID, entity)) < 0 and tag != timelog_line[56:58]:
             aggr = aggr - 0.1
 
         if aggr < -1:
