@@ -4,6 +4,7 @@
 from trustlab.lab.config import Logging
 from trustlab.lab.artifacts.directxp import directxp
 
+
 def provenance(ID, author):
     file_name = ID + ".txt"
     log_path = Logging.LOG_PATH / file_name
@@ -21,3 +22,12 @@ def provenance(ID, author):
         expresult = expresult
     fo.close()
     return format(expresult, '.2f')
+
+    # file_name = ID + ".txt"
+    # log_path = Logging.LOG_PATH / file_name
+    # provenance_value = 0
+    # with open(log_path.absolute(), "r+") as message_log:
+    #     last_message = message_log.readlines()[-1]
+    #     if last_message[48:49] == author:
+    #         provenance_value = float(directxp(ID, author.upper()))
+    # return format(provenance_value, '.2f')

@@ -18,9 +18,10 @@ def finalTrust(ID, entity):
     result_count = 1
     while fo.tell() < filesize:
         timelog_line = fo.readline()
-        if timelog_line[50:51] == entity:
+        line_elements = timelog_line.split(" ")
+        if line_elements[-2] == entity:
             result_count = result_count + 1
 
-            trust = trust + float(timelog_line[51:-1])
+            trust = trust + float(line_elements[-1])
     trust = format((trust)/result_count, '.2f')
     return trust

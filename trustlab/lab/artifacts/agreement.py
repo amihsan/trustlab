@@ -11,15 +11,15 @@ def agreement(ID, entity, tag):
     log_path = Logging.LOG_PATH / file_name
     fo = open(log_path.absolute(), "r+")
     logfile = fo.read()
-    filesize = len(logfile)
+    file_size = len(logfile)
     fo.seek(0)
     aggr = 0
-    while fo.tell() < filesize:
+    while fo.tell() < file_size:
         timelog_line = fo.readline()
         if float(directxp(ID, entity)) > 0 and tag == timelog_line[56:58]:
-            aggr = aggr  + 0.1
+            aggr = aggr + 0.1
         if float(directxp(ID, entity)) < 0 and tag != timelog_line[56:58]:
-            aggr  = aggr  -0.1
+            aggr = aggr - 0.1
 
         if aggr < -1:
             aggr = -1

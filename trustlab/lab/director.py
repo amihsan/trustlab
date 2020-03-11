@@ -6,7 +6,6 @@ from trustlab.lab.exec.AgentClient import AgentClient
 from trustlab.lab.config import Logging
 
 
-
 class Director:
     def get_current_time(self):
         return datetime.now().strftime("%Y-%m-%d %H:%M:%S")

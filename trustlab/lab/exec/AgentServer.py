@@ -11,6 +11,7 @@ untrustedAgents = []
 def get_current_time():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+
 class ClientThread(Thread):
     def run(self):
         try:
@@ -40,9 +41,6 @@ class ClientThread(Thread):
                 fos = open(node_log_path.absolute(), "ab+")
                 logrecord = str(msg)
 
-                # Function call for the initialization of the trust values
-                trust_initialization(node_log, logrecord, self.scenario)
-
                 # The incoming message is split and added to the logfiles
                 fos.write(
                     bytes(get_current_time() + ', connection from:', 'UTF-8') + bytes(logrecord[2:3], 'UTF-8') +
@@ -53,6 +51,9 @@ class ClientThread(Thread):
                     bytes('| ', 'UTF-8') + bytes(reply, 'UTF-8') + bytes('\n', 'UTF-8'))
 
                 fos.close()
+
+                # Function call for the initialization of the trust values
+                trust_initialization(node_log, logrecord, self.scenario)
 
                 # Artifact finalTrust calculates the trust based on the saved values in the logfiles
                 trust_value = finalTrust(node_log, logrecord[2:3])
@@ -69,10 +70,10 @@ class ClientThread(Thread):
                 print("_______________________________________")
                 # print("_____________________" + trust_value + "-__________")
 
-                if float(trust_value) < -0.75:  # TRUSTTHRESHOLD['LowerLimit']:
+                if float(trust_value) < self.scenario.trust_threshold['lower_limit']:  # TRUSTTHRESHOLD['LowerLimit']:
                     untrustedAgents.append(logrecord[2:3])
                     print("+++" + node_log + ", nodes beyond redemption: " + logrecord[2:3] + "+++")
-                if float(trust_value) > 0.75 or float(trust_value) > 1:  # TRUSTTHRESHOLD['UpperLimit']:
+                if float(trust_value) > self.scenario.trust_threshold['upper_limit'] or float(trust_value) > 1:  # TRUSTTHRESHOLD['UpperLimit']:
                     self.scenario.authority.append(node_log[2:3])
                 print("Node " + str(self.id) + " Server received data:", logrecord[2:-1])
                 print("_______________________________________")

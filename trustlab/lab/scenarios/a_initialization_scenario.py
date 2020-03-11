@@ -13,7 +13,7 @@ OBSERVATIONS = ['A,B,a,k1,apple', 'B,C,g,k1,banana', 'C,D,e,k1,pineapple', 'D,E,
 
 INSTANT_FEEDBACK = {'k0': 0, 'k1': 0.6, 'k2': 0.3, 'k3': -0.7}
 
-TRUST_THRESHOLD = {'UpperLimit': 0.75, 'LowerLimit': -0.75}
+TRUST_THRESHOLD = {'upper_limit': 0.75, 'lower_limit': -0.75}
 
 WEIGHTS = {'direct': 1.2, 'recom': 1.2, 'popul': 1.2, 'age_check': 1.2, 'agreement': 1.2, 'authority': 1.2, 'prov': 1.2, 'recency': 1.2, 'related': 1.2, 'specificity': 1.2, 'topic': 1.2}
 
