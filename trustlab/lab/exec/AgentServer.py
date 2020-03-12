@@ -2,7 +2,7 @@ import socket
 from threading import Thread
 from trustlab.lab.trust_metrics import calc_trust_metrics
 from trustlab.lab.artifacts.finalTrust import final_trust
-from trustlab.lab.config import Logging, get_current_time
+from trustlab.lab.config import Logging, get_current_time, ServerStatus
 
 untrustedAgents = []
 
@@ -20,12 +20,12 @@ class ClientThread(Thread):
                 agent_log_file_name = current_agent + ".txt"
                 agent_log_path = Logging.LOG_PATH / agent_log_file_name
                 agent_log = open(agent_log_path.absolute(), "ab+")
-                write_string = get_current_time() + ', connection from:' + other_agent + ', author:' + author + ', tag:' + topic + ',' + str(self.scenario.instant_feedback[topic]) + ' |message:' + message + '| ' + reply + '\n'
+                write_string = get_current_time() + ", '" + current_agent + "' received from '" + other_agent + "' from author: '" + author + "' with topic: " + topic + "," + " the message: " + message + '\n'
                 agent_log.write(bytes(write_string, 'UTF-8'))
                 agent_log.close()
 
                 # Function call for the initialization of the trust values
-                calc_trust_metrics(current_agent, other_agent, self.scenario)
+                calc_trust_metrics(current_agent, other_agent, ServerStatus.SCENARIO)
 
                 # Artifact finalTrust calculates the trust based on the saved values in the log file
                 trust_value = final_trust(current_agent, other_agent)
@@ -58,38 +58,47 @@ class ClientThread(Thread):
             pass
         return True
 
-    def __init__(self, conn, id, port, scenario):
+    def __init__(self, conn, id, port):
         Thread.__init__(self)
         self.conn = conn
         self.id = id
         self.port = port
-        self.scenario = scenario
 
 
 class AgentServer(Thread):
     def run(self):
         ip = '127.0.0.1'
         buffer_size = 2048
-
         tcp_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         tcp_server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         tcp_server.bind((ip, self.port))
-
         while True:
             tcp_server.listen(4)
             print("Node server " + str(self.id) + " Waiting for connections from TCP clients...")
             (conn, (ip, port)) = tcp_server.accept()
             # TODO where is ID, an IP is added to ClientThread in original code
-            new_thread = ClientThread(conn, self.id, port, self.scenario)
+            new_thread = ClientThread(conn, self.id, port)
             new_thread.start()
             self.threads.append(new_thread)
             # self.threads = [thread for thread in self.threads if thread.is_alive()]
+        # while not ServerStatus.SHUTDOWN:
+        #     try:
+        #         tcp_server.settimeout(1)
+        #         tcp_server.listen(4)
+        #         (conn, (ip, port)) = tcp_server.accept()
+        #     except socket.timeout:
+        #         pass
+        #     else:
+        #         # TODO where is ID, an IP is added to ClientThread in original code
+        #         new_thread = ClientThread(conn, self.id, port, self.scenario)
+        #         new_thread.start()
+        #         self.threads.append(new_thread)
+        # tcp_server.close()
 
-    def __init__(self, id, port, scenario):
+    def __init__(self, id, port):
         Thread.__init__(self)
         self.port = port
         self.id = id
-        self.scenario = scenario
         self.threads = []
 
 

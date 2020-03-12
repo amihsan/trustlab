@@ -1,19 +1,19 @@
-import time, socket
-from datetime import datetime
-from trustlab.models import *
+import time
+import socket
 from trustlab.lab.exec.AgentServer import AgentServer
 from trustlab.lab.exec.AgentClient import AgentClient
-from trustlab.lab.config import Logging, get_current_time
+from trustlab.lab.config import Logging, get_current_time, ServerStatus
 
 
 class Director:
     def run_scenario(self, scenario):
+        ServerStatus.set_scenario(scenario)
         thread_server = []
         threads_client = []
         # creating servers
         for n in range(len(scenario.agents)):
             thread_server.append(n)
-            thread_server[n] = AgentServer(n, 2000 + int(n), scenario)
+            thread_server[n] = AgentServer(n, 2000 + int(n))
             thread_server[n].start()
 
         # logging for all Agents their trust history
@@ -43,6 +43,9 @@ class Director:
         for server in thread_server:
             for thread in server.threads:
                 thread.join()
+        # ServerStatus.shutdown_server()
+        # for server in thread_server:
+        #     server.join()
         # while len(threads_client) > 0 or any([len(server.threads) > 0 for server in thread_server]):
         #     threads_client = [thread for thread in threads_client if thread.is_alive()]
         return Logging.LOG_PATH / "director_log.txt", Logging.LOG_PATH / "trust_log.txt"

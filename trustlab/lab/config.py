@@ -3,6 +3,19 @@ import os
 from datetime import datetime
 
 
+class ServerStatus:
+    SCENARIO = None
+    SHUTDOWN = False
+
+    @staticmethod
+    def set_scenario(scenario):
+        ServerStatus.SCENARIO = scenario
+
+    @staticmethod
+    def shutdown_server():
+        ServerStatus.SHUTDOWN = True
+
+
 class Logging:
     LOG_PATH = Path("trustlab/lab/log/")
     if not LOG_PATH.is_dir():
