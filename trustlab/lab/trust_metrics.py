@@ -32,7 +32,7 @@ def calc_trust_metrics(current_agent, current_message, scenario):
         direct_experience_value = format(scenario.weights["direct experience"] * direct_experience(current_agent, other_agent), '.2f')
         fo = open(log_path.absolute(), "ab+")
         fo.write(
-            bytes(get_current_time() + ', direct experience trustvalue from: ', 'UTF-8') + bytes(other_agent, 'UTF-8') +
+            bytes(get_current_time() + ', direct experience trust value from: ', 'UTF-8') + bytes(other_agent, 'UTF-8') +
             bytes(' ' + direct_experience_value, 'UTF-8') +
             bytes("\n", 'UTF-8'))
         fo.close()
@@ -42,10 +42,10 @@ def calc_trust_metrics(current_agent, current_message, scenario):
         pass
 
     if 'recommendation' in agent_behavior:
-        recommendation_value = format(scenario.weights["recommendation"] * recommendation(current_agent, other_agent, scenario.agents), '.2f')
+        recommendation_value = format(scenario.weights["recommendation"] * recommendation(current_agent, other_agent, scenario.agents, scenario.trust_thresholds['cooperation']), '.2f')
         fo = open(log_path.absolute(), "ab+")
         fo.write(
-            bytes(get_current_time() + ', recommendation trustvalue from: ', 'UTF-8') + bytes(other_agent, 'UTF-8') +
+            bytes(get_current_time() + ', recommendation trust value from: ', 'UTF-8') + bytes(other_agent, 'UTF-8') +
             bytes(' ' + recommendation_value, 'UTF-8') +
             bytes("\n", 'UTF-8'))
         fo.close()
