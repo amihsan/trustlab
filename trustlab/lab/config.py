@@ -5,6 +5,8 @@ from datetime import datetime
 
 class Logging:
     LOG_PATH = Path("trustlab/lab/log/")
+    if not LOG_PATH.is_dir():
+        os.mkdir(LOG_PATH.absolute())
 
     @staticmethod
     def new_log_path():
