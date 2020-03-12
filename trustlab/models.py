@@ -21,13 +21,13 @@ class Scenario:
         if not isinstance(description, str):
             raise ValueError("Description must be string.")
 
-    def __init__(self, name, agents, observations, authority, instant_feedback, trust_thresholds, weights,
+    def __init__(self, name, agents, observations, authorities, instant_feedback, trust_thresholds, weights,
                  metrics_per_agent, history, description="No one described this scenario so far."):
         self.check_consistency(name, agents, observations, description)
         self.name = name
         self.agents = agents
         self.observations = observations
-        self.authority = authority
+        self.authorities = authorities
         self.instant_feedback = instant_feedback
         self.trust_thresholds = trust_thresholds
         self.weights = weights

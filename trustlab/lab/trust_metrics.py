@@ -2,13 +2,13 @@ from datetime import *
 from trustlab.lab.artifacts.recommendation import recommendation
 from trustlab.lab.artifacts.directxp import direct_experience
 from trustlab.lab.artifacts.popularity import popularity
+from trustlab.lab.artifacts.authority import authority
 from trustlab.lab.artifacts.agreement import agreement
 from trustlab.lab.artifacts.age import age_check
 from trustlab.lab.artifacts.recency import recency
 from trustlab.lab.artifacts.relatedRecources import related
 from trustlab.lab.artifacts.specificity import specifi
 from trustlab.lab.artifacts.provenance import provenance
-from trustlab.lab.artifacts.authority import authority
 from trustlab.lab.artifacts.topic import topic
 from trustlab.lab.config import Logging, get_current_time
 
@@ -36,8 +36,14 @@ def calc_trust_metrics(current_agent, other_agent, scenario):
             bytes("\n", 'UTF-8'))
         fo.close()
         
-    if 'authority' in agent_behavior:
-        # TODO authority usage
+    if 'authority' in agent_behavior and other_agent in scenario.authorities[current_agent]:
+        authority_value = format(scenario.weights["authority"] * authority(), '.2f')
+        fo = open(log_path.absolute(), "ab+")
+        fo.write(
+            bytes(get_current_time() + ', authority trust value from: ', 'UTF-8') + bytes(other_agent, 'UTF-8') +
+            bytes(' ' + authority_value, 'UTF-8') +
+            bytes("\n", 'UTF-8'))
+        fo.close()
         pass
 
     if 'popularity' in agent_behavior:
