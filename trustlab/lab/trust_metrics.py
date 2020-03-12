@@ -40,21 +40,21 @@ def calc_trust_metrics(current_agent, other_agent, scenario):
         # TODO authority usage
         pass
 
+    if 'popularity' in agent_behavior:
+        popularity_value = format(float(scenario.weights["popularity"]) * float(popularity(current_agent, other_agent, scenario.agents, scenario.trust_thresholds['cooperation'])), '.2f')
+        fo = open(log_path.absolute(), "ab+")
+        fo.write(
+            bytes(get_current_time() + ', popularity trust value from: ', 'UTF-8') + bytes(other_agent, 'UTF-8') +
+            bytes(' ' + popularity_value, 'UTF-8') +
+            bytes("\n", 'UTF-8'))
+        fo.close()
+
     if 'recommendation' in agent_behavior:
         recommendation_value = format(scenario.weights["recommendation"] * recommendation(current_agent, other_agent, scenario.agents, scenario.trust_thresholds['cooperation']), '.2f')
         fo = open(log_path.absolute(), "ab+")
         fo.write(
             bytes(get_current_time() + ', recommendation trust value from: ', 'UTF-8') + bytes(other_agent, 'UTF-8') +
             bytes(' ' + recommendation_value, 'UTF-8') +
-            bytes("\n", 'UTF-8'))
-        fo.close()
-
-    if 'popularity' in agent_behavior:
-        credibility_value = str(format(float(scenario.weights["popularity"]) + float(popularity(other_agent)), '.2f'))
-        fo = open(log_path.absolute(), "ab+")
-        fo.write(
-            bytes(get_current_time() + ', popularity trustvalue from: ', 'UTF-8') + bytes(other_agent, 'UTF-8') +
-            bytes(' ' + credibility_value, 'UTF-8') +
             bytes("\n", 'UTF-8'))
         fo.close()
 

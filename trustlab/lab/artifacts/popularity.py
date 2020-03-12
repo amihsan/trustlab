@@ -1,26 +1,20 @@
 ###############################################
 # Popularity check
-# The popularity is calculated by averagingthe recommendation
+# The popularity is calculated by averaging the recommendation
 
-from trustlab.lab.config import Logging
+from trustlab.lab.artifacts.directxp import direct_experience
 
-def popularity(ID):
-    log_path = Logging.LOG_PATH / "observerlog.txt"
-    fo = open(log_path.absolute(), "r+")
-    logfile = fo.read()
-    filesize = len(logfile)
-    fo.seek(0)
-    result_count = 0
-    trustvalue = 0
-    while fo.tell() < filesize:
-        timelog_line = fo.readline()
-        if timelog_line[26:27] == ID:
-            if timelog_line[65:69] == '0 |m':
-                continue
-            popul = float(timelog_line[65:69])
 
-            result_count = result_count + 1
+def popularity(current_agent, other_agent, agents, cooperation_threshold):
+    # other agent does ...
+    # other_agent has to get all recommendations about itself
+    agents_to_ask = [agent for agent in agents if agent != other_agent and direct_experience(other_agent, agent) >= cooperation_threshold]
+    recommendations = [direct_experience(other_agent, agent) * direct_experience(agent, other_agent) for agent in agents_to_ask]
+    # all recommendations are weighted with direct experience and averaged
+    popularity_value = sum(recommendations) / len(recommendations) if len(recommendations) > 0 else 0.00
+    # ... other agent finished
+    # popularity value of other agent has to be weighted with direct experience to other_agent
+    popularity_value = direct_experience(current_agent, other_agent) * popularity_value
+    return popularity_value
 
-            trustvalue = format(popul/result_count, '.2f')
-    fo.close()
-    return trustvalue
+

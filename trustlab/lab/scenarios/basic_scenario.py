@@ -16,6 +16,6 @@ TRUST_THRESHOLDS = {'cooperation': 0.33, 'forgivability': -0.33}
 
 WEIGHTS = {'direct experience': 1.0, 'recommendation': 1.0, 'popularity': 1.0, 'age': 1.0, 'agreement': 1.0, 'authority': 1.0, 'provenance': 1.0, 'recency': 1.0, 'related resource': 1.0, 'specificity': 1.0, 'topic': 1.0}
 
-METRICS_PER_AGENT = {'A': ['direct experience', 'recommendation'], 'B': ['direct experience', 'recommendation'], 'C': ['direct experience', 'recommendation'], 'D': ['direct experience', 'recommendation']}
+METRICS_PER_AGENT = {'A': ['direct experience', 'popularity', 'recommendation'], 'B': ['direct experience', 'popularity', 'recommendation'], 'C': ['direct experience', 'popularity', 'recommendation'], 'D': ['direct experience', 'popularity', 'recommendation']}
 
 
