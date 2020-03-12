@@ -25,7 +25,7 @@ class ClientThread(Thread):
                 agent_log.close()
 
                 # Function call for the initialization of the trust values
-                calc_trust_metrics(current_agent, other_agent, ServerStatus.SCENARIO)
+                calc_trust_metrics(current_agent, other_agent, topic, ServerStatus.SCENARIO)
 
                 # Artifact finalTrust calculates the trust based on the saved values in the log file
                 trust_value = final_trust(current_agent, other_agent)
@@ -36,6 +36,12 @@ class ClientThread(Thread):
                 history_file = open(history_path.absolute(), "ab+")
                 history_file.write(bytes(get_current_time() + ', history trust value from: ' + other_agent + ' ' + str(trust_value) + '\n', 'UTF-8'))
                 history_file.close()
+
+                topic_name = current_agent + "_topic.txt"
+                topic_path = Logging.LOG_PATH / topic_name
+                with open(topic_path.absolute(), "ab+") as topic_file:
+                    topic_file.write(bytes(
+                        get_current_time() + ', topic trust value from: ' + other_agent + ' ' + topic + ' ' + str(trust_value) + '\n', 'UTF-8'))
 
                 # Adding the trust value to the trust log
                 trust_log_path = Logging.LOG_PATH / "trust_log.txt"

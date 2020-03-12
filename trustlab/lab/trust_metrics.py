@@ -19,7 +19,7 @@ from trustlab.lab.config import Logging, get_current_time
 # ---This is needed to calculate the final trust value
 
 
-def calc_trust_metrics(current_agent, other_agent, scenario):
+def calc_trust_metrics(current_agent, other_agent, current_topic, scenario):
     file_name = current_agent + "_trust_log.txt"
     log_path = Logging.LOG_PATH / file_name
     agent_behavior = scenario.metrics_per_agent[current_agent]
@@ -64,15 +64,14 @@ def calc_trust_metrics(current_agent, other_agent, scenario):
             bytes("\n", 'UTF-8'))
         fo.close()
 
-    # if 'topic' in agent_behavior:
-    #     credibility_value = str(format(
-    #         float(scenario.weights["topic"]) * float(topic(current_message[24:26], scenario.instant_feedback)), '.2f'))
-    #     fo = open(log_path.absolute(), "ab+")
-    #     fo.write(
-    #         bytes(get_current_time() + ', topic trustvalue from: ', 'UTF-8') + bytes(other_agent, 'UTF-8') +
-    #         bytes(' ' + credibility_value, 'UTF-8') +
-    #         bytes("\n", 'UTF-8'))
-    #     fo.close()
+    if 'topic' in agent_behavior:
+        topic_value = format(scenario.weights["topic"] * topic(current_agent, other_agent, current_topic), '.2f')
+        fo = open(log_path.absolute(), "ab+")
+        fo.write(
+            bytes(get_current_time() + ', topic trustvalue from: ', 'UTF-8') + bytes(other_agent, 'UTF-8') +
+            bytes(' ' + topic_value, 'UTF-8') +
+            bytes("\n", 'UTF-8'))
+        fo.close()
 
     # if 'age' in agent_behavior:
     #     credibility_value = str(format(

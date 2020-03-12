@@ -16,15 +16,24 @@ class Director:
             thread_server[n] = AgentServer(n, 2000 + int(n))
             thread_server[n].start()
 
-        # logging for all Agents their trust history
+        # logging for all Agents their trust history and their topic values if given
         for agent in scenario.agents:
             history_name = agent + "_history.txt"
             history_path = Logging.LOG_PATH / history_name
-            for other_agent, history_value in scenario.history[agent].items():
-                director_file = open(history_path.absolute(), "ab+")
-                director_file.write(bytes(get_current_time() + ', history trust value from: ' + other_agent + ' ' +
-                                         str(history_value) + '\n', 'UTF-8'))
-                director_file.close()
+            with open(history_path.absolute(), "ab+") as history_file:
+                for other_agent, history_value in scenario.history[agent].items():
+                    history_file.write(bytes(get_current_time() + ', history trust value from: ' + other_agent + ' ' +
+                                             str(history_value) + '\n', 'UTF-8'))
+            topic_name = agent + "_topic.txt"
+            topic_path = Logging.LOG_PATH / topic_name
+            with open(topic_path.absolute(), "ab+") as topic_file:
+                if scenario.topics and agent in scenario.topics:
+                    for other_agent, topic_dict in scenario.topics[agent].items():
+                        if topic_dict:
+                            for topic, topic_value in topic_dict.items():
+                                # TODO topic not always required to be single word
+                                topic_file.write(bytes(get_current_time() + ', topic trust value from: ' + other_agent + ' ' + topic + ' ' + str(topic_value) + '\n', 'UTF-8'))
+
 
         for observation in scenario.observations:
             source, target, author, topic, message = observation.split(",", 4)

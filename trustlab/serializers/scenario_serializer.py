@@ -8,7 +8,7 @@ class ScenarioSerializer(serializers.Serializer):
     agents = StringListField()
     observations = StringListField()
     authorities = serializers.DictField()
-    instant_feedback = serializers.DictField()
+    topics = serializers.DictField()
     trust_thresholds = serializers.DictField()
     weights = serializers.DictField()
     metrics_per_agent = serializers.DictField()
@@ -17,7 +17,7 @@ class ScenarioSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         return Scenario(validated_data.get('name'), validated_data.get('agents'), validated_data.get('observations'),
-                        validated_data.get('authorities'), validated_data.get('instant_feedback'),
+                        validated_data.get('authorities'), validated_data.get('topics'),
                         validated_data.get('trust_thresholds'), validated_data.get('weights'),
                         validated_data.get('metrics_per_agent'), validated_data.get('history'),
                         validated_data.get('description', ""))
@@ -27,7 +27,7 @@ class ScenarioSerializer(serializers.Serializer):
         instance.agents = validated_data.get('agents', instance.agents)
         instance.observations = validated_data.get('observations', instance.observations)
         instance.authorities = validated_data.get('authorities', instance.authority)
-        instance.instant_feedback = validated_data.get('instant_feedback', instance.instant_feedback)
+        instance.topics = validated_data.get('topics', instance.instant_feedback)
         instance.trust_thresholds = validated_data.get('trust_thresholds', instance.trust_threshold)
         instance.weights = validated_data.get('weights', instance.weights)
         instance.metrics_per_agent = validated_data.get('metrics_per_agent', instance.trust_behavior_1)

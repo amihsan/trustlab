@@ -1,4 +1,4 @@
-# basic scenario for initialization
+
 NAME = "Basic Scenario"
 DESCRIPTION = "This is a basic scenario with four agents."
 
@@ -10,7 +10,7 @@ OBSERVATIONS = ['A,B,A,fruits,apple', 'A,B,A,fruits,banana', 'C,B,C,fruits,apple
 
 HISTORY = {'A': {'B': 1.0, 'C': 1.0, 'D': 1.0}, 'B': {'A': 0, 'C': 0, 'D': 1.0}, 'C': {'A': 1.0, 'B': 1.0, 'D': 1.0}, 'D': {'A': 1.0, 'B': 1.0, 'C': 1.0}}
 
-INSTANT_FEEDBACK = {'fruits': 0, 'vegetable': 0.6, 'drinks': 0.3}
+TOPICS = {}
 
 TRUST_THRESHOLDS = {'cooperation': 0.5, 'forgivability': -0.5}
 
