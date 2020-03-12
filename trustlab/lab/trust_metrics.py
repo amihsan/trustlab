@@ -19,11 +19,10 @@ from trustlab.lab.config import Logging, get_current_time
 # ---This is needed to calculate the final trust value
 
 
-def calc_trust_metrics(current_agent, current_message, scenario):
+def calc_trust_metrics(current_agent, other_agent, scenario):
     file_name = current_agent + "_trust_log.txt"
     log_path = Logging.LOG_PATH / file_name
     agent_behavior = scenario.metrics_per_agent[current_agent]
-    other_agent = current_message[2:3]
 
     #################################################
     # Artifact Calculation
@@ -59,75 +58,77 @@ def calc_trust_metrics(current_agent, current_message, scenario):
             bytes("\n", 'UTF-8'))
         fo.close()
 
-    if 'age' in agent_behavior:
-        credibility_value = str(format(
-            float(scenario.weights["age"]) * age_check(current_agent, other_agent, current_message[24:26]),
-            '.2f'))
-        fo = open(log_path.absolute(), "ab+")
-        fo.write(
-            bytes(get_current_time() + ', age trustvalue from: ', 'UTF-8') + bytes(other_agent, 'UTF-8') +
-            bytes(' ' + credibility_value, 'UTF-8') +
-            bytes("\n", 'UTF-8'))
-        fo.close()
+    # if 'topic' in agent_behavior:
+    #     credibility_value = str(format(
+    #         float(scenario.weights["topic"]) * float(topic(current_message[24:26], scenario.instant_feedback)), '.2f'))
+    #     fo = open(log_path.absolute(), "ab+")
+    #     fo.write(
+    #         bytes(get_current_time() + ', topic trustvalue from: ', 'UTF-8') + bytes(other_agent, 'UTF-8') +
+    #         bytes(' ' + credibility_value, 'UTF-8') +
+    #         bytes("\n", 'UTF-8'))
+    #     fo.close()
 
-    if 'agreement' in agent_behavior:
-        credibility_value = str(format(float(scenario.weights["agreement"]) * float(
-            agreement(current_agent, other_agent, current_message[24:26])), '.2f'))
-        fo = open(log_path.absolute(), "ab+")
-        fo.write(
-            bytes(get_current_time() + ', agreement trustvalue from: ', 'UTF-8') + bytes(other_agent, 'UTF-8') +
-            bytes(' ' + credibility_value, 'UTF-8') +
-            bytes("\n", 'UTF-8'))
-        fo.close()
+    # if 'age' in agent_behavior:
+    #     credibility_value = str(format(
+    #         float(scenario.weights["age"]) * age_check(current_agent, other_agent, current_message[24:26]),
+    #         '.2f'))
+    #     fo = open(log_path.absolute(), "ab+")
+    #     fo.write(
+    #         bytes(get_current_time() + ', age trustvalue from: ', 'UTF-8') + bytes(other_agent, 'UTF-8') +
+    #         bytes(' ' + credibility_value, 'UTF-8') +
+    #         bytes("\n", 'UTF-8'))
+    #     fo.close()
+    #
+    # if 'agreement' in agent_behavior:
+    #     credibility_value = str(format(float(scenario.weights["agreement"]) * float(
+    #         agreement(current_agent, other_agent, current_message[24:26])), '.2f'))
+    #     fo = open(log_path.absolute(), "ab+")
+    #     fo.write(
+    #         bytes(get_current_time() + ', agreement trustvalue from: ', 'UTF-8') + bytes(other_agent, 'UTF-8') +
+    #         bytes(' ' + credibility_value, 'UTF-8') +
+    #         bytes("\n", 'UTF-8'))
+    #     fo.close()
+    #
+    # if 'provenance' in agent_behavior:
+    #     credibility_value = str(
+    #         format(float(scenario.weights["provenance"]) * float(provenance(current_agent, current_message[16:18])), '.2f'))
+    #     fo = open(log_path.absolute(), "ab+")
+    #     fo.write(
+    #         bytes(get_current_time() + ', provenance trustvalue from: ', 'UTF-8') + bytes(other_agent, 'UTF-8') +
+    #         bytes(' ' + credibility_value, 'UTF-8') +
+    #         bytes("\n", 'UTF-8'))
+    #     fo.close()
+    #
+    # if 'recency' in agent_behavior:
+    #     credibility_value = str(
+    #         format(float(scenario.weights["recency"]) * float(recency(current_agent, current_message[24:26])), '.2f'))
+    #     fo = open(log_path.absolute(), "ab+")
+    #     fo.write(
+    #         bytes(get_current_time() + ', recency trustvalue from: ', 'UTF-8') + bytes(other_agent, 'UTF-8') +
+    #         bytes(' ' + credibility_value, 'UTF-8') +
+    #         bytes("\n", 'UTF-8'))
+    #     fo.close()
+    #
+    # if 'related resource' in agent_behavior:
+    #     credibility_value = str(
+    #         format(float(scenario.weights["related resource"]) * float(related(current_agent, current_message[24:26])), '.2f'))
+    #     fo = open(log_path.absolute(), "ab+")
+    #     fo.write(
+    #         bytes(get_current_time() + ', related resource trustvalue from: ', 'UTF-8') + bytes(other_agent, 'UTF-8') +
+    #         bytes(' ' + credibility_value, 'UTF-8') +
+    #         bytes("\n", 'UTF-8'))
+    #     fo.close()
+    #
+    # if 'specificity' in agent_behavior:
+    #     credibility_value = str(format(float(scenario.weights["specificity"]) * float(
+    #         specifi(current_agent, other_agent, current_message[24:26])), '.2f'))
+    #     fo = open(log_path.absolute(), "ab+")
+    #     fo.write(
+    #         bytes(get_current_time() + ', specificity trustvalue from: ', 'UTF-8') + bytes(other_agent, 'UTF-8') +
+    #         bytes(' ' + credibility_value, 'UTF-8') +
+    #         bytes("\n", 'UTF-8'))
+    #     fo.close()
 
-    if 'provenance' in agent_behavior:
-        credibility_value = str(
-            format(float(scenario.weights["provenance"]) * float(provenance(current_agent, current_message[16:18])), '.2f'))
-        fo = open(log_path.absolute(), "ab+")
-        fo.write(
-            bytes(get_current_time() + ', provenance trustvalue from: ', 'UTF-8') + bytes(other_agent, 'UTF-8') +
-            bytes(' ' + credibility_value, 'UTF-8') +
-            bytes("\n", 'UTF-8'))
-        fo.close()
 
-    if 'recency' in agent_behavior:
-        credibility_value = str(
-            format(float(scenario.weights["recency"]) * float(recency(current_agent, current_message[24:26])), '.2f'))
-        fo = open(log_path.absolute(), "ab+")
-        fo.write(
-            bytes(get_current_time() + ', recency trustvalue from: ', 'UTF-8') + bytes(other_agent, 'UTF-8') +
-            bytes(' ' + credibility_value, 'UTF-8') +
-            bytes("\n", 'UTF-8'))
-        fo.close()
-
-    if 'related resource' in agent_behavior:
-        credibility_value = str(
-            format(float(scenario.weights["related resource"]) * float(related(current_agent, current_message[24:26])), '.2f'))
-        fo = open(log_path.absolute(), "ab+")
-        fo.write(
-            bytes(get_current_time() + ', related resource trustvalue from: ', 'UTF-8') + bytes(other_agent, 'UTF-8') +
-            bytes(' ' + credibility_value, 'UTF-8') +
-            bytes("\n", 'UTF-8'))
-        fo.close()
-
-    if 'specificity' in agent_behavior:
-        credibility_value = str(format(float(scenario.weights["specificity"]) * float(
-            specifi(current_agent, other_agent, current_message[24:26])), '.2f'))
-        fo = open(log_path.absolute(), "ab+")
-        fo.write(
-            bytes(get_current_time() + ', specificity trustvalue from: ', 'UTF-8') + bytes(other_agent, 'UTF-8') +
-            bytes(' ' + credibility_value, 'UTF-8') +
-            bytes("\n", 'UTF-8'))
-        fo.close()
-
-    if 'topic' in agent_behavior:
-        credibility_value = str(format(
-            float(scenario.weights["topic"]) * float(topic(current_message[24:26], scenario.instant_feedback)), '.2f'))
-        fo = open(log_path.absolute(), "ab+")
-        fo.write(
-            bytes(get_current_time() + ', topic trustvalue from: ', 'UTF-8') + bytes(other_agent, 'UTF-8') +
-            bytes(' ' + credibility_value, 'UTF-8') +
-            bytes("\n", 'UTF-8'))
-        fo.close()
 
 

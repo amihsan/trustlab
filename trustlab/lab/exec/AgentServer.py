@@ -12,24 +12,6 @@ class ClientThread(Thread):
         try:
             msg = self.conn.recv(2048)
             reply = 'standard response'
-            # trust = 0
-            # current_agent = self.id
-            # if current_agent == 0:
-            #     current_agent = 'A'
-            # if current_agent == 1:
-            #     current_agent = 'B'
-            # if current_agent == 2:
-            #     current_agent = 'C'
-            # if current_agent == 3:
-            #     current_agent = 'D'
-            # if current_agent == 4:
-            #     current_agent = 'E'
-            # if current_agent == 5:
-            #     current_agent = 'F'
-            # if current_agent == 6:
-            #     current_agent = 'G'
-            # if current_agent == 7:
-            #     current_agent = 'H'
             if msg != bytes('', 'UTF-8'):
                 observation = msg.decode('utf-8')
                 other_agent, current_agent, author, topic, message = observation.split(",", 4)
@@ -43,7 +25,7 @@ class ClientThread(Thread):
                 agent_log.close()
 
                 # Function call for the initialization of the trust values
-                calc_trust_metrics(current_agent, observation, self.scenario)
+                calc_trust_metrics(current_agent, other_agent, self.scenario)
 
                 # Artifact finalTrust calculates the trust based on the saved values in the log file
                 trust_value = final_trust(current_agent, other_agent)
@@ -58,7 +40,7 @@ class ClientThread(Thread):
                 # Adding the trust value to the trust log
                 trust_log_path = Logging.LOG_PATH / "trust_log.txt"
                 trust_log = open(trust_log_path.absolute(), 'ab+')
-                write_string = get_current_time() + ", agent '" + current_agent + "' trusts agent '" + other_agent + "' with value: " + trust_value + '\n'
+                write_string = get_current_time() + ", agent '" + current_agent + "' trusts agent '" + other_agent + "' with value: " + str(trust_value) + '\n'
                 trust_log.write(bytes(write_string, 'UTF-8'))
                 trust_log.close()
                 # print("_______________________________________")
