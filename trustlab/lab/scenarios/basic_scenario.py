@@ -6,7 +6,7 @@ AGENTS = ['A', 'B', 'C', 'D']
 
 AUTHORITY = ['B', 'E']
 
-OBSERVATIONS = ['A,B,a,fruits,apple', 'A,B,g,fruits,banana']
+OBSERVATIONS = ['A,B,A,fruits,apple', 'A,B,A,fruits,banana']
 
 HISTORY = {'A': {'B': 1.0, 'C': 1.0, 'D': 1.0}, 'B': {'A': 0, 'C': 0.2, 'D': 1.0}, 'C': {'A': 1.0, 'B': 1.0, 'D': 1.0}, 'D': {'A': 1.0, 'B': 1.0, 'C': 1.0}}
 
