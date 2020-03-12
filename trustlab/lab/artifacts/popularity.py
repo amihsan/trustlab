@@ -5,6 +5,7 @@
 from trustlab.lab.artifacts.directxp import direct_experience
 
 
+# TODO realize popularity via network requests
 def popularity(current_agent, other_agent, agents, cooperation_threshold):
     # other agent does ...
     # other_agent has to get all recommendations about itself
