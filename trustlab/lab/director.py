@@ -17,13 +17,13 @@ class Director:
 
         # logging for all Agents their trust history
         for agent in scenario.agents:
-            history_name = agent + "history.txt"
+            history_name = agent + "_history.txt"
             history_path = Logging.LOG_PATH / history_name
             for other_agent, history_value in scenario.history[agent].items():
-                history_file = open(history_path.absolute(), "ab+")
-                history_file.write(bytes(get_current_time() + ', history trust value from: ' + other_agent + ' ' +
+                director_file = open(history_path.absolute(), "ab+")
+                director_file.write(bytes(get_current_time() + ', history trust value from: ' + other_agent + ' ' +
                                          str(history_value) + '\n', 'UTF-8'))
-                history_file.close()
+                director_file.close()
 
         # with open(s, "r") as fp:
         for observation in scenario.observations:
@@ -44,13 +44,12 @@ class Director:
                 port = 2006
             if str(observation_elements[1]) == 'H':
                 port = 2007
-            client_thread = AgentClient(str(observation_elements[0]), self.HOST, port, str(observation_elements[0]) + ' to ' + str(observation_elements[1]) + ' author: '
-                                       + str(observation_elements[2]) + ' tag: ' + str(observation_elements[3]) + ' msg: ' + str(observation_elements[4]))
+            client_thread = AgentClient(str(observation_elements[0]), self.HOST, port, observation)
             threads_client.append(client_thread)
             client_thread.start()
-            file_path = Logging.LOG_PATH / "observerlog.txt"
-            history_file = open(file_path.absolute(), "ab+")
-            history_file.write(
+            file_path = Logging.LOG_PATH / "director_log.txt"
+            director_file = open(file_path.absolute(), "ab+")
+            director_file.write(
                 bytes(get_current_time() + ' Node: ', 'UTF-8') + bytes(observation_elements[1], 'UTF-8') +
                 bytes(', connection from:', 'UTF-8') +
                 bytes(observation_elements[0], 'UTF-8') + bytes(', author:', 'UTF-8') +
@@ -58,7 +57,7 @@ class Director:
                 bytes(str(observation_elements[3]), 'UTF-8') +
                 bytes(',', 'UTF-8') + bytes(str(scenario.instant_feedback[observation_elements[3]]), 'UTF-8') +
                 bytes(' |message:', 'UTF-8') + bytes(str(observation_elements[4]), 'UTF-8') + bytes('\n', 'UTF-8'))
-            history_file.close()
+            director_file.close()
             time.sleep(0.1)
         for thread in threads_client:
             thread.join()
@@ -67,7 +66,7 @@ class Director:
                 thread.join()
         # while len(threads_client) > 0 or any([len(server.threads) > 0 for server in thread_server]):
         #     threads_client = [thread for thread in threads_client if thread.is_alive()]
-        return Logging.LOG_PATH / "observerlog.txt", Logging.LOG_PATH / "trustlog.txt"
+        return Logging.LOG_PATH / "director_log.txt", Logging.LOG_PATH / "trust_log.txt"
 
     def __init__(self):
         self.HOST = socket.gethostname()

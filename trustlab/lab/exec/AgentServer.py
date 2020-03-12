@@ -1,7 +1,7 @@
 import socket
 from threading import Thread
 from trustlab.lab.trust_metrics import calc_trust_metrics
-from trustlab.lab.artifacts.finalTrust import finalTrust
+from trustlab.lab.artifacts.finalTrust import final_trust
 from trustlab.lab.config import Logging, get_current_time
 
 untrustedAgents = []
@@ -12,74 +12,65 @@ class ClientThread(Thread):
         try:
             msg = self.conn.recv(2048)
             reply = 'standard response'
-            trust = 0
-            agent = self.id
-            if agent == 0:
-                agent = 'A'
-            if agent == 1:
-                agent = 'B'
-            if agent == 2:
-                agent = 'C'
-            if agent == 3:
-                agent = 'D'
-            if agent == 4:
-                agent = 'E'
-            if agent == 5:
-                agent = 'F'
-            if agent == 6:
-                agent = 'G'
-            if agent == 7:
-                agent = 'H'
+            # trust = 0
+            # current_agent = self.id
+            # if current_agent == 0:
+            #     current_agent = 'A'
+            # if current_agent == 1:
+            #     current_agent = 'B'
+            # if current_agent == 2:
+            #     current_agent = 'C'
+            # if current_agent == 3:
+            #     current_agent = 'D'
+            # if current_agent == 4:
+            #     current_agent = 'E'
+            # if current_agent == 5:
+            #     current_agent = 'F'
+            # if current_agent == 6:
+            #     current_agent = 'G'
+            # if current_agent == 7:
+            #     current_agent = 'H'
             if msg != bytes('', 'UTF-8'):
-                node_log_file_name = agent + ".txt"
-                node_log_path = Logging.LOG_PATH / node_log_file_name
-                fos = open(node_log_path.absolute(), "ab+")
-                current_message = str(msg)
-                other_agent = current_message[2:3]
+                observation = msg.decode('utf-8')
+                other_agent, current_agent, author, topic, message = observation.split(",", 4)
 
                 # The incoming message is split and added to the logfiles
-                fos.write(
-                    bytes(get_current_time() + ', connection from:', 'UTF-8') + bytes(other_agent, 'UTF-8') +
-                    bytes(', author:', 'UTF-8') + bytes(current_message[16:18], 'UTF-8') +
-                    bytes(', tag:', 'UTF-8') + bytes(current_message[23:26], 'UTF-8') + bytes(',', 'UTF-8') +
-                    bytes(str(self.scenario.instant_feedback[current_message[24:26]]), 'UTF-8') +
-                    bytes(' |message:', 'UTF-8') + bytes(current_message[31:-1], 'UTF-8') +
-                    bytes('| ', 'UTF-8') + bytes(reply, 'UTF-8') + bytes('\n', 'UTF-8'))
-                fos.close()
+                agent_log_file_name = current_agent + ".txt"
+                agent_log_path = Logging.LOG_PATH / agent_log_file_name
+                agent_log = open(agent_log_path.absolute(), "ab+")
+                write_string = get_current_time() + ', connection from:' + other_agent + ', author:' + author + ', tag:' + topic + ',' + str(self.scenario.instant_feedback[topic]) + ' |message:' + message + '| ' + reply + '\n'
+                agent_log.write(bytes(write_string, 'UTF-8'))
+                agent_log.close()
 
                 # Function call for the initialization of the trust values
-                calc_trust_metrics(agent, current_message, self.scenario)
+                calc_trust_metrics(current_agent, observation, self.scenario)
 
                 # Artifact finalTrust calculates the trust based on the saved values in the log file
-                trust_value = finalTrust(agent, other_agent)
+                trust_value = final_trust(current_agent, other_agent)
                 
                 # Adding the trust value to the history file
-                history_name = agent + "history.txt"
+                history_name = current_agent + "_history.txt"
                 history_path = Logging.LOG_PATH / history_name
                 history_file = open(history_path.absolute(), "ab+")
-                history_file.write(bytes(get_current_time() + ', history trust value from: ' + other_agent + ' ' +
-                                         str(trust_value) + '\n', 'UTF-8'))
+                history_file.write(bytes(get_current_time() + ', history trust value from: ' + other_agent + ' ' + str(trust_value) + '\n', 'UTF-8'))
                 history_file.close()
 
                 # Adding the trust value to the trust log
-                trustlog_path = Logging.LOG_PATH / "trustlog.txt"
-                fot = open(trustlog_path.absolute(), 'ab+')
-                fot.write(
-                    bytes(get_current_time() + ', node: ', 'UTF-8') + bytes(agent, 'UTF-8') +
-                    bytes(' trustvalue of node: ' + other_agent, 'UTF-8') + bytes(' ' + trust_value, 'UTF-8') +
-                    bytes('\n', 'UTF-8')
-                )
-                fot.close()
-                print("_______________________________________")
-                # print("_____________________" + trust_value + "-__________")
-
-                if float(trust_value) < self.scenario.trust_thresholds['lower_limit']:
-                    untrustedAgents.append(other_agent)
-                    print("+++" + agent + ", nodes beyond redemption: " + other_agent + "+++")
-                if float(trust_value) > self.scenario.trust_thresholds['upper_limit'] or float(trust_value) > 1:
-                    self.scenario.authority.append(agent[2:3])
-                print("Node " + str(self.id) + " Server received data:", current_message[2:-1])
-                print("_______________________________________")
+                trust_log_path = Logging.LOG_PATH / "trust_log.txt"
+                trust_log = open(trust_log_path.absolute(), 'ab+')
+                write_string = get_current_time() + ", agent '" + current_agent + "' trusts agent '" + other_agent + "' with value: " + trust_value + '\n'
+                trust_log.write(bytes(write_string, 'UTF-8'))
+                trust_log.close()
+                # print("_______________________________________")
+                # # print("_____________________" + trust_value + "-__________")
+                #
+                # if float(trust_value) < self.scenario.trust_thresholds['lower_limit']:
+                #     untrustedAgents.append(other_agent)
+                #     print("+++" + current_agent + ", nodes beyond redemption: " + other_agent + "+++")
+                # if float(trust_value) > self.scenario.trust_thresholds['upper_limit'] or float(trust_value) > 1:
+                #     self.scenario.authority.append(current_agent[2:3])
+                # print("Node " + str(self.id) + " Server received data:", observation[2:-1])
+                # print("_______________________________________")
             self.conn.send(bytes(str(reply), 'UTF-8'))
         except BrokenPipeError:
             pass

@@ -6,7 +6,7 @@ from trustlab.lab.config import Logging
 
 
 def direct_experience(agent, other_agent):
-    history_name = agent + "history.txt"
+    history_name = agent + "_history.txt"
     history_path = Logging.LOG_PATH / history_name
     with open(history_path.absolute(), "r+") as history_file:
         # getting all history values of the agent respective the other agent
