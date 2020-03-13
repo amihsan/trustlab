@@ -69,7 +69,6 @@ footer.mdl-mini-footer a {
 }
 
 .trustlab-li-body {
-    font-size: 14px;
     font-weight: 400;
     letter-spacing: 0;
     line-height: 18px;
@@ -78,4 +77,14 @@ footer.mdl-mini-footer a {
     color: rgba(0,0,0,.54);
     display: block;
     padding: 0;
+}
+
+.trustlab-li-body ul, .trustlab-li-body ol {
+    font-size: inherit;
+    padding-inline-start: 2em;
+}
+
+.trustlab-li-body ul ul {
+    font-size: inherit;
+    padding-inline-start: 1.2em;
 }

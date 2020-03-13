@@ -117,7 +117,8 @@ aTLAS
                                 <ol>
                                 {% for observation in scenario.observations_split %}
                                     <li>
-                                    '{{ observation.source }}' sends '{{ observation.target }}' from author '{{ observation.author }}' with topic '{{ observation.topic }}' the message: {{ observation.message }}
+                                    <!--'{{ observation.source }}' sends '{{ observation.target }}' from author '{{ observation.author }}' with topic '{{ observation.topic }}' the message: {{ observation.message }} -->
+                                    '{{ observation.source }}' sends '{{ observation.target }}', topic '{{ observation.topic }}', message: {{ observation.message }}
                                     </li>
                                 {% endfor %}
                                 </ol>
@@ -163,7 +164,7 @@ aTLAS
                               <span class="trustlab-li-body">
                                 {% for agent, authorities in scenario.authorities.items %}
                                     {% if authorities %}
-                                    {{ agent }} sees following others as authorities: <br>
+                                    {{ agent }} considers the following agents as authorities: <br>
                                     {% for authority in authorities %}
                                         {{ authority }}{% if not forloop.last %},{% endif %}{% if forloop.last %}<br>{% endif %}
                                     {% endfor %}
@@ -181,7 +182,7 @@ aTLAS
                               <span class="trustlab-li-body">
                                 {% for agent, agents_topics in scenario.topics.items %}
                                     {{ agent }} trusts <br>
-                                    <ul>
+                                    <ul style="list-style-type:none; padding-inline-start: 1em;">
                                     {% for other_agent, topics in agents_topics.items %}
                                         <li>
                                         {{ other_agent }}
