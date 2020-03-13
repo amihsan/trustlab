@@ -6,11 +6,11 @@ AGENTS = ['A', 'B', 'C', 'D']
 
 AUTHORITIES = {'A': ['C'], 'B': ['C'], 'C': [], 'D': ['C']}
 
-OBSERVATIONS = ['A,B,A,fruits,apple', 'A,B,A,fruits,banana', 'A,B,A,fruits,mango', 'C,B,C,fruits,apple', 'C,B,C,fruits,banana', 'C,B,C,fruits,mango']
+OBSERVATIONS = ['A,B,A,Web Engineering,Redecentralization of the Web', 'A,B,A,Web Engineering,Web of Things', 'A,B,A,Web Engineering,Web Assembly', 'C,B,C,Web Engineering,Semantic Web and Linked Open Data', 'C,B,C,Web Engineering,Redecentralization of the Web', 'C,B,C,Web Engineering,Web-based learning']
 
 HISTORY = {'A': {'B': 1.0, 'C': 1.0, 'D': 1.0}, 'B': {'A': 0, 'C': 0, 'D': 1.0}, 'C': {'A': 1.0, 'B': 1.0, 'D': 1.0}, 'D': {'A': 1.0, 'B': 1.0, 'C': 1.0}}
 
-TOPICS = {'A': {'B': {'fruits': 1.0}, 'C': {'fruits': 1.0}, 'D': {'fruits': 1.0}}, 'B': {'A': {'fruits': 0.5}, 'C': {'fruits': 0.7}, 'D': {'fruits': 1.0}}, 'C': {'A': {'fruits': 1.0}, 'B': {'fruits': 1.0}, 'D': {'fruits': 1.0}}, 'D': {'A': {'fruits': 1.0}, 'B': {'fruits': 1.0}, 'C': {'fruits': 1.0}}}
+TOPICS = {'A': {'B': {'Web Engineering': 1.0}, 'C': {'Web Engineering': 1.0}, 'D': {'Web Engineering': 1.0}}, 'B': {'A': {'Web Engineering': 0.5}, 'C': {'Web Engineering': 0.5}, 'D': {'Web Engineering': 1.0}}, 'C': {'A': {'Web Engineering': 1.0}, 'B': {'Web Engineering': 1.0}, 'D': {'Web Engineering': 1.0}}, 'D': {'A': {'Web Engineering': 1.0}, 'B': {'Web Engineering': 1.0}, 'C': {'Web Engineering': 1.0}}}
 
 TRUST_THRESHOLDS = {'cooperation': 0.5, 'forgivability': -0.5}
 

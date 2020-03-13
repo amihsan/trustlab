@@ -6,7 +6,7 @@ AGENTS = ['A', 'B', 'C', 'D']
 
 AUTHORITIES = {'A': ['C'], 'B': ['C'], 'C': [], 'D': ['C']}
 
-OBSERVATIONS = ['A,B,A,fruits,apple', 'A,B,A,fruits,banana', 'A,B,A,fruits,mango', 'C,B,C,fruits,apple', 'C,B,C,fruits,banana', 'C,B,C,fruits,mango']
+OBSERVATIONS = ['A,B,A,Web Engineering,Redecentralization of the Web', 'A,B,A,Web Engineering,Web of Things', 'A,B,A,Web Engineering,Web Assembly', 'C,B,C,Web Engineering,Semantic Web and Linked Open Data', 'C,B,C,Web Engineering,Redecentralization of the Web', 'C,B,C,Web Engineering,Web-based learning']
 
 HISTORY = {'A': {'B': 1.0, 'C': 1.0, 'D': 1.0}, 'B': {'A': 0, 'C': 0, 'D': 1.0}, 'C': {'A': 1.0, 'B': 1.0, 'D': 1.0}, 'D': {'A': 1.0, 'B': 1.0, 'C': 1.0}}
 
