@@ -16,6 +16,12 @@ class IndexView(generic.TemplateView):
         try:
             # ScenarioFactory throws AssertionError if no predefined scenarios could be loaded
             scenario_factory = ScenarioFactory()
+            for scenario in scenario_factory.scenarios:
+                scenario.observations_split = []
+                for observation in scenario.observations:
+                    source, target, author, topic, message = observation.split(",", 4)
+                    obs_split = {"source": source, "target": target, "author": author, "topic": topic, "message": message}
+                    scenario.observations_split.append(obs_split)
             context["scenarios"] = scenario_factory.scenarios
             # for manipulation of scenarios via JS, send them also as JSON
             scenario_serializer = ScenarioSerializer(scenario_factory.scenarios, many=True)

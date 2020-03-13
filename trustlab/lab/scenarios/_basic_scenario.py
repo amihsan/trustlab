@@ -4,7 +4,7 @@ DESCRIPTION = "This is a basic scenario with four agents."
 
 AGENTS = ['A', 'B', 'C', 'D']
 
-AUTHORITIES = {'A': [], 'B': [], 'C': [], 'D': []}
+AUTHORITIES = {}
 
 OBSERVATIONS = ['A,B,A,fruits,apple', 'A,B,A,fruits,banana', 'A,B,A,fruits,mango', 'C,B,C,fruits,apple', 'C,B,C,fruits,banana', 'C,B,C,fruits,mango']
 

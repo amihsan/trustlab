@@ -20,7 +20,7 @@ class ClientThread(Thread):
                 agent_log_file_name = current_agent + ".txt"
                 agent_log_path = Logging.LOG_PATH / agent_log_file_name
                 agent_log = open(agent_log_path.absolute(), "ab+")
-                write_string = get_current_time() + ", '" + current_agent + "' received from '" + other_agent + "' from author: '" + author + "' with topic: " + topic + "," + " the message: " + message + '\n'
+                write_string = get_current_time() + ", '" + current_agent + "' received from '" + other_agent + "' from author '" + author + "' with topic '" + topic + "' the message: " + message + '\n'
                 agent_log.write(bytes(write_string, 'UTF-8'))
                 agent_log.close()
 

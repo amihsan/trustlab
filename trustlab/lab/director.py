@@ -43,7 +43,7 @@ class Director:
             client_thread.start()
             file_path = Logging.LOG_PATH / "director_log.txt"
             director_file = open(file_path.absolute(), "ab+")
-            write_string = get_current_time() + ", '" + source + "' will send to '" + target + "' from author: '" + author + "' with topic: " + topic + "," + " the message: " + message + '\n'
+            write_string = get_current_time() + ", '" + source + "' will send to '" + target + "' from author '" + author + "' with topic '" + topic + "' the message: " + message + '\n'
             director_file.write(bytes(write_string, 'UTF-8'))
             director_file.close()
             time.sleep(1)
