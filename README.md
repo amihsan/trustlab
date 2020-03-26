@@ -15,20 +15,26 @@ Laboratory of Trust. Latest online version: [http://vsr-dem0.informatik.tu-chemn
 2. Clone Git Repository with git client or per terminal
 3. Open terminal and go to project directory
 4. Configure merge driver for dealing with ``.gitattributes`` or rather the merge strategy:
+    ```bash
+    git config merge.ours.driver true
+    ```
 
-        git config merge.ours.driver true
-
-5. Install (if needed), and then create, activate Python virtual environment
-
-    [https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/)
-
-6. Run pip to install all necessary python packages:
-
-        pip3 install -r requirements.pip --exists-action w
+5. Setup pipenv in project root:
+    ```bash
+    pipenv install
+    ```
+   ODBC on MAC:
+    - If you installed this formula with the registration option (default), you'll need to manually remove
+    ``[ODBC Driver 17 for SQL Server]`` section from odbcinst.ini after the formula is uninstalled.
+    This can be done by executing:
+        ```bash
+        odbcinst -u -d -n "ODBC Driver 17 for SQL Server"
+        ```
         
 7. Modify ``Additional Options`` of your django configuration (for no auto-reload after editing scenario files) with:
-
-        --noreload
+    ```bash
+    --noreload
+    ```
 
 7. Get to work! 
 
@@ -40,14 +46,9 @@ Laboratory of Trust. Latest online version: [http://vsr-dem0.informatik.tu-chemn
 
 - djtrustlab is the main Django project with settings.py, trustlab is the subproject with all the code
 
-- All deploy-configs for gunicorn and nginx are in ``deploy-configs/``
+- All deploy-configs for daphne and nginx (and depricated gunicorn) are in ``deploy-configs/``
 
-- ODBC on MAC:
-    - If you installed this formula with the registration option (default), you'll
-        need to manually remove ``[ODBC Driver 17 for SQL Server]`` section from
-        odbcinst.ini after the formula is uninstalled. This can be done by executing
-        the following command:
-            ``odbcinst -u -d -n "ODBC Driver 17 for SQL Server"``
+
 
 ## How To Scenario
 
@@ -82,11 +83,14 @@ DB NAME, DB USER, DB PASSWORD, STATIC URL & ROOT, MEDIA URL & ROOT
 
 ## Links To Know
 
-* NVD3: Re-usable chart for d3.js http://nvd3.org/
-* Links for deploy
+* NVD3: Re-usable chart for d3.js \
+http://nvd3.org/
+* Links for deploy \
 https://www.digitalocean.com/community/tutorials/how-to-set-up-django-with-postgres-nginx-and-gunicorn-on-ubuntu-16-04
-* DEPRICATED mdl-selectfield https://github.com/meyvn/mdl-selectfield
-* DEPRICATED Dark MDL CSS Style from CreativeIT https://github.com/CreativeIT/material-dashboard-lite http://creativeit.io/material-dashboard-lite/
+* DEPRICATED mdl-selectfield \
+ https://github.com/meyvn/mdl-selectfield
+* DEPRICATED Dark MDL CSS Style from CreativeIT \
+https://github.com/CreativeIT/material-dashboard-lite http://creativeit.io/material-dashboard-lite/
 
 
 
