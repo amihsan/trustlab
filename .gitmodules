@@ -1,0 +1,4 @@
+[submodule "trustlab-host"]
+	path = trustlab-host
+	url = ../trustlab-host.git
+	branch = master
