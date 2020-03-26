@@ -1,4 +1,5 @@
 variables:
+  GIT_SUBMODULE_STRATEGY: recursive
   SRC: "/var/www/trustlab/src"
   SRC_RM: "/var/www/trustlab/src/*"
   DBKEY_SCRIPT: "/var/www/trustlab/dbkey.sh"
