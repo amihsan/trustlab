@@ -9,6 +9,13 @@ from os.path import isfile, join, dirname, abspath
 SCENARIO_PATH = '/trustlab/lab/scenarios'
 SCENARIO_PACKAGE = "trustlab.lab.scenarios"
 
+
+class Supervisors(models.Model):
+    channel_name = models.CharField(max_length=120)
+    max_agents = models.IntegerField(default=0)
+    agents_in_use = models.IntegerField(default=0)
+
+
 class Scenario:
     @staticmethod
     def check_consistency(name, agents, observations, description):
@@ -51,7 +58,6 @@ class Scenario:
 
 
 class ScenarioFactory:
-
     # load all scenarios in /trustlab/lab/scenarios with dynamic read of parameters from Scenario.__init__
     @staticmethod
     def load_scenarios():
@@ -162,3 +168,5 @@ class ScenarioFactory:
 
     def __del__(self):
         self.save_scenarios()
+
+
