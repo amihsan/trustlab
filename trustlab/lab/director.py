@@ -3,6 +3,7 @@ import trustlab.lab.config as config
 from trustlab.lab.connectors.channels_connector import ChannelsConnector
 from trustlab.lab.distributors.greedy_distributor import GreedyDistributor
 from trustlab.lab.distributors.round_robin_distributor import RoundRobinDistributor
+from trustlab.serializers.scenario_serializer import ScenarioSerializer
 
 
 class Director:
@@ -18,7 +19,9 @@ class Director:
         supervisors_with_free_agents = self.connector.list_supervisors_with_free_agents()
         self.distribution = self.distributor.distribute(agents, supervisors_with_free_agents)
         # reserve agents at supervisors
-        self.agent_host_names = self.connector.reserve_agents(self.distribution)
+        scenario_serializer = ScenarioSerializer(self.scenario)
+        self.agent_host_names = self.connector.reserve_agents(self.distribution, scenario_serializer.data,
+                                                              self.scenario_run_id)
         pass
 
     def run_scenario(self):
