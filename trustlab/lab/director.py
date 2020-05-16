@@ -1,10 +1,27 @@
-import time
 import socket
-from trustlab.lab.config import Logging, get_current_time, ServerStatus
+import trustlab.lab.config as config
+from trustlab.lab.connectors.channels_connector import ChannelsConnector
+from trustlab.lab.distributors.greedy_distributor import GreedyDistributor
+from trustlab.lab.distributors.round_robin_distributor import RoundRobinDistributor
 
 
 class Director:
-    def run_scenario(self, scenario):
+    def prepare_scenario(self):
+        agents = self.scenario.agents
+        # check if enough agents are free to work
+        sums = self.connector.sums_agent_numbers()
+        free_agents = sums['sum_max_agents'] - sums['sum_agents_in_use']
+        if free_agents < len(agents):
+            raise Exception('Currently there are not enough agents free for the chosen scenario.')
+        # TODO implement scenario syntax checking (until now due to predefined scenarios not required)
+        # distribute agents on supervisors
+        supervisors_with_free_agents = self.connector.list_supervisors_with_free_agents()
+        self.distribution = self.distributor.distribute(agents, supervisors_with_free_agents)
+        # reserve agents at supervisors
+        self.agent_host_names = self.connector.reserve_agents(self.distribution)
+        pass
+
+    def run_scenario(self):
         pass
         # ServerStatus.set_scenario(scenario)
         # thread_server = []
@@ -59,8 +76,17 @@ class Director:
         # #     threads_client = [thread for thread in threads_client if thread.is_alive()]
         # return Logging.LOG_PATH / "director_log.txt", Logging.LOG_PATH / "trust_log.txt"
 
-    def __init__(self):
+    def __init__(self, scenario):
         self.HOST = socket.gethostname()
-        Logging.new_log_path()
+        self.scenario_run_id = config.create_scenario_run_id()
+        self.scenario = scenario
+        self.connector = ChannelsConnector()
+        if config.DISTRIBUTOR == "round_robin":
+            self.distributor = RoundRobinDistributor()
+        else:
+            self.distributor = GreedyDistributor()
+        self.distribution = None
+        self.agent_host_names = None
+        # Logging.new_log_path()
 
 
