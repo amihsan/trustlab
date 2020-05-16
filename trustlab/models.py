@@ -10,7 +10,7 @@ SCENARIO_PATH = '/trustlab/lab/scenarios'
 SCENARIO_PACKAGE = "trustlab.lab.scenarios"
 
 
-class Supervisors(models.Model):
+class Supervisor(models.Model):
     channel_name = models.CharField(max_length=120)
     max_agents = models.IntegerField(default=0)
     agents_in_use = models.IntegerField(default=0)
