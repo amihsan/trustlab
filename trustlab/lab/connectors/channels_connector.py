@@ -16,6 +16,8 @@ class ChannelsConnector(BasicConnector):
     async def send_message_to_supervisor(self, channel_name, message):
         channel_layer = get_channel_layer()
         await channel_layer.send(channel_name, message)
+        response = await channel_layer.receive(channel_name)
+        return response
 
     @transaction.atomic
     def reserve_agents(self, distribution, scenario_data, scenario_run_id):
@@ -25,9 +27,10 @@ class ChannelsConnector(BasicConnector):
             supervisor.save()
             # init agents at supervisors
             message = {
-                "type": "scenario_registration",
+                "type": "scenario.registration",
                 "scenario": scenario_data,
                 "scenario_run_id": scenario_run_id,
                 "agents_at_supervisor": distribution[channel_name]
             }
-            asyncio.run(self.send_message_to_supervisor(channel_name, message))
+            discovery = asyncio.run(self.send_message_to_supervisor(channel_name, message))
+            print(discovery)
