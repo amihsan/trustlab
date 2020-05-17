@@ -34,8 +34,8 @@ class LabConsumer(AsyncJsonWebsocketConsumer):
             director = Director(scenario)
             try:
                 async with config.PREPARE_SCENARIO_SEMAPHORE:
-                    director.prepare_scenario()
-                director.run_scenario()
+                    await director.prepare_scenario()
+                await director.run_scenario()
                 await self.send_json({
                         'director_log': "Currently Empty due to testing",
                         'trust_log': "Currently Empty due to testing",

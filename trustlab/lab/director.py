@@ -7,24 +7,23 @@ from trustlab.serializers.scenario_serializer import ScenarioSerializer
 
 
 class Director:
-    def prepare_scenario(self):
+    async def prepare_scenario(self):
         agents = self.scenario.agents
         # check if enough agents are free to work
-        sums = self.connector.sums_agent_numbers()
+        sums = await self.connector.sums_agent_numbers()
         free_agents = sums['sum_max_agents'] - sums['sum_agents_in_use']
         if free_agents < len(agents):
             raise Exception('Currently there are not enough agents free for the chosen scenario.')
         # TODO implement scenario syntax checking (until now due to predefined scenarios not required)
         # distribute agents on supervisors
-        supervisors_with_free_agents = self.connector.list_supervisors_with_free_agents()
-        self.distribution = self.distributor.distribute(agents, supervisors_with_free_agents)
+        supervisors_with_free_agents = await self.connector.list_supervisors_with_free_agents()
+        self.distribution = await self.distributor.distribute(agents, supervisors_with_free_agents)
         # reserve agents at supervisors
         scenario_serializer = ScenarioSerializer(self.scenario)
-        self.agent_host_names = self.connector.reserve_agents(self.distribution, scenario_serializer.data,
-                                                              self.scenario_run_id)
-        pass
+        self.agent_host_names = await self.connector.reserve_agents(self.distribution, scenario_serializer.data,
+                                                                    self.scenario_run_id)
 
-    def run_scenario(self):
+    async def run_scenario(self):
         pass
         # ServerStatus.set_scenario(scenario)
         # thread_server = []

@@ -1,7 +1,9 @@
 from trustlab.lab.distributors.basic_distributor import BasicDistributor
+from asgiref.sync import sync_to_async
 
 
 class GreedyDistributor(BasicDistributor):
+    @sync_to_async
     def distribute(self, agents, supervisors):
         distribution = {}
         while len(agents) > 0:
