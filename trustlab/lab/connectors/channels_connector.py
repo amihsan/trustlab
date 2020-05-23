@@ -30,6 +30,7 @@ class ChannelsConnector(BasicConnector):
             supervisor.save()
 
     async def reserve_agents(self, distribution, scenario_data, scenario_run_id):
+        discovery = {}
         for channel_name in distribution.keys():
             # init agents at supervisors
             message = {
@@ -38,6 +39,8 @@ class ChannelsConnector(BasicConnector):
                 "scenario_run_id": scenario_run_id,
                 "agents_at_supervisor": distribution[channel_name]
             }
-            discovery = await self.send_message_to_supervisor(channel_name, message)
-            print(discovery)
+            agent_discovery = await self.send_message_to_supervisor(channel_name, message)
+            print(agent_discovery)
+            discovery = {**discovery, **agent_discovery}
         self.reserve_agents_in_db(distribution)
+        return discovery
