@@ -12,7 +12,8 @@ def get_current_time():
 
 
 def create_scenario_run_id():
-    return "scenarioRun:" + datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
+    # return "scenarioRun:" + datetime.now().strftime("%Y-%m-%d_%H:%M:%S") # URI version but not usable as channel_name
+    return "scenarioRun_" + datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
 
 class Logging:

@@ -20,8 +20,8 @@ class Director:
         self.distribution = await self.distributor.distribute(agents, supervisors_with_free_agents)
         # reserve agents at supervisors
         scenario_serializer = ScenarioSerializer(self.scenario)
-        self.agent_host_names = await self.connector.reserve_agents(self.distribution, scenario_serializer.data,
-                                                                    self.scenario_run_id)
+        self.agent_host_names = await self.connector.reserve_agents(self.distribution, self.scenario_run_id,
+                                                                    scenario_serializer.data)
         print(self.agent_host_names)
 
     async def run_scenario(self):
