@@ -29,6 +29,7 @@ class SupervisorsConsumer(AsyncJsonWebsocketConsumer):
         elif content["type"] and content["type"] == "scenario_discovery":
             await self.channel_layer.send(self.channel_name, content["discovery"])
         else:
+            print(content)
             await self.send_json(content)
 
 
