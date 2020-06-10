@@ -25,7 +25,7 @@ class Director:
         print(self.agent_host_names)
 
     async def run_scenario(self):
-        pass
+        await self.connector.start_scenario()
 
     def __init__(self, scenario):
         self.HOST = socket.gethostname()
