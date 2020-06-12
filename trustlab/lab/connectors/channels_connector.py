@@ -48,11 +48,21 @@ class ChannelsConnector(BasicConnector):
             discovery = {**discovery, **agent_discovery["discovery"]}
         self.reserve_agents_in_db(distribution)
         # after registration and discovery knowledge share discovery with all involved supervisors
+        discovery_message = {
+            "type": "scenario.discovery",
+            "scenario_run_id": scenario_run_id,
+            "discovery": discovery
+        }
         for channel_name in distribution.keys():
-            discovery_message = {
-                "type": "scenario.discovery",
-                "scenario_run_id": scenario_run_id,
-                "discovery": discovery
-            }
             await self.send_message_to_supervisor(channel_name, discovery_message)
         return discovery
+
+    async def start_scenario(self, distribution, scenario_run_id):
+        start_message = {
+            "type": "scenario.start",
+            "scenario_run_id": scenario_run_id,
+            "scenario_status": "started"
+        }
+        for channel_name in distribution.keys():
+            await self.send_message_to_supervisor(channel_name, start_message)
+

@@ -14,3 +14,7 @@ class BasicConnector(ABC):
     async def reserve_agents(self, distribution, scenario_run_id, scenario_data):
         pass
 
+    @abstractmethod
+    async def start_scenario(self, distribution, scenario_run_id):
+        pass
+

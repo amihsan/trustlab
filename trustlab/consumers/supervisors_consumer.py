@@ -26,6 +26,13 @@ class SupervisorsConsumer(AsyncJsonWebsocketConsumer):
             "discovery": event["discovery"]
         })
 
+    async def scenario_start(self, event):
+        await self.send_json({
+            "type": "scenario_start",
+            "scenario_run_id": event["scenario_run_id"],
+            "scenario_status": event["scenario_status"]
+        })
+
     async def receive_json(self, content, **kwargs):
         if content["type"] and content["type"] == "max_agents":
             supervisor = Supervisor.objects.get(channel_name=self.channel_name)

@@ -20,12 +20,12 @@ class Director:
         self.distribution = await self.distributor.distribute(agents, supervisors_with_free_agents)
         # reserve agents at supervisors
         scenario_serializer = ScenarioSerializer(self.scenario)
-        self.agent_host_names = await self.connector.reserve_agents(self.distribution, self.scenario_run_id,
-                                                                    scenario_serializer.data)
-        print(self.agent_host_names)
+        self.discovery = await self.connector.reserve_agents(self.distribution, self.scenario_run_id,
+                                                             scenario_serializer.data)
+        print(self.discovery)
 
     async def run_scenario(self):
-        await self.connector.start_scenario()
+        await self.connector.start_scenario(self.distribution, self.scenario_run_id)
 
     def __init__(self, scenario):
         self.HOST = socket.gethostname()
@@ -37,7 +37,7 @@ class Director:
         else:
             self.distributor = GreedyDistributor()
         self.distribution = None
-        self.agent_host_names = None
+        self.discovery = None
         # Logging.new_log_path()
 
 
