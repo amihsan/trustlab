@@ -6,7 +6,7 @@ from trustlab.serializers.stringList_field import StringListField
 class ScenarioSerializer(serializers.Serializer):
     name = serializers.CharField()
     agents = StringListField()
-    observations = StringListField()
+    observations = serializers.ListField()
     authorities = serializers.DictField()
     topics = serializers.DictField()
     trust_thresholds = serializers.DictField()

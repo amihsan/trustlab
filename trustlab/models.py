@@ -7,6 +7,7 @@ import inspect
 from os import listdir
 from os.path import isfile, join, dirname, abspath
 
+# TODO bring these config vars in config file
 SCENARIO_PATH = '/trustlab/lab/scenarios'
 SCENARIO_PACKAGE = "trustlab.lab.scenarios"
 

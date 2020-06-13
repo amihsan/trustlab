@@ -115,10 +115,10 @@ aTLAS
                               <span class="mdl-list__item-primary-content">Observations</span>
                               <span class="trustlab-li-body">
                                 <ol>
-                                {% for observation in scenario.observations_split %}
-                                    <li>
-                                    <!--'{{ observation.source }}' sends '{{ observation.target }}' from author '{{ observation.author }}' with topic '{{ observation.topic }}' the message: {{ observation.message }} -->
-                                    '{{ observation.source }}' sends '{{ observation.target }}', topic '{{ observation.topic }}', message: {{ observation.message }}
+                                {% for observation in scenario.observations %}
+                                    <li value="{{ observation.observation_id }}">
+                                    <!--'{{ observation.sender }}' sends '{{ observation.receiver }}' from author '{{ observation.author }}' with topic '{{ observation.topic }}' the message: {{ observation.message }} -->
+                                    '{{ observation.sender }}' sends '{{ observation.receiver }}' after {{ observation.before }}, topic '{{ observation.topic }}', message: {{ observation.message }}
                                     </li>
                                 {% endfor %}
                                 </ol>
