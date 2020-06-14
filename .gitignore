@@ -6,3 +6,4 @@ deploy/
 env/
 trustlab/lab/log/*
 venv/
+.DS_Store
