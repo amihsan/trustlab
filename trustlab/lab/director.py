@@ -14,7 +14,7 @@ class Director:
         free_agents = sums['sum_max_agents'] - sums['sum_agents_in_use']
         if free_agents < len(agents):
             raise Exception('Currently there are not enough agents free for the chosen scenario.')
-        # TODO implement scenario syntax checking (until now due to predefined scenarios not required)
+        # TODO implement scenario syntax checking (until now not required due to predefined scenarios only)
         # distribute agents on supervisors
         supervisors_with_free_agents = await self.connector.list_supervisors_with_free_agents()
         self.distribution = await self.distributor.distribute(agents, supervisors_with_free_agents)
