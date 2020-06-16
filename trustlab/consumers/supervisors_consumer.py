@@ -42,6 +42,8 @@ class SupervisorsConsumer(AsyncJsonWebsocketConsumer):
             await self.send_json(answer)
         elif content["type"] and content["type"] == "agent_discovery":
             await self.channel_layer.send(content["scenario_run_id"], content)
+        elif content["type"] and content["type"] == "observation_done":
+            print(f"Finished observation with id: {content['observation_id']}")
         else:
             print(content)
             await self.send_json(content)
