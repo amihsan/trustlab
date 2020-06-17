@@ -9,7 +9,7 @@ class SupervisorsConsumer(AsyncJsonWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, close_code):
-        Supervisor.objects.filter(channel_name=self.channel_name).delete()
+        Supervisor.objects.filter(channel_name__exact=self.channel_name).delete()
 
     async def scenario_registration(self, event):
         await self.send_json({
@@ -37,7 +37,7 @@ class SupervisorsConsumer(AsyncJsonWebsocketConsumer):
         await self.send_json({
             "type": "observation_done",
             "scenario_run_id": event["scenario_run_id"],
-            "observation_done": event["observation_done"]
+            "observations_done": event["observation_done"]
         })
 
     async def receive_json(self, content, **kwargs):
@@ -50,6 +50,7 @@ class SupervisorsConsumer(AsyncJsonWebsocketConsumer):
         elif content["type"] and content["type"] == "agent_discovery":
             await self.channel_layer.send(content["scenario_run_id"], content)
         elif content["type"] and content["type"] == "observation_done":
+            content["channel_name"] = self.channel_name
             await self.channel_layer.send(content["scenario_run_id"], content)
         else:
             print(content)

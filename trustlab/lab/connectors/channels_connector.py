@@ -16,6 +16,10 @@ class ChannelsConnector(BasicConnector):
     def list_supervisors_with_free_agents(self):
         return list(set(Supervisor.objects.filter(agents_in_use__lt=F('max_agents'))))
 
+    @sync_to_async
+    def get_supervisors_without_given(self, given_channel_name):
+        return list(set(Supervisor.objects.exclude(channel_name=given_channel_name)))
+
     async def send_message_to_supervisor(self, channel_name, message):
         channel_layer = get_channel_layer()
         await channel_layer.send(channel_name, message)
@@ -65,4 +69,17 @@ class ChannelsConnector(BasicConnector):
         }
         for channel_name in involved_supervisors:
             await self.send_message_to_supervisor(channel_name, start_message)
+
+    async def get_next_done_observation(self, scenario_run_id):
+        return await self.receive_with_scenario_run_id(scenario_run_id)
+
+    async def broadcast_done_observation(self, scenario_run_id, done_observations_with_id, supervisors_to_inform):
+        done_message = {
+            "type": "observation.done",
+            "scenario_run_id": scenario_run_id,
+            "observations_done": done_observations_with_id
+        }
+        for supervisor in supervisors_to_inform:
+            await self.send_message_to_supervisor(supervisor.channel_name, done_message)
+
 
