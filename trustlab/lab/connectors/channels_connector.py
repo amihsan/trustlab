@@ -57,12 +57,12 @@ class ChannelsConnector(BasicConnector):
             await self.send_message_to_supervisor(channel_name, discovery_message)
         return discovery
 
-    async def start_scenario(self, distribution, scenario_run_id):
+    async def start_scenario(self, involved_supervisors, scenario_run_id):
         start_message = {
             "type": "scenario.start",
             "scenario_run_id": scenario_run_id,
             "scenario_status": "started"
         }
-        for channel_name in distribution.keys():
+        for channel_name in involved_supervisors:
             await self.send_message_to_supervisor(channel_name, start_message)
 

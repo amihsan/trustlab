@@ -25,7 +25,11 @@ class Director:
         print(self.discovery)
 
     async def run_scenario(self):
-        await self.connector.start_scenario(self.distribution, self.scenario_run_id)
+        await self.connector.start_scenario(self.distribution.keys(), self.scenario_run_id)
+        scenario_runs = True
+        while scenario_runs:
+            done_dict = await self.connector.get_next_finished_observation()
+
 
     def __init__(self, scenario):
         self.HOST = socket.gethostname()
