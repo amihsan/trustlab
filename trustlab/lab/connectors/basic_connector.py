@@ -30,3 +30,7 @@ class BasicConnector(ABC):
     async def broadcast_done_observation(self, scenario_run_id, done_observations_with_id, supervisors_to_inform):
         pass
 
+    @abstractmethod
+    async def end_scenario(self, involved_supervisors, scenario_run_id):
+        pass
+

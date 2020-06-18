@@ -40,6 +40,13 @@ class SupervisorsConsumer(AsyncJsonWebsocketConsumer):
             "observations_done": event["observations_done"]
         })
 
+    async def scenario_end(self, event):
+        await self.send_json({
+            "type": "scenario_end",
+            "scenario_run_id": event["scenario_run_id"],
+            "scenario_status": event["scenario_status"]
+        })
+
     async def receive_json(self, content, **kwargs):
         if content["type"] and content["type"] == "max_agents":
             supervisor = Supervisor.objects.get(channel_name=self.channel_name)
@@ -47,7 +54,7 @@ class SupervisorsConsumer(AsyncJsonWebsocketConsumer):
             supervisor.save()
             answer = {"type": "max_agents", "status": 200}
             await self.send_json(answer)
-        elif content["type"] and content["type"] == "agent_discovery":
+        elif content["type"] and (content["type"] == "agent_discovery" or content["type"] == "scenario_end"):
             await self.channel_layer.send(content["scenario_run_id"], content)
         elif content["type"] and content["type"] == "observation_done":
             content["channel_name"] = self.channel_name

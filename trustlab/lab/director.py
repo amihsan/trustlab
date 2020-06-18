@@ -38,7 +38,7 @@ class Director:
                                                             supervisors_to_inform)
             if done_observations_with_id == observations_to_do_with_id:
                 scenario_runs = False
-
+        await self.connector.end_scenario(self.distribution, self.scenario_run_id)
 
     def __init__(self, scenario):
         self.HOST = socket.gethostname()
@@ -51,6 +51,5 @@ class Director:
             self.distributor = GreedyDistributor()
         self.distribution = None
         self.discovery = None
-        # Logging.new_log_path()
 
 

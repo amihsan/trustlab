@@ -82,4 +82,25 @@ class ChannelsConnector(BasicConnector):
         for supervisor in supervisors_to_inform:
             await self.send_message_to_supervisor(supervisor.channel_name, done_message)
 
+    @sync_to_async
+    @transaction.atomic
+    def free_agents_in_db(self, distribution):
+        for channel_name in distribution.keys():
+            supervisor = Supervisor.objects.get(channel_name=channel_name)
+            supervisor.agents_in_use -= len(distribution[channel_name])
+            supervisor.save()
+
+    async def end_scenario(self, distribution, scenario_run_id):
+        end_message = {
+            "type": "scenario.end",
+            "scenario_run_id": scenario_run_id,
+            "scenario_status": "finished"
+        }
+        for channel_name in distribution.keys():
+            await self.send_message_to_supervisor(channel_name, end_message)
+            response = await self.receive_with_scenario_run_id(scenario_run_id)
+            print(f"Scenario ended at supervisor '{channel_name}' with message: {response}")
+            await self.free_agents_in_db(distribution)
+
+
 
