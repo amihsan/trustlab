@@ -27,14 +27,17 @@ class Director:
     async def run_scenario(self):
         await self.connector.start_scenario(self.distribution.keys(), self.scenario_run_id)
         scenario_runs = True
-        observations_to_do_with_id = [observation["id"] for observation in self.scenario.observations]
+        observations_to_do_with_id = [observation["observation_id"] for observation in self.scenario.observations]
         done_observations_with_id = []
         while scenario_runs:
             done_dict = await self.connector.get_next_done_observation(self.scenario_run_id)
+            print(f"received next done at director: {done_dict}")
             done_observations_with_id.append(done_dict["observation_id"])
             supervisors_to_inform = await self.connector.get_supervisors_without_given(done_dict["channel_name"])
             await self.connector.broadcast_done_observation(self.scenario_run_id, done_observations_with_id,
                                                             supervisors_to_inform)
+            if done_observations_with_id == observations_to_do_with_id:
+                scenario_runs = False
 
 
     def __init__(self, scenario):

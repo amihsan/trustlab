@@ -50,7 +50,7 @@ class ChannelsConnector(BasicConnector):
             await self.send_message_to_supervisor(channel_name, registration_message)
             agent_discovery = await self.receive_with_scenario_run_id(scenario_run_id)
             discovery = {**discovery, **agent_discovery["discovery"]}
-        self.reserve_agents_in_db(distribution)
+        await self.reserve_agents_in_db(distribution)
         # after registration and discovery knowledge share discovery with all involved supervisors
         discovery_message = {
             "type": "scenario.discovery",

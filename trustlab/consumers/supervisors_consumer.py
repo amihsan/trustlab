@@ -37,7 +37,7 @@ class SupervisorsConsumer(AsyncJsonWebsocketConsumer):
         await self.send_json({
             "type": "observation_done",
             "scenario_run_id": event["scenario_run_id"],
-            "observations_done": event["observation_done"]
+            "observations_done": event["observations_done"]
         })
 
     async def receive_json(self, content, **kwargs):
