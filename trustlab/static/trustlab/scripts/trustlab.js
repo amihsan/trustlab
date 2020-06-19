@@ -21,7 +21,12 @@ function onLabSocketMessage(messageEvent){
     if (data.status === 200)
     {
         $("#trust_log").text(data.trust_log);
-        $("#director_log").text(data.director_log);
+        let agents_log = JSON.parse(data.agents_log);
+        let agents_log_end = $("#agents_log_end");
+        for (const [key, value] of Object.entries(agents_log)) {
+            agents_log_end.before(`<p class="agent_log">Agent '${key}' trust log:</p>`);
+            agents_log_end.before(`<pre id="agent_log_${key}" class="agent_log">${value}</pre>`);
+        }
     }
     $("#c-runtime").addClass("not-displayed");
     $("#c-results").removeClass("not-displayed");
@@ -33,6 +38,7 @@ function openSpecifyScenarioCard() {
 }
 
 function openSpecifyScenarioCardFromResults() {
+    $(".agent_log").remove();
     $("#c-results").addClass("not-displayed");
     $("#c-scenario").removeClass("not-displayed");
 }

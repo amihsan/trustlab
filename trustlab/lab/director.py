@@ -26,19 +26,33 @@ class Director:
 
     async def run_scenario(self):
         await self.connector.start_scenario(self.distribution.keys(), self.scenario_run_id)
+        trust_log = []
+        agent_trust_logs = dict((agent, []) for agent in self.scenario.agents)
         scenario_runs = True
         observations_to_do_with_id = [observation["observation_id"] for observation in self.scenario.observations]
         done_observations_with_id = []
         while scenario_runs:
             done_dict = await self.connector.get_next_done_observation(self.scenario_run_id)
-            print(f"received next done at director: {done_dict}")
-            done_observations_with_id.append(done_dict["observation_id"])
+            print(f"Received next done at director with id {done_dict['observation_id']}")
+            done_observations_with_id.append(done_dict['observation_id'])
             supervisors_to_inform = await self.connector.get_supervisors_without_given(done_dict["channel_name"])
             await self.connector.broadcast_done_observation(self.scenario_run_id, done_observations_with_id,
                                                             supervisors_to_inform)
+            # merge send logs to saved results
+            obs_receiver = done_dict['receiver']
+            recv_trust_log = done_dict['trust_log'].split('<br>')
+            new_trust_log = [line for line in recv_trust_log if line not in trust_log]
+            recv_receiver_log = done_dict['receiver_trust_log'].split('<br>')
+            new_receiver_log = [line for line in recv_receiver_log if line not in agent_trust_logs[obs_receiver]]
+            trust_log.extend(new_trust_log)
+            agent_trust_logs[obs_receiver].extend(new_receiver_log)
             if done_observations_with_id == observations_to_do_with_id:
                 scenario_runs = False
         await self.connector.end_scenario(self.distribution, self.scenario_run_id)
+        for agent, log in agent_trust_logs.items():
+            if len(log) == 0:
+                agent_trust_logs[agent].append("The scenario reported no agent trust log for this agent.")
+        return trust_log, agent_trust_logs
 
     def __init__(self, scenario):
         self.HOST = socket.gethostname()

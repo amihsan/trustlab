@@ -35,10 +35,12 @@ class LabConsumer(AsyncJsonWebsocketConsumer):
             try:
                 async with config.PREPARE_SCENARIO_SEMAPHORE:
                     await director.prepare_scenario()
-                await director.run_scenario()
+                trust_log, agent_trust_logs = await director.run_scenario()
+                for agent in agent_trust_logs:
+                    agent_trust_logs[agent] = "".join(agent_trust_logs[agent])
                 await self.send_json({
-                        'director_log': "Currently Empty due to testing",
-                        'trust_log': "Currently Empty due to testing",
+                        'agents_log': json.dumps(agent_trust_logs),
+                        'trust_log': "".join(trust_log),
                         'message': "Execution finished",
                         'status': 200
                     })
