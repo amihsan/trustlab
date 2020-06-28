@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'trustlab',
     'rest_framework',
 ]
 
@@ -150,5 +151,9 @@ CHANNEL_LAYERS = {
             "hosts": [("lachs.informatik.tu-chemnitz.de", 6379)],
         },
     },
+    # For local testing
+    # "default": {
+    #     "BACKEND": "channels.layers.InMemoryChannelLayer"
+    # },
 }
 

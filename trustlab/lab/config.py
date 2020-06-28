@@ -1,19 +1,20 @@
 from pathlib import Path
 import os
+import asyncio
 from datetime import datetime
+from random import randint
+
+PREPARE_SCENARIO_SEMAPHORE = asyncio.Semaphore(1)
+DISTRIBUTOR = "greedy"
 
 
-class ServerStatus:
-    SCENARIO = None
-    SHUTDOWN = False
+def get_current_time():
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    @staticmethod
-    def set_scenario(scenario):
-        ServerStatus.SCENARIO = scenario
 
-    @staticmethod
-    def shutdown_server():
-        ServerStatus.SHUTDOWN = True
+def create_scenario_run_id():
+    # return "scenarioRun:" + datetime.now().strftime("%Y-%m-%d_%H:%M:%S") # URI version but not usable as channel_name
+    return "scenarioRun_" + datetime.now().strftime("%Y-%m-%d_%H-%M-%S_") + f'{randint(0, 999):0=3d}'
 
 
 class Logging:
@@ -26,11 +27,4 @@ class Logging:
         folder_name = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         Logging.LOG_PATH = Path("trustlab/lab/log/" + folder_name + "/")
         os.mkdir(Logging.LOG_PATH.absolute())
-
-
-def get_current_time():
-    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-
-
 

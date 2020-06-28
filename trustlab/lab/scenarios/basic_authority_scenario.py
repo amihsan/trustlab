@@ -6,7 +6,7 @@ AGENTS = ['A', 'B', 'C', 'D']
 
 AUTHORITIES = {'A': ['C'], 'B': ['C'], 'C': [], 'D': ['C']}
 
-OBSERVATIONS = ['A,B,A,Web Engineering,Redecentralization of the Web', 'A,B,A,Web Engineering,Web of Things', 'A,B,A,Web Engineering,Web Assembly', 'C,B,C,Web Engineering,Semantic Web and Linked Open Data', 'C,B,C,Web Engineering,Redecentralization of the Web', 'C,B,C,Web Engineering,Web-based learning']
+OBSERVATIONS = [{'observation_id': 1, 'before': [], 'sender': 'A', 'receiver': 'B', 'author': 'A', 'topic': 'Web Engineering', 'message': 'Redecentralization of the Web'}, {'observation_id': 2, 'before': [1], 'sender': 'A', 'receiver': 'B', 'author': 'A', 'topic': 'Web Engineering', 'message': 'Web of Things'}, {'observation_id': 3, 'before': [2], 'sender': 'A', 'receiver': 'B', 'author': 'A', 'topic': 'Web Engineering', 'message': 'Web Assembly'}, {'observation_id': 4, 'before': [3], 'sender': 'C', 'receiver': 'B', 'author': 'C', 'topic': 'Web Engineering', 'message': 'Semantic Web and Linked Open Data'}, {'observation_id': 5, 'before': [4], 'sender': 'C', 'receiver': 'B', 'author': 'C', 'topic': 'Web Engineering', 'message': 'Redecentralization of the Web'}, {'observation_id': 6, 'before': [5], 'sender': 'C', 'receiver': 'B', 'author': 'C', 'topic': 'Web Engineering', 'message': 'Web-based learning'}]
 
 HISTORY = {'A': {'B': 1.0, 'C': 1.0, 'D': 1.0}, 'B': {'A': 0, 'C': 0, 'D': 1.0}, 'C': {'A': 1.0, 'B': 1.0, 'D': 1.0}, 'D': {'A': 1.0, 'B': 1.0, 'C': 1.0}}
 

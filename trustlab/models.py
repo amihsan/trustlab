@@ -1,3 +1,4 @@
+from trustlab_host.models import Scenario
 from django.db import models
 import re
 import importlib
@@ -6,52 +7,18 @@ import inspect
 from os import listdir
 from os.path import isfile, join, dirname, abspath
 
+# TODO bring these config vars in config file
 SCENARIO_PATH = '/trustlab/lab/scenarios'
 SCENARIO_PACKAGE = "trustlab.lab.scenarios"
 
-class Scenario:
-    @staticmethod
-    def check_consistency(name, agents, observations, description):
-        if not isinstance(name, str) or len(name) == 0:
-            raise ValueError("Scenario names must be string and not empty.")
-        if not isinstance(agents, list) or len(agents) <= 1:
-            raise ValueError("Scenario agents must be list and describe at least 2 agents.")
-        if not isinstance(observations, list) or len(observations) < 1:
-            raise ValueError("Scenario schedule must be list and not empty.")
-        if not isinstance(description, str):
-            raise ValueError("Description must be string.")
 
-    def __init__(self, name, agents, observations, authorities, topics, trust_thresholds, weights,
-                 metrics_per_agent, history, description="No one described this scenario so far."):
-        self.check_consistency(name, agents, observations, description)
-        self.name = name
-        self.agents = agents
-        self.observations = observations
-        self.authorities = authorities
-        self.topics = topics
-        self.trust_thresholds = trust_thresholds
-        self.weights = weights
-        self.metrics_per_agent = metrics_per_agent
-        self.history = history
-        self.description = description
-        if self.history is None:
-            # TODO history should be able to be None at default and then set to 0 for all agents
-            #  -> maybe even not completely set and filled up with 0
-            pass
-
-    def __str__(self):
-        return self.name
-
-    def __unicode__(self):
-        return '%s' % self.name
-
-    def __eq__(self, other):
-        return self.name == other.name and self.agents == other.agents and self.observations == other.observations and \
-               self.description == other.description
+class Supervisor(models.Model):
+    channel_name = models.CharField(max_length=120)
+    max_agents = models.IntegerField(default=0)
+    agents_in_use = models.IntegerField(default=0)
 
 
 class ScenarioFactory:
-
     # load all scenarios in /trustlab/lab/scenarios with dynamic read of parameters from Scenario.__init__
     @staticmethod
     def load_scenarios():
@@ -162,3 +129,5 @@ class ScenarioFactory:
 
     def __del__(self):
         self.save_scenarios()
+
+

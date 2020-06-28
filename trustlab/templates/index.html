@@ -115,10 +115,10 @@ aTLAS
                               <span class="mdl-list__item-primary-content">Observations</span>
                               <span class="trustlab-li-body">
                                 <ol>
-                                {% for observation in scenario.observations_split %}
-                                    <li>
-                                    <!--'{{ observation.source }}' sends '{{ observation.target }}' from author '{{ observation.author }}' with topic '{{ observation.topic }}' the message: {{ observation.message }} -->
-                                    '{{ observation.source }}' sends '{{ observation.target }}', topic '{{ observation.topic }}', message: {{ observation.message }}
+                                {% for observation in scenario.observations %}
+                                    <li value="{{ observation.observation_id }}">
+                                    <!--'{{ observation.sender }}' sends '{{ observation.receiver }}' from author '{{ observation.author }}' with topic '{{ observation.topic }}' the message: {{ observation.message }} -->
+                                    '{{ observation.sender }}' sends '{{ observation.receiver }}' after {{ observation.before }}, topic '{{ observation.topic }}', message: {{ observation.message }}
                                     </li>
                                 {% endfor %}
                                 </ol>
@@ -246,15 +246,9 @@ aTLAS
                             Trust Log:
                         </p>
                         <pre id="trust_log">
-                            If you see this text, the logs were unfortunately not passed correctly to your client.
+                            If you see this text, the logs were unfortunately not passed correctly to your client. (trust_log)
                         </pre>
-                        <p>
-                            Director Log:
-                        </p>
-                        <pre id="director_log">
-                            If you see this text, the logs were unfortunately not passed correctly to your client.
-                        </pre>
-                        <div id="div_results"></div>
+                        <div id="agents_log_end"></div>
                         <div class="mdl-card__actions mdl-card--border">
                             <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect"
                                     id="btn-specify-scenario2">Specify another Scenario</button>

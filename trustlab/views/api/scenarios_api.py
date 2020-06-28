@@ -1,4 +1,4 @@
-from trustlab.models import ScenarioFactory, Scenario
+from trustlab.models import ScenarioFactory
 from trustlab.serializers.scenario_serializer import ScenarioSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
