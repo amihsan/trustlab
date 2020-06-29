@@ -77,16 +77,27 @@ WSGI_APPLICATION = 'djtrustlab.wsgi.application'
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
+    # 'default': {
+    #     'NAME': 'trustlab-dev',
+    #     'ENGINE': 'sql_server.pyodbc',
+    #     'HOST': 'stratus.informatik.tu-chemnitz.de',
+    #     'PORT': '1433',
+    #     'USER': 'trustlab-dev',
+    #     'PASSWORD': 'dev@17092019#',
+    #     'OPTIONS': {
+    #             'driver': 'ODBC Driver 17 for SQL Server',
+    #     }
+    # },
     'default': {
-        'NAME': 'trustlab-dev',
-        'ENGINE': 'sql_server.pyodbc',
-        'HOST': 'stratus.informatik.tu-chemnitz.de',
-        'PORT': '1433',
-        'USER': 'trustlab-dev',
-        'PASSWORD': 'dev@17092019#',
-        'OPTIONS': {
-                'driver': 'ODBC Driver 17 for SQL Server',
-        }
+        'NAME': os.path.join(BASE_DIR, 'trustlab.sqlite3'),
+        'ENGINE': 'django.db.backends.sqlite3',
+        # 'HOST': 'stratus.informatik.tu-chemnitz.de',
+        # 'PORT': '1433',
+        # 'USER': 'trustlab-dev',
+        # 'PASSWORD': 'dev@17092019#',
+        # 'OPTIONS': {
+        #         'driver': 'ODBC Driver 17 for SQL Server',
+        # }
     }
 }
 
@@ -148,7 +159,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("lachs.informatik.tu-chemnitz.de", 6379)],
+            "hosts": [("127.0.0.1", 6379)],
         },
     },
     # For local testing
