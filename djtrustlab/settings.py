@@ -31,14 +31,15 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'trustlab',
     'rest_framework',
-    'channels',
 ]
 
 MIDDLEWARE = [
@@ -145,11 +146,14 @@ X_FRAME_OPTIONS = 'SAMEORIGIN'
 ASGI_APPLICATION = "djtrustlab.routing.application"
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "asgi_redis.RedisChannelLayer",
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
             "hosts": [("lachs.informatik.tu-chemnitz.de", 6379)],
         },
-        "ROUTING": "realtime.routing.channel_routing",
     },
+    # For local testing
+    # "default": {
+    #     "BACKEND": "channels.layers.InMemoryChannelLayer"
+    # },
 }
 

@@ -67,3 +67,24 @@ footer.mdl-mini-footer a {
 .mdl-snackbar__action {
     color: #29EB36;
 }
+
+.trustlab-li-body {
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 18px;
+    margin-top: 1em;
+    margin-bottom: 1.2em;
+    color: rgba(0,0,0,.54);
+    display: block;
+    padding: 0;
+}
+
+.trustlab-li-body ul, .trustlab-li-body ol {
+    font-size: inherit;
+    padding-inline-start: 2em;
+}
+
+.trustlab-li-body ul ul {
+    font-size: inherit;
+    padding-inline-start: 1.2em;
+}
