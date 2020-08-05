@@ -99,8 +99,8 @@ class ChannelsConnector(BasicConnector):
         for channel_name in distribution.keys():
             await self.send_message_to_supervisor(channel_name, end_message)
             response = await self.receive_with_scenario_run_id(scenario_run_id)
-            print(f"Scenario ended at supervisor '{channel_name}' with message: {response}")
-            await self.free_agents_in_db(distribution)
+            # print(f"Scenario ended at supervisor '{channel_name}' with message: {response}")
+        await self.free_agents_in_db(distribution)
 
 
 
