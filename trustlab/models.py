@@ -6,6 +6,7 @@ import importlib.util
 import inspect
 from os import listdir
 from os.path import isfile, join, dirname, abspath
+import pprint
 
 # TODO bring these config vars in config file
 SCENARIO_PATH = '/trustlab/lab/scenarios'
@@ -69,9 +70,12 @@ class ScenarioFactory:
     def stringify_arg_value(self, obj, arg):
         value = getattr(obj, arg.lower())
         # add surrounding " if variable is of type string
-        if isinstance(getattr(obj, arg.lower()), str):
-            value = '"' + value + '"'
-        return str(value)
+        # if isinstance(getattr(obj, arg.lower()), str):
+        #     value = '"' + value + '"'
+
+        # Prettifying the value for better human readability.
+        value_prettified = pprint.pformat(value)
+        return value_prettified
 
     def save_scenarios(self):
         for scenario in self.scenarios:
@@ -88,17 +92,17 @@ class ScenarioFactory:
                     config_data = config_file.read()
                     # exchange all args which are in config file data
                     for arg in all_args:
-                        # create regex to find argument with value
-                        replacement = re.compile(arg + r' = .*\n')
+                        # create regex to find argument with value.
+                        replacement = re.compile(arg + r' = .*\n\n', re.DOTALL)  # variables ends with double new lines
                         value = self.stringify_arg_value(scenario, arg)
                         if re.search(replacement, config_data):
-                            # substitute current value in config_data
-                            config_data = replacement.sub(arg + ' = ' + value + '\n', config_data)
+                            # substitute current value in config_data. Double new lines are added to help parsing
+                            config_data = replacement.sub(arg + ' = ' + value + '\n\n', config_data)
                         else:
                             # get position of last non whitespace char in config data
                             position = config_data.rfind(next((char for char in reversed(config_data) if char != "\n"
                                                                and char != "\t" and char != " "))) + 1
-                            arg_value = "\n" + arg + " = " + value
+                            arg_value = "\n\n" + arg + " = " + value  # Double new lines are added to help parsing
                             # append argument configuration at position -> end of file + whitespace tail
                             config_data = config_data[:position] + arg_value + config_data[position:]
                     # jump back to begin of file and write new data
@@ -120,7 +124,7 @@ class ScenarioFactory:
                     config_file.write("\n\n")
                     for arg in all_args:
                         value = self.stringify_arg_value(scenario, arg)
-                        config_file.write(arg + " = " + value + "\n")
+                        config_file.write(arg + " = " + value + "\n\n")  # Double new lines are added to help parsing
                     config_file.write("\n\n\n\n")
 
     def __init__(self):
