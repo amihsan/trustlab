@@ -7,5 +7,5 @@ class TrustlabConfig(AppConfig):
     # TODO: Handle corner cases i.e. restricting ready method running multiple times. (See AppConfig doc)
     def ready(self):
         Supervisor = self.get_model('Supervisor')
-        Supervisor.objects.filter(agents_in_use=0).delete()
+        Supervisor.objects.all().delete()
         print('Outdated supervisors handled')
