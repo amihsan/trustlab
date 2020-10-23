@@ -51,7 +51,12 @@ class Director:
         for agent, log in agent_trust_logs.items():
             if len(log) == 0:
                 agent_trust_logs[agent].append("The scenario reported no agent trust log for this agent.")
+        await self.save_scenario_run_results(trust_log, agent_trust_logs)
         return trust_log, agent_trust_logs
+
+    async def save_scenario_run_results(self, trust_log, agent_trust_logs):
+        # TODO: call ResultFactory
+        pass
 
     async def end_scenario(self):
         await self.connector.end_scenario(self.distribution, self.scenario_run_id)
