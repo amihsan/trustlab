@@ -35,18 +35,9 @@ class LabConsumer(AsyncJsonWebsocketConsumer):
             director = Director(scenario)
             try:
                 async with config.PREPARE_SCENARIO_SEMAPHORE:
-                    start_timer = time.time()
                     await director.prepare_scenario()
-                    end_timer = time.time()
-                    print(f"Preparation took {end_timer - start_timer} s")
-                start_timer = time.time()
                 trust_log, agent_trust_logs = await director.run_scenario()
-                end_timer = time.time()
-                print(f"Execution took {end_timer - start_timer} s")
-                start_timer = time.time()
                 await director.end_scenario()
-                end_timer = time.time()
-                print(f"CleanUp took {end_timer - start_timer} s")
                 for agent in agent_trust_logs:
                     agent_trust_logs[agent] = "".join(agent_trust_logs[agent])
                 await self.send_json({
