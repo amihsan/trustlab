@@ -6,6 +6,9 @@ from random import randint
 
 PREPARE_SCENARIO_SEMAPHORE = asyncio.Semaphore(1)
 DISTRIBUTOR = "greedy"
+# variables for trustlab/models.py
+SCENARIO_PATH = '/trustlab/lab/scenarios'
+SCENARIO_PACKAGE = "trustlab.lab.scenarios"
 
 
 def get_current_time():
