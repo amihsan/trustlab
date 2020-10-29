@@ -4,10 +4,10 @@ import re
 import importlib
 import importlib.util
 import inspect
-from os import listdir
-from os.path import isfile, join, dirname, abspath
+from os import listdir, mkdir
+from os.path import isfile, join, dirname, abspath, exists, isdir
 import pprint
-from trustlab.lab.config import SCENARIO_PATH, SCENARIO_PACKAGE, RESULT_PATH, RESULT_PACKAGE
+from trustlab.lab.config import SCENARIO_PATH, SCENARIO_PACKAGE, RESULT_PATH
 
 
 class Supervisor(models.Model):
@@ -151,30 +151,50 @@ class ScenarioFactory(ObjectFactory):
 
 
 class ScenarioResult:
-    def __init__(self, trust_log, agent_trust_logs):
+    def __init__(self, scenario_run_id, trust_log, agent_trust_logs):
+        self.scenario_run_id = scenario_run_id
         self.trust_log = trust_log
         self.agent_trust_logs = agent_trust_logs
 
 
-class ResultsFactory(ObjectFactory):
+class ResultFactory:
     def list_known_scenario_run_ids(self):
-        pass
+        return [directory for directory in listdir(self.result_path) if isdir(f"{self.result_path}/{directory}")]
 
     def get_result(self, scenario_run_id):
-        return self.load_object(scenario_run_id, RESULT_PACKAGE, "ScenarioResult")
+        result_dir = self.get_result_dir(scenario_run_id)
+        if exists(result_dir) and isdir(result_dir):
+            agent_trust_logs = {}
+            trust_log_path = f"{result_dir}/trust_log.txt"
+            with open(trust_log_path, 'r') as trust_log_file:
+                trust_log = [line for line in trust_log_file.readlines() if line != "\n"]
+            agent_trust_logs_paths = [(file_name.split('_trust_log.txt')[0], f"{result_dir}/{file_name}") for file_name
+                                      in listdir(result_dir) if file_name.endswith('_trust_log.txt')]
+            for agent, path in agent_trust_logs_paths:
+                with open(path, 'r') as agent_trust_log_file:
+                    agent_trust_logs[agent] = [line for line in agent_trust_log_file.readlines() if line != "\n"]
+            return ScenarioResult(scenario_run_id, trust_log, agent_trust_logs)
+        else:
+            raise OSError(f"Given path '{result_dir}' for scenario result read is not a directory or does not exist.")
 
-    def save_result(self, scenario_run_id, scenario_result):
-        # get all parameters of ScenarioResult init
-        scenario_result_args = inspect.getfullargspec(ScenarioResult.__init__)
-        file_path = f"{self.result_path}/{self.get_result_file_name(scenario_run_id)}"
-        self.save_object(scenario_result, scenario_result_args, file_path)
+    def save_result(self, scenario_result):
+        result_dir = self.get_result_dir(scenario_result.scenario_run_id)
+        if not exists(result_dir) or not isdir(result_dir):
+            mkdir(result_dir)
+        trust_log_path = f"{result_dir}/trust_log.txt"
+        with open(trust_log_path, 'w+') as trust_log_file:
+            print(''.join(scenario_result.trust_log), file=trust_log_file)
+        for agent, agent_trust_log in scenario_result.agent_trust_logs.items():
+            agent_trust_log_path = f"{result_dir}/{agent}_trust_log.txt"
+            with open(agent_trust_log_path, 'w+') as agent_trust_log_file:
+                print(''.join(agent_trust_log), file=agent_trust_log_file)
 
-    @staticmethod
-    def get_result_file_name(scenario_run_id):
-
-        return f"{scenario_run_id}.py"
+    def get_result_dir(self, scenario_run_id):
+        split_index = len(scenario_run_id.split("_")[0]) + 1  # index to cut constant of runId -> 'scenarioRun_'
+        folder_name = scenario_run_id[split_index:]
+        return f"{self.result_path}/{folder_name}"
 
     def __init__(self):
-        super().__init__()
+        self.project_path = abspath(dirname(__name__))
         self.result_path = self.project_path + RESULT_PATH
 

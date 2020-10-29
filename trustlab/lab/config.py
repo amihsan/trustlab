@@ -10,7 +10,6 @@ DISTRIBUTOR = "greedy"
 SCENARIO_PATH = '/trustlab/lab/scenarios'
 SCENARIO_PACKAGE = "trustlab.lab.scenarios"
 RESULT_PATH = '/trustlab/lab/results'
-RESULT_PACKAGE = "trustlab.lab.results"
 
 
 def get_current_time():

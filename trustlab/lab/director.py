@@ -4,6 +4,8 @@ from trustlab.lab.connectors.channels_connector import ChannelsConnector
 from trustlab.lab.distributors.greedy_distributor import GreedyDistributor
 from trustlab.lab.distributors.round_robin_distributor import RoundRobinDistributor
 from trustlab.serializers.scenario_serializer import ScenarioSerializer
+from trustlab.models import ResultFactory, ScenarioResult
+from asgiref.sync import sync_to_async
 
 
 class Director:
@@ -54,9 +56,11 @@ class Director:
         await self.save_scenario_run_results(trust_log, agent_trust_logs)
         return trust_log, agent_trust_logs
 
-    async def save_scenario_run_results(self, trust_log, agent_trust_logs):
-        # TODO: call ResultFactory
-        pass
+    @sync_to_async
+    def save_scenario_run_results(self, trust_log, agent_trust_logs):
+        result_factory = ResultFactory()
+        result = ScenarioResult(self.scenario_run_id, trust_log, agent_trust_logs)
+        result_factory.save_result(result)
 
     async def end_scenario(self):
         await self.connector.end_scenario(self.distribution, self.scenario_run_id)
