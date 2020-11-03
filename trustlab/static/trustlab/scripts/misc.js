@@ -81,4 +81,30 @@ function errorInTextfield(selector, message = "")
     selector.parent().addClass("is-invalid is-dirty");
 }
 
+function copy_text_to_clipboard(input_id)
+{
+    var copyText = document.getElementById(input_id);
+    copyText.select();
+    copyText.setSelectionRange(0, 99999);
+    document.execCommand("copy");
+}
+
+// got original function from https://stackoverflow.com/a/21394730
+function waitForSocketConnection(socket, callback, error_callback, waitCounter=0){
+    setTimeout(
+        function () {
+            if (socket.readyState === 1) {
+                if (callback !== null){
+                    callback();
+                }
+            } else if (waitCounter > 9) {
+                if (error_callback !== null) {
+                    error_callback();
+                }
+            } else {
+                waitCounter++;
+                waitForSocketConnection(socket, callback, waitCounter);
+            }
+        }, 5); // wait 5 milliseconds for the connection...
+}
 
