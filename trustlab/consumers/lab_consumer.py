@@ -1,7 +1,6 @@
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 import json
 import trustlab.lab.config as config
-import time
 from trustlab.models import *
 from trustlab.serializers.scenario_serializer import ScenarioSerializer
 from trustlab.lab.director import Director
@@ -29,10 +28,6 @@ class LabConsumer(AsyncJsonWebsocketConsumer):
                     return
                 if scenario not in scenario_factory.scenarios:
                     scenario_factory.scenarios.append(scenario)
-                # await self.send_json(text_data=json.dumps({
-                #     'message': "Starting Lab Runtime according to Scenario",
-                #     'status': 200
-                # }))
                 director = Director(scenario)
                 try:
                     async with config.PREPARE_SCENARIO_SEMAPHORE:
@@ -51,17 +46,6 @@ class LabConsumer(AsyncJsonWebsocketConsumer):
                             'scenario_run_id': director.scenario_run_id,
                             'type': "scenario_results"
                         })
-                    # director_log_path, trust_log_path = director.run_scenario()
-                    # with open(director_log_path.absolute(), 'r+') as director_log_file, \
-                    #         open(trust_log_path.absolute(), 'r+') as trust_log_file:
-                    #     director_log = director_log_file.readlines()
-                    #     trust_log = trust_log_file.readlines()
-                    #     await self.send_json({
-                    #         'director_log': "".join(director_log),
-                    #         'trust_log': "".join(trust_log),
-                    #         'message': "Execution finished",
-                    #         'status': 200
-                    #     })
                 except Exception as exception:
                     await self.send_json({
                         'message': str(exception),
@@ -73,10 +57,6 @@ class LabConsumer(AsyncJsonWebsocketConsumer):
                     'type': 'error'
                 }))
         elif content['type'] == 'get_scenario_results':
-            # await self.send(text_data=json.dumps({
-            #     'message': 'Requesting saved scenario run results is not yet implemented',
-            #     'type': 'error'
-            # }))
             result_factory = ResultFactory()
             try:
                 scenario_result = result_factory.get_result(content['scenario_run_id'])

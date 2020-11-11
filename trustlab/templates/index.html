@@ -66,24 +66,12 @@ aTLAS
                         </p>
                         <form class="mdl-grid">
                         {% csrf_token %}
-{#                            <div class="mdl-selectfield mdl-js-selectfield mdl-selectfield--floating-label">#}
-{#                              <select id="selector-scenario" class="mdl-selectfield__select">#}
-{#                                <option value=""></option>#}
-{#                                {% for scenario in scenarios %}#}
-{#                                <option value="{{scenario.name|safe}}">{{scenario.name|safe}}</option>#}
-{#                                {% endfor %}#}
-{#                              <option value="91" disabled="disabled">91</option>#}
-{#                              </select>#}
-{#                              <label class="mdl-selectfield__label" for="selector-scenario">Scenario</label>#}
-{#                              <span id="selector-scenario-error" class="mdl-selectfield__error">Select a Scenario</span>#}
-{#                            </div>#}
                             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                               <select class="mdl-textfield__input" id="selector-scenario" name="scenario">
                                 <option></option>
                                 {% for scenario in scenarios %}
                                 <option value="{{scenario.name|safe}}">{{scenario.name|safe}}</option>
                                 {% endfor %}
-{#                                <option value="91" disabled="disabled">91</option>#}
                               </select>
                               <label class="mdl-textfield__label" for="selector-scenario">Scenario</label>
                               <span id="selector-scenario-error" class="mdl-textfield__error">Select a Scenario</span>

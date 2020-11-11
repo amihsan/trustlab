@@ -24,7 +24,7 @@ class IndexView(generic.TemplateView):
             context["index_url"] = reverse('index')
             context["lab_url"] = reverse('lab')
         except AssertionError as assert_error:
-            # TODO bring assert_error to scenario_error_msg on index.html
+            # TODO: bring assert_error to scenario_error_msg on index.html
             pass
         return context
 
