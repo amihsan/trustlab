@@ -88,3 +88,7 @@ footer.mdl-mini-footer a {
     font-size: inherit;
     padding-inline-start: 1.2em;
 }
+
+.trustlab-copy-field {
+    width: 29em;
+}
