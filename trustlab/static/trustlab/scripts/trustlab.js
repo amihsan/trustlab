@@ -28,23 +28,15 @@ function onLabSocketMessage(messageEvent){
             agents_log_end.before(`<pre id="agent_log_${key}" class="agent_log">${value}</pre>`);
         }
         if (inRuntimeState()) {
-            history.pushState(null, null, '#' + currentRunId);
             $("#c-runtime").addClass("not-displayed");
             $("#c-results").removeClass("not-displayed");
         } else if (inGetResultsState()) {
+            showScenarioRunId(currentRunId);
             $("#c-loadingResults").addClass("not-displayed");
             $("#c-results").removeClass("not-displayed");
         }
     } else if (data.type === "scenario_run_id") {
-        let baseURL = window.location.href.split('#')[0];
-        let currentRunId = data.scenario_run_id;
-        let currentRunUrl = baseURL + '#' + currentRunId;
-        let idCopyField = $("#scenario_run_id_copyField");
-        let urlCopyField = $("#scenario_run_url_copyField");
-        idCopyField.val(currentRunId);
-        idCopyField.parent().addClass("is-dirty");
-        urlCopyField.val(currentRunUrl);
-        urlCopyField.parent().addClass("is-dirty");
+        showScenarioRunId(data.scenario_run_id);
     } else if (data.type === "scenario_result_not_found") {
         cancelScenarioResults();
         snackMessage(true, "Scenario Result not found");
@@ -74,6 +66,21 @@ function startLabRuntime() {
     }
 }
 
+function getScenarioResult() {
+    let scenarioRunIdInput = $("#scenario_run_id_pick");
+    let scenarioRunId = scenarioRunIdInput.val();
+    if (isValidScenarioRunId(scenarioRunId)) {
+        $("#c-pick-results").addClass("not-displayed");
+        $("#c-loadingResults").removeClass("not-displayed");
+        sendScenarioRunIdForResults(scenarioRunId);
+    }
+    else
+    {
+        errorInTextfield(scenarioRunIdInput);
+        snackMessage(true);
+    }
+}
+
 function sendScenarioRunIdForResults(scenarioRunId) {
     waitForSocketConnection(labSocket, function(){
         let scenarioResultMessage = {'type': 'get_scenario_results', 'scenario_run_id': scenarioRunId};
@@ -87,15 +94,64 @@ function sendScenarioRunIdForResults(scenarioRunId) {
     });
 }
 
+function showScenarioRunId(scenarioRunId) {
+    let baseURL = window.location.href.split('#')[0];
+    let currentRunUrl = baseURL + '#' + scenarioRunId;
+    let idCopyField = $("#scenario_run_id_copyField");
+    let urlCopyField = $("#scenario_run_url_copyField");
+    let idCopyFieldResults = $("#scenario_run_id_copyField_results");
+    let urlCopyFieldResults = $("#scenario_run_url_copyField_results");
+    idCopyField.val(scenarioRunId);
+    idCopyField.parent().addClass("is-dirty");
+    urlCopyField.val(currentRunUrl);
+    urlCopyField.parent().addClass("is-dirty");
+    idCopyFieldResults.val(scenarioRunId);
+    idCopyFieldResults.parent().addClass("is-dirty");
+    urlCopyFieldResults.val(currentRunUrl);
+    urlCopyFieldResults.parent().addClass("is-dirty");
+    $("#results_header").text("Results for " + scenarioRunId);
+    history.pushState(null, null, '#' + scenarioRunId);
+}
+
+function clearScenarioRunId() {
+    let idCopyField = $("#scenario_run_id_copyField");
+    let urlCopyField = $("#scenario_run_url_copyField");
+    let idCopyFieldResults = $("#scenario_run_id_copyField_results");
+    let urlCopyFieldResults = $("#scenario_run_url_copyField_results");
+    idCopyField.val("");
+    idCopyField.parent().removeClass("is-dirty");
+    urlCopyField.val("");
+    urlCopyField.parent().removeClass("is-dirty");
+    idCopyFieldResults.val("");
+    idCopyFieldResults.parent().removeClass("is-dirty");
+    urlCopyFieldResults.val("");
+    urlCopyFieldResults.parent().removeClass("is-dirty");
+    $("#results_header").text("Results");
+    removeUrlFragement();
+}
+
 function openSpecifyScenarioCard() {
     $("#c-start").addClass("not-displayed");
     $("#c-scenario").removeClass("not-displayed");
 }
 
+function openPickScenarioResultsCard() {
+    $("#c-start").addClass("not-displayed");
+    $("#c-pick-results").removeClass("not-displayed");
+}
+
 function openSpecifyScenarioCardFromResults() {
     $(".agent_log").remove();
+    clearScenarioRunId();
     $("#c-results").addClass("not-displayed");
     $("#c-scenario").removeClass("not-displayed");
+}
+
+function openPickScenarioResultsCardFromResults() {
+    $(".agent_log").remove();
+    clearScenarioRunId();
+    $("#c-results").addClass("not-displayed");
+    $("#c-pick-results").removeClass("not-displayed");
 }
 
 function openLabRuntimeCard() {
@@ -112,9 +168,17 @@ function showScenarioDescription() {
 function cancelScenarioResults() {
     $("#c-loadingResults").addClass("not-displayed");
     $("#c-start").removeClass("not-displayed");
-    if(window.location.hash) {
-        history.pushState(null, null, '#');
-    }
+    removeUrlFragement();
+}
+
+function cancelSpecifyScenario() {
+    $("#c-scenario").addClass("not-displayed");
+    $("#c-start").removeClass("not-displayed");
+}
+
+function cancelPickResults() {
+    $("#c-pick-results").addClass("not-displayed");
+    $("#c-start").removeClass("not-displayed");
 }
 
 function inGetResultsState() {
@@ -125,22 +189,39 @@ function inRuntimeState() {
     return !$("#c-runtime").hasClass("not-displayed");
 }
 
+function isValidScenarioRunId(scenarioRunId) {
+    return scenarioRunId !== "" && scenarioRunId.startsWith("scenarioRun_");
+}
+
 
 //OnClick Events
 $("#btn-specify-scenario").click(openSpecifyScenarioCard);
+$("#btn-pick-results").click(openPickScenarioResultsCard);
+$("#btn-pick-results2").click(openPickScenarioResultsCardFromResults);
 $("#btn-run-scenario").click(startLabRuntime);
+$("#btn-get-results").click(getScenarioResult);
 $("#btn-specify-scenario2").click(openSpecifyScenarioCardFromResults);
 $("#btn-cancel-scenario-results").click(cancelScenarioResults);
+$("#btn-cancel-pick").click(cancelPickResults);
+$("#btn-cancel-specify").click(cancelSpecifyScenario);
+let shareDialog = $("#share-dialog")[0];
+$(".btn-share-results").click(function() {
+    shareDialog.showModal();
+    /* Or dialog.show(); to show the dialog without a backdrop. */
+  });
+$("#close-share-dialog").click(function() {
+    shareDialog.close();
+  });
 scenarioSelector.change(showScenarioDescription);
 
 $( document ).ready(function() {
     openLabSocket();
     if(window.location.hash) {
-        let hash = window.location.hash.substring(1);
-        if (hash.startsWith("scenarioRun_")) {
+        let scenarioRunId = window.location.hash.substring(1);
+        if (isValidScenarioRunId(scenarioRunId)) {
             $("#c-start").addClass("not-displayed");
             $("#c-loadingResults").removeClass("not-displayed");
-            sendScenarioRunIdForResults(hash);
+            sendScenarioRunIdForResults(scenarioRunId);
         }
         // TODO: add functionality to catch unknown url fragments or rather scenarioRunIds
     }

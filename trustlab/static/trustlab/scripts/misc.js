@@ -108,3 +108,8 @@ function waitForSocketConnection(socket, callback, error_callback, waitCounter=0
         }, 5); // wait 5 milliseconds for the connection...
 }
 
+function removeUrlFragement() {
+    if(window.location.hash) {
+        history.pushState(null, null, '#');
+    }
+}

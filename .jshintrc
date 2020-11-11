@@ -95,6 +95,7 @@
         "ajaxFunc": true,
         "INDEX_URL": true,
         "LAB_URL": true,
-        "waitForSocketConnection": true
+        "waitForSocketConnection": true,
+        "removeUrlFragement": true
     }
 }
