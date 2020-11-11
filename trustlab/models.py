@@ -172,7 +172,8 @@ class ResultFactory:
                                       in listdir(result_dir) if file_name.endswith('_trust_log.txt')]
             for agent, path in agent_trust_logs_paths:
                 with open(path, 'r') as agent_trust_log_file:
-                    agent_trust_logs[agent] = [line for line in agent_trust_log_file.readlines() if line != "\n"]
+                    agent_trust_log_lines = [line for line in agent_trust_log_file.readlines() if line != "\n"]
+                    agent_trust_logs[agent] = ''.join(agent_trust_log_lines)
             return ScenarioResult(scenario_run_id, trust_log, agent_trust_logs)
         else:
             raise OSError(f"Given path '{result_dir}' for scenario result read is not a directory or does not exist.")
