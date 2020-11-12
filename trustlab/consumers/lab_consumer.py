@@ -1,6 +1,7 @@
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 import json
 import trustlab.lab.config as config
+import time
 from trustlab.models import *
 from trustlab.serializers.scenario_serializer import ScenarioSerializer
 from trustlab.lab.director import Director
@@ -31,13 +32,28 @@ class LabConsumer(AsyncJsonWebsocketConsumer):
                 director = Director(scenario)
                 try:
                     async with config.PREPARE_SCENARIO_SEMAPHORE:
+                        if config.TIME_MEASURE:
+                            preparation_start_timer = time.time()
                         await director.prepare_scenario()
                     await self.send_json({
                         'scenario_run_id': director.scenario_run_id,
                         'type': "scenario_run_id"
                     })
+                    if config.TIME_MEASURE:
+                        preparation_end_timer = time.time()
+                        print(f"Preparation took {preparation_end_timer - preparation_start_timer} s")
+                        execution_start_timer = time.time()
                     trust_log, agent_trust_logs = await director.run_scenario()
+                    if config.TIME_MEASURE:
+                        execution_end_timer = time.time()
+                        # noinspection PyUnboundLocalVariable
+                        print(f"Execution took {execution_end_timer - execution_start_timer} s")
+                        cleanup_start_timer = time.time()
                     await director.end_scenario()
+                    if config.TIME_MEASURE:
+                        cleanup_end_timer = time.time()
+                        # noinspection PyUnboundLocalVariable
+                        print(f"CleanUp took {cleanup_end_timer - cleanup_start_timer} s")
                     for agent in agent_trust_logs:
                         agent_trust_logs[agent] = "".join(agent_trust_logs[agent])
                     await self.send_json({
@@ -58,10 +74,10 @@ class LabConsumer(AsyncJsonWebsocketConsumer):
                 }))
         elif content['type'] == 'get_scenario_results':
             result_factory = ResultFactory()
-            currentID = content['scenario_run_id']
-            if config.validate_scenario_run_id(currentID):
+            current_id = content['scenario_run_id']
+            if config.validate_scenario_run_id(current_id):
                 try:
-                    scenario_result = result_factory.get_result(currentID)
+                    scenario_result = result_factory.get_result(current_id)
                     await self.send_json({
                         'agents_log': json.dumps(scenario_result.agent_trust_logs),
                         'trust_log': "".join(scenario_result.trust_log),

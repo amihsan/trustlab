@@ -12,6 +12,8 @@ SCENARIO_PATH = '/trustlab/lab/scenarios'
 SCENARIO_PACKAGE = "trustlab.lab.scenarios"
 RESULT_PATH = '/trustlab/lab/results'
 
+TIME_MEASURE = False
+
 
 def get_current_time():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
