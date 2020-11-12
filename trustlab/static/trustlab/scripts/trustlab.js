@@ -37,9 +37,9 @@ function onLabSocketMessage(messageEvent){
         }
     } else if (data.type === "scenario_run_id") {
         showScenarioRunId(data.scenario_run_id);
-    } else if (data.type === "scenario_result_not_found") {
+    } else if (data.type === "scenario_result_error") {
         cancelScenarioResults();
-        snackMessage(true, "Scenario Result not found");
+        snackMessage(true, data.message);
     } else if (data.type === "error") {
         snackMessage(true, data.message);
     }
@@ -190,7 +190,8 @@ function inRuntimeState() {
 }
 
 function isValidScenarioRunId(scenarioRunId) {
-    return scenarioRunId !== "" && scenarioRunId.startsWith("scenarioRun_");
+    let idPattern = /^scenarioRun_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}-[0-9]{2}_[0-9]{3}$/;
+    return idPattern.test(scenarioRunId);
 }
 
 

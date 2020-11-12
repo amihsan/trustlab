@@ -58,19 +58,28 @@ class LabConsumer(AsyncJsonWebsocketConsumer):
                 }))
         elif content['type'] == 'get_scenario_results':
             result_factory = ResultFactory()
-            try:
-                scenario_result = result_factory.get_result(content['scenario_run_id'])
+            currentID = content['scenario_run_id']
+            if config.validate_scenario_run_id(currentID):
+                try:
+                    scenario_result = result_factory.get_result(currentID)
+                    await self.send_json({
+                        'agents_log': json.dumps(scenario_result.agent_trust_logs),
+                        'trust_log': "".join(scenario_result.trust_log),
+                        'scenario_run_id': scenario_result.scenario_run_id,
+                        'type': "scenario_results"
+                    })
+                except OSError as exception:
+                    await self.send_json({
+                        'message': "Scenario Result not found",
+                        'exception': str(exception),
+                        'type': 'scenario_result_error'
+                    })
+            else:
                 await self.send_json({
-                    'agents_log': json.dumps(scenario_result.agent_trust_logs),
-                    'trust_log': "".join(scenario_result.trust_log),
-                    'scenario_run_id': scenario_result.scenario_run_id,
-                    'type': "scenario_results"
+                    'message': "Scenario Run ID is not valid",
+                    'type': 'scenario_result_error'
                 })
-            except OSError as exception:
-                await self.send_json({
-                    'message': str(exception),
-                    'type': 'scenario_result_not_found'
-                })
+
 
 
 

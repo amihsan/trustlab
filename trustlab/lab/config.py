@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+import re
 import asyncio
 from datetime import datetime
 from random import randint
@@ -18,7 +19,12 @@ def get_current_time():
 
 def create_scenario_run_id():
     # return "scenarioRun:" + datetime.now().strftime("%Y-%m-%d_%H:%M:%S") # URI version but not usable as channel_name
-    return "scenarioRun_" + datetime.now().strftime("%Y-%m-%d_%H-%M-%S_") + f'{randint(0, 999):0=3d}'
+    return f'scenarioRun_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}_{randint(0, 999):0=3d}'
+
+
+def validate_scenario_run_id(scenario_run_id):
+    id_pattern = r"^scenarioRun_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}-[0-9]{2}_[0-9]{3}$"
+    return re.match(id_pattern, scenario_run_id)
 
 
 class Logging:
