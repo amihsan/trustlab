@@ -93,7 +93,7 @@ footer.mdl-mini-footer a {
     width: 29em;
 }
 
-#share-dialog {
+.mdl-dialog {
     width: 72em;
 }
 
