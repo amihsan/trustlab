@@ -96,7 +96,7 @@ function sendScenarioRunIdForResults(scenarioRunId) {
 
 function showScenarioRunId(scenarioRunId) {
     let baseURL = window.location.href.split('#')[0];
-    let currentRunUrl = baseURL + '#' + scenarioRunId;
+    let currentRunUrl = `${baseURL}#${scenarioRunId}`;
     let idCopyField = $("#scenario_run_id_copyField");
     let urlCopyField = $("#scenario_run_url_copyField");
     let idCopyFieldResults = $("#scenario_run_id_copyField_results");
@@ -111,6 +111,9 @@ function showScenarioRunId(scenarioRunId) {
     urlCopyFieldResults.parent().addClass("is-dirty");
     $("#results_header").text("Results for " + scenarioRunId);
     history.pushState(null, null, '#' + scenarioRunId);
+    // 57em is the current maximum for #share-dialog with length 72em
+    let newCopyFieldLength = (currentRunUrl.length/2 <= 57) ? currentRunUrl.length/2 : 57;
+    $(".trustlab-copy-field").css("width", `${newCopyFieldLength}em`);
 }
 
 function clearScenarioRunId() {
