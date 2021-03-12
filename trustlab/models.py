@@ -95,7 +95,7 @@ class ObjectFactory:
         return value_prettified
 
     def __init__(self):
-        self.project_path = abspath(dirname(__name__))
+        pass
 
 
 class ScenarioFactory(ObjectFactory):
@@ -142,7 +142,7 @@ class ScenarioFactory(ObjectFactory):
 
     def __init__(self):
         super().__init__()
-        self.scenario_path = self.project_path + SCENARIO_PATH
+        self.scenario_path = SCENARIO_PATH
         self.scenarios = self.load_scenarios()
         self.init_scenario_number = len(self.scenarios)
 
@@ -196,6 +196,5 @@ class ResultFactory:
         return f"{self.result_path}/{folder_name}"
 
     def __init__(self):
-        self.project_path = abspath(dirname(__name__))
-        self.result_path = self.project_path + RESULT_PATH
+        self.result_path = RESULT_PATH
 

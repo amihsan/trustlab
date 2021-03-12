@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+from os.path import dirname, abspath
 import re
 import asyncio
 from datetime import datetime
@@ -8,9 +9,10 @@ from random import randint
 PREPARE_SCENARIO_SEMAPHORE = asyncio.Semaphore(1)
 DISTRIBUTOR = "greedy"
 # variables for trustlab/models.py
-SCENARIO_PATH = '/trustlab/lab/scenarios'
+PROJECT_PATH = abspath(dirname(__name__))
+SCENARIO_PATH = f'{PROJECT_PATH}/trustlab/lab/scenarios'
 SCENARIO_PACKAGE = "trustlab.lab.scenarios"
-RESULT_PATH = '/trustlab/lab/results'
+RESULT_PATH = f'{PROJECT_PATH}/trustlab/lab/results'
 
 TIME_MEASURE = False
 
