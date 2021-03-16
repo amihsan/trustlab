@@ -232,7 +232,10 @@ $("#close-about-dialog").click(function() {
   });
 scenarioSelector.change(showScenarioDescription);
 
-$( document ).ready(function() {
+// using r function for correct ready state
+// explained at http://stackoverflow.com/a/30319853/1214237
+function r(f){/in/.test(document.readyState)?setTimeout('r('+f+')',9):f()}
+r(function(){
     openLabSocket();
     if(window.location.hash) {
         let scenarioRunId = window.location.hash.substring(1);
@@ -240,8 +243,9 @@ $( document ).ready(function() {
             $("#c-start").addClass("not-displayed");
             $("#c-loadingResults").removeClass("not-displayed");
             sendScenarioRunIdForResults(scenarioRunId);
+        } else {
+            snackMessage(true, 'Given Scenario ID in URL hash is invalid or not found.');
         }
-        // TODO: add functionality to catch unknown url fragments or rather scenarioRunIds
     }
 });
 
