@@ -110,6 +110,7 @@ class ScenarioFactory(ObjectFactory):
             try:
                 scenario = self.load_object(file_package, SCENARIO_PACKAGE, "Scenario")
             except (ValueError, AttributeError):
+                print(f'Error at Scenario file @{file_name}:')
                 traceback.print_exc()
                 continue
             if any(s.name == scenario.name for s in scenarios):
