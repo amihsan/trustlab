@@ -13,10 +13,22 @@ function openLabSocket() {
 }
 
 function onLabSocketClose(closingEvent){
-    console.error('Lab socket closed unexpectedly!');
+    let socketClosedMsg = 'Lab socket closed unexpectedly!';
+    snackMessage(true, socketClosedMsg);
+    console.error(socketClosedMsg);
+    console.error(closingEvent);
 }
 
 function onLabSocketMessage(messageEvent){
+    /**
+     * @typedef {Object} webSocketMsg
+     * @property {string} type
+     * @property {string} scenario_run_id
+     * @property {string} trust_log
+     * @property {string} agents_log
+     * @property {string} message
+     */
+    /** @type {webSocketMsg} */
     let data = JSON.parse(messageEvent.data);
     if (data.type === "scenario_results") {
         $("#trust_log").text(data.trust_log);
@@ -234,7 +246,7 @@ scenarioSelector.change(showScenarioDescription);
 
 // using r function for correct ready state
 // explained at http://stackoverflow.com/a/30319853/1214237
-function r(f){/in/.test(document.readyState)?setTimeout('r('+f+')',9):f()}
+function r(f){/in/.test(document.readyState)?setTimeout('r('+f+')',9):f()} // jshint ignore:line
 r(function(){
     openLabSocket();
     if(window.location.hash) {
