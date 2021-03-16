@@ -68,6 +68,10 @@ footer.mdl-mini-footer a {
     color: #29EB36;
 }
 
+.scenario-ul > li:last-child {
+    padding-bottom: 0;
+}
+
 .trustlab-li-body {
     font-weight: 400;
     letter-spacing: 0;
@@ -109,4 +113,13 @@ footer.mdl-mini-footer a {
 
 .mdl-card__actions > .neighbour-button {
     margin-left: 1em;
+}
+
+#scenario-details {
+    margin-bottom: 15pt;
+    color: rgb(255,152,0); /* copied from material design light orange */
+}
+
+#scenario-details > summary  {
+    margin-bottom: 10pt;
 }

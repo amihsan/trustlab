@@ -164,6 +164,12 @@ function openLabRuntimeCard() {
 
 function showScenarioDescription() {
     let value = scenarioSelector.children("option:selected").val();
+    let scenarioDetails = $('#scenario-details');
+    if (scenarioDetails.hasClass("not-displayed")) {
+        scenarioDetails.removeClass("not-displayed");
+    } else if (value === "" && !scenarioDetails.hasClass("not-displayed")){
+        scenarioDetails.addClass("not-displayed");
+    }
     $(".scenario-ul:not(.not-displayed)").addClass("not-displayed");
     $(".scenario-ul[data-scenario='"+value+"']").removeClass("not-displayed");
 }
