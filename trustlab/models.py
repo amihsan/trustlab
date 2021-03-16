@@ -5,9 +5,10 @@ import importlib
 import importlib.util
 import inspect
 from os import listdir, mkdir
-from os.path import isfile, join, dirname, abspath, exists, isdir
+from os.path import isfile, join, exists, isdir
 import pprint
 from trustlab.lab.config import SCENARIO_PATH, SCENARIO_PACKAGE, RESULT_PATH
+import traceback
 
 
 class Supervisor(models.Model):
@@ -108,14 +109,15 @@ class ScenarioFactory(ObjectFactory):
             file_package = file_name.split(".")[0]
             try:
                 scenario = self.load_object(file_package, SCENARIO_PACKAGE, "Scenario")
-            except ValueError as value_error:
-                # TODO log value_error
-                continue
-            except AttributeError as attribute_error:
-                # TODO log attribute_error
+            except (ValueError, AttributeError):
+                traceback.print_exc()
                 continue
             if any(s.name == scenario.name for s in scenarios):
-                # TODO log non-loading of scenario due to name is already given
+                error = f"Scenario {scenario.name}@{file_name} was not loaded due to existing scenario with same name."
+                try:
+                    raise RuntimeError(error)
+                except RuntimeError:
+                    traceback.print_exc()
                 continue
             scenario.file_name = file_name
             scenarios.append(scenario)
