@@ -96,6 +96,7 @@
         "INDEX_URL": true,
         "LAB_URL": true,
         "waitForSocketConnection": true,
-        "removeUrlFragement": true
+        "removeUrlFragement": true,
+        "scenario_load_error": true
     }
 }

@@ -9,15 +9,18 @@ aTLAS
 {#{% block nav_home %}class="active"{% endblock %}#}
 
 {% block scripts %}
-<script src="{% static 'trustlab/scripts/trustlab.js' %}"></script>
-<script>
-    let scenarios;
-    {% if scenarios %}
+    <script>
+        let scenarios;
+        {% if scenarios %}
         scenarios = {{ scenarios_JSON|safe }};
-    {% endif %}
-    const INDEX_URL = "{{ index_url }}"
-    const LAB_URL = "{{ lab_url }}"
-</script>
+        {% endif %}
+        const INDEX_URL = "{{ index_url }}"
+        const LAB_URL = "{{ lab_url }}"
+        {% if ScenarioLoadError %}
+        const scenario_load_error = "{{ ScenarioLoadError }}";
+        {% endif %}
+    </script>
+    <script src="{% static 'trustlab/scripts/trustlab.js' %}"></script>
 {% endblock %}
 
 {% block body %}

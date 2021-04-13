@@ -248,6 +248,9 @@ scenarioSelector.change(showScenarioDescription);
 // explained at http://stackoverflow.com/a/30319853/1214237
 function r(f){/in/.test(document.readyState)?setTimeout('r('+f+')',9):f()} // jshint ignore:line
 r(function(){
+    if (scenario_load_error) {
+        snackMessage(true, scenario_load_error);
+    }
     openLabSocket();
     if(window.location.hash) {
         let scenarioRunId = window.location.hash.substring(1);
