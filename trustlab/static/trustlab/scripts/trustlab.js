@@ -7,7 +7,7 @@ let scenarioSelector = $("#selector-scenario");
 let labSocket;
 
 function openLabSocket() {
-    labSocket = new WebSocket('ws://' + window.location.host + LAB_URL);
+    labSocket = new WebSocket('wss://' + window.location.host + LAB_URL);
     labSocket.onmessage = onLabSocketMessage;
     labSocket.onclose = onLabSocketClose;
 }
