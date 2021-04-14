@@ -200,4 +200,6 @@ class ResultFactory:
 
     def __init__(self):
         self.result_path = RESULT_PATH
+        if not exists(RESULT_PATH) or not isdir(RESULT_PATH):
+            mkdir(RESULT_PATH)
 
