@@ -20,7 +20,6 @@ build:
   - /bin/rm -rf $MEDIATMP_PRE
   - mkdir $MEDIATMP_PRE
   - /bin/cp -arf $MEDIA_PRE $MEDIATMP_PRE
-  - sudo chown -R gitlab-runner:www-gitlab $SRC
   - /bin/rm -rf $SRC_RM
   - /bin/cp -arf ./* $SRC
   - cd $SRC
