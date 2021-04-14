@@ -20,6 +20,7 @@ build:
   - /bin/rm -rf $MEDIATMP_PRE
   - mkdir $MEDIATMP_PRE
   - /bin/cp -arf $MEDIA_PRE $MEDIATMP_PRE
+  - sudo chown -R gitlab-runner:www-gitlab $SRC
   - /bin/rm -rf $SRC_RM
   - /bin/cp -arf ./* $SRC
   - cd $SRC
@@ -52,6 +53,7 @@ build:
   - python manage.py collectstatic --noinput
   - deactivate
   - unset VENV_HOME_DIR
+  - sudo chown -R www-data:www-data ./
   - /bin/rm -rf $MEDIATMP_PRE
   - sudo /bin/systemctl start daphne@trustlab.service
   - sudo /bin/systemctl restart nginx
