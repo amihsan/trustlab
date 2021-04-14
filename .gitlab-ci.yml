@@ -42,18 +42,17 @@ build:
   - cd ./trustlab_host-env
   - export VENV_HOME_DIR=$(pipenv --venv)
   - source $VENV_HOME_DIR/bin/activate
-  - sudo /usr/bin/pipenv install
+  - sudo /usr/local/bin/pipenv install
   - deactivate
   - cd ../trustlab-env
   - export VENV_HOME_DIR=$(pipenv --venv)
   - source $VENV_HOME_DIR/bin/activate
-  - sudo /usr/bin/pipenv install --dev
+  - sudo /usr/local/bin/pipenv install --dev
   - cd $SRC
   - python manage.py migrate
   - python manage.py collectstatic --noinput
   - deactivate
   - unset VENV_HOME_DIR
-  - sudo chown -R www-data:www-data ./
   - /bin/rm -rf $MEDIATMP_PRE
   - sudo /bin/systemctl start daphne@trustlab.service
   - sudo /bin/systemctl restart nginx
