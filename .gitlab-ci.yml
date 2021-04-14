@@ -15,8 +15,8 @@ build:
   - trustlab
   script:
   - . $DBKEY_SCRIPT
-  - sudo /bin/systemctl stop daphne@trustlab.service
   - sudo /bin/systemctl stop trustlab_host.service
+  - sudo /bin/systemctl stop daphne@trustlab.service
   - /bin/rm -rf $MEDIATMP_PRE
   - mkdir $MEDIATMP_PRE
   - /bin/cp -arf $MEDIA_PRE $MEDIATMP_PRE
