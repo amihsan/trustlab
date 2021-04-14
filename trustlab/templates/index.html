@@ -16,8 +16,9 @@ aTLAS
         {% endif %}
         const INDEX_URL = "{{ index_url }}"
         const LAB_URL = "{{ lab_url }}"
+        let scenario_load_error;
         {% if ScenarioLoadError %}
-        const scenario_load_error = "{{ ScenarioLoadError }}";
+        scenario_load_error = "{{ ScenarioLoadError }}";
         {% endif %}
     </script>
     <script src="{% static 'trustlab/scripts/trustlab.js' %}"></script>
