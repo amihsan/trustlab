@@ -3,7 +3,10 @@ Description=Trustlab_host service. The service supporting the startup of a super
 
 [Service]
 Type=simple
-ExecStart=/var/www/trustlab/trustlab_host-env/.venv/bin/python3 /var/www/trustlab/src/trustlab_host/supervisor.py 10
+User=gitlab-runner
+Group=www-data
+WorkingDirectory=/var/www/trustlab/src/trustlab_host
+ExecStart=/var/www/trustlab/trustlab_host-env/.venv/bin/python3 -u /var/www/trustlab/src/trustlab_host/supervisor.py 10
 
 [Install]
 WantedBy=multi-user.target
