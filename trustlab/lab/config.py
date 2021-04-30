@@ -1,5 +1,3 @@
-from pathlib import Path
-import os
 from os.path import dirname, abspath
 import re
 import asyncio
@@ -29,16 +27,4 @@ def create_scenario_run_id():
 def validate_scenario_run_id(scenario_run_id):
     id_pattern = r"^scenarioRun_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}-[0-9]{2}_[0-9]{3}$"
     return re.match(id_pattern, scenario_run_id)
-
-
-class Logging:
-    LOG_PATH = Path("trustlab/lab/log/")
-    if not LOG_PATH.is_dir():
-        os.mkdir(LOG_PATH.absolute())
-
-    @staticmethod
-    def new_log_path():
-        folder_name = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        Logging.LOG_PATH = Path("trustlab/lab/log/" + folder_name + "/")
-        os.mkdir(Logging.LOG_PATH.absolute())
 
