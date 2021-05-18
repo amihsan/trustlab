@@ -65,10 +65,22 @@ WEIGHTS = {'content_trust.age': 1.0,
  'content_trust.specificity': 1.0,
  'content_trust.topic': 1.0}
 
-METRICS_PER_AGENT = {'A': {'content_trust.authority': {'known_authorities': ['C']}, 'content_trust.direct_experience': {}, 'content_trust.popularity': {}, 'content_trust.recommendation': {}},
- 'B': {'content_trust.authority': {'known_authorities': ['C']}, 'content_trust.direct_experience': {}, 'content_trust.popularity': {}, 'content_trust.recommendation': {}},
- 'C': {'content_trust.authority': {'known_authorities': []}, 'content_trust.direct_experience': {}, 'content_trust.popularity': {}, 'content_trust.recommendation': {}},
- 'D': {'content_trust.authority': {'known_authorities': ['C']}, 'content_trust.direct_experience': {}, 'content_trust.popularity': {}, 'content_trust.recommendation': {}}}
+METRICS_PER_AGENT = {'A': {'content_trust.authority': {'known_authorities': ['C']},
+       'content_trust.direct_experience': {},
+       'content_trust.popularity': {},
+       'content_trust.recommendation': {}},
+ 'B': {'content_trust.authority': {'known_authorities': ['C']},
+       'content_trust.direct_experience': {},
+       'content_trust.popularity': {},
+       'content_trust.recommendation': {}},
+ 'C': {'content_trust.authority': {'known_authorities': []},
+       'content_trust.direct_experience': {},
+       'content_trust.popularity': {},
+       'content_trust.recommendation': {}},
+ 'D': {'content_trust.authority': {'known_authorities': ['C']},
+       'content_trust.direct_experience': {},
+       'content_trust.popularity': {},
+       'content_trust.recommendation': {}}}
 
 DESCRIPTION = 'This is a basic scenario with four agents and one authority.'
 
