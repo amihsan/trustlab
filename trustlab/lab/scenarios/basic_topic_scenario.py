@@ -53,53 +53,22 @@ HISTORY = {'A': {'B': 1.0, 'C': 1.0, 'D': 1.0},
 
 TRUST_THRESHOLDS = {'cooperation': 0.5, 'forgivability': -0.5}
 
-WEIGHTS = {'age': 1.0,
- 'agreement': 1.0,
- 'authority': 1.0,
- 'direct experience': 1.0,
- 'popularity': 1.0,
- 'provenance': 1.0,
- 'recency': 1.0,
- 'recommendation': 1.0,
- 'related resource': 1.0,
- 'specificity': 1.0,
- 'topic': 1.0}
+WEIGHTS = {'content_trust.age': 1.0,
+ 'content_trust.agreement': 1.0,
+ 'content_trust.authority': 1.0,
+ 'content_trust.direct experience': 1.0,
+ 'content_trust.popularity': 1.0,
+ 'content_trust.provenance': 1.0,
+ 'content_trust.recency': 1.0,
+ 'content_trust.recommendation': 1.0,
+ 'content_trust.related resource': 1.0,
+ 'content_trust.specificity': 1.0,
+ 'content_trust.topic': 1.0}
 
-METRICS_PER_AGENT = {'A': ['authority',
-       'direct experience',
-       'popularity',
-       'recommendation',
-       'topic'],
- 'B': ['authority',
-       'direct experience',
-       'popularity',
-       'recommendation',
-       'topic'],
- 'C': ['authority',
-       'direct experience',
-       'popularity',
-       'recommendation',
-       'topic'],
- 'D': ['authority',
-       'direct experience',
-       'popularity',
-       'recommendation',
-       'topic']}
-
-AUTHORITIES = {'A': ['C'], 'B': ['C'], 'C': [], 'D': ['C']}
-
-TOPICS = {'A': {'B': {'Web Engineering': 1.0},
-       'C': {'Web Engineering': 1.0},
-       'D': {'Web Engineering': 1.0}},
- 'B': {'A': {'Web Engineering': 0.5},
-       'C': {'Web Engineering': 0.5},
-       'D': {'Web Engineering': 1.0}},
- 'C': {'A': {'Web Engineering': 1.0},
-       'B': {'Web Engineering': 1.0},
-       'D': {'Web Engineering': 1.0}},
- 'D': {'A': {'Web Engineering': 1.0},
-       'B': {'Web Engineering': 1.0},
-       'C': {'Web Engineering': 1.0}}}
+METRICS_PER_AGENT = {'A': {'content_trust.authority': {'known_authorities': ['C']}, 'content_trust.direct_experience': {}, 'content_trust.popularity': {}, 'content_trust.recommendation': {}, 'content_trust.topic': {'B': {'Web Engineering': 1.0}, 'C': {'Web Engineering': 1.0}, 'D': {'Web Engineering': 1.0}}},
+ 'B': {'content_trust.authority': {'known_authorities': ['C']}, 'content_trust.direct_experience': {}, 'content_trust.popularity': {}, 'content_trust.recommendation': {}, 'content_trust.topic': {'A': {'Web Engineering': 0.5}, 'C': {'Web Engineering': 0.5}, 'D': {'Web Engineering': 1.0}}},
+ 'C': {'content_trust.authority': {'known_authorities': []}, 'content_trust.direct_experience': {}, 'content_trust.popularity': {}, 'content_trust.recommendation': {}, 'content_trust.topic': {'A': {'Web Engineering': 1.0}, 'B': {'Web Engineering': 1.0}, 'D': {'Web Engineering': 1.0}}},
+ 'D': {'content_trust.authority': {'known_authorities': ['C']}, 'content_trust.direct_experience': {}, 'content_trust.popularity': {}, 'content_trust.recommendation': {}, 'content_trust.topic': {'A': {'Web Engineering': 1.0}, 'B': {'Web Engineering': 1.0}, 'C': {'Web Engineering': 1.0}}}}
 
 DESCRIPTION = 'This is a basic scenario with four agents, one authority and a topic metric.'
 
