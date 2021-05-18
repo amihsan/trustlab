@@ -53,28 +53,20 @@ HISTORY = {'A': {'B': 1.0, 'C': 1.0, 'D': 1.0},
 
 TRUST_THRESHOLDS = {'cooperation': 0.5, 'forgivability': -0.5}
 
-WEIGHTS = {'content_trust.age': 1.0,
- 'content_trust.agreement': 1.0,
- 'content_trust.authority': 1.0,
- 'content_trust.direct_experience': 1.0,
- 'content_trust.popularity': 1.0,
- 'content_trust.provenance': 1.0,
- 'content_trust.recency': 1.0,
- 'content_trust.recommendation': 1.0,
- 'content_trust.related resource': 1.0,
- 'content_trust.specificity': 1.0,
- 'content_trust.topic': 1.0}
-
-METRICS_PER_AGENT = {'A': {'content_trust.direct_experience': {},
+METRICS_PER_AGENT = {'A': {'__final__': {'name': 'weighted_average', 'weights': {}},
+       'content_trust.direct_experience': {},
        'content_trust.popularity': {},
        'content_trust.recommendation': {}},
- 'B': {'content_trust.direct_experience': {},
+ 'B': {'__final__': {'name': 'weighted_average', 'weights': {}},
+       'content_trust.direct_experience': {},
        'content_trust.popularity': {},
        'content_trust.recommendation': {}},
- 'C': {'content_trust.direct_experience': {},
+ 'C': {'__final__': {'name': 'weighted_average', 'weights': {}},
+       'content_trust.direct_experience': {},
        'content_trust.popularity': {},
        'content_trust.recommendation': {}},
- 'D': {'content_trust.direct_experience': {},
+ 'D': {'__final__': {'name': 'weighted_average', 'weights': {}},
+       'content_trust.direct_experience': {},
        'content_trust.popularity': {},
        'content_trust.recommendation': {}}}
 

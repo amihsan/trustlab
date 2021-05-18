@@ -91,7 +91,9 @@
                                 {% for agent, metrics in scenario.metrics_per_agent.items %}
                                     {{ agent }} uses the metrics: <br>
                                     {% for metric, settings in metrics.items %}
+                                        {% if metric != '__final__' %}
                                         {{ metric }}{% if not forloop.last %},{% endif %}{% if forloop.last %}<br>{% endif %}
+                                        {% endif %}
                                     {% endfor %}
                                     {% if not forloop.last %}<br>{% endif %}
                                 {% endfor %}
