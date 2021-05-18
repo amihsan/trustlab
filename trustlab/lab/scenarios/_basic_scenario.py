@@ -56,7 +56,7 @@ TRUST_THRESHOLDS = {'cooperation': 0.5, 'forgivability': -0.5}
 WEIGHTS = {'content_trust.age': 1.0,
  'content_trust.agreement': 1.0,
  'content_trust.authority': 1.0,
- 'content_trust.direct experience': 1.0,
+ 'content_trust.direct_experience': 1.0,
  'content_trust.popularity': 1.0,
  'content_trust.provenance': 1.0,
  'content_trust.recency': 1.0,

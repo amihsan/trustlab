@@ -145,18 +145,10 @@ class ScenarioFactory(ObjectFactory):
 
     def prepare_web_ui_print(self):
         for scenario in self.scenarios:
-            if self.agents_with_metric('content_trust.authority', scenario):
-                scenario.authorities = {agent: metrics['content_trust.authority']['known_authorities']
-                                        for agent, metrics in scenario.metrics_per_agent.items()
-                                        if 'content_trust.authority' in metrics.keys()}
-            if self.agents_with_metric('content_trust.topic', scenario):
-                scenario.topics = {agent: metrics['content_trust.topic']
-                                   for agent, metrics in scenario.metrics_per_agent.items()
-                                   if 'content_trust.topic' in metrics.keys()}
-
-    @staticmethod
-    def agents_with_metric(metric_name, scenario):
-        return any(metric_name in metrics.keys() for agent, metrics in scenario.metrics_per_agent.items())
+            if scenario.any_agents_use_metric('content_trust.authority'):
+                scenario.authorities = scenario.agents_with_metric('content_trust.authority')
+            if scenario.any_agents_use_metric('content_trust.topic'):
+                scenario.topics = scenario.agents_with_metric('content_trust.topic')
 
     def __init__(self):
         super().__init__()
