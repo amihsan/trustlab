@@ -28,7 +28,7 @@
         <div class="mdl-layout__header-row">
           <!-- Title -->
           <span class="mdl-layout-title">
-              <a href="{% url 'index' %}">
+              <a id="header-index-anchor" href="{% url 'index' %}"> <!-- this href may got rewritten by trustlab.js -->
                   <img src="{% static 'trustlab/logos/atlas_grey.svg' %}" width="7%">
                   <span class="mdl-layout--hide-on-tablet mdl-layout--hide-on-phone">aTLAS</span>
               </a>
