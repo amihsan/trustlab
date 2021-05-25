@@ -19,7 +19,7 @@ class Supervisor(models.Model):
 
 class ObjectFactory:
     @staticmethod
-    def load_object(file_package, object_package, object_class_name):
+    def load_object(file_package, object_package, object_class_name, object_args):
         # python package path
         import_package = f"{object_package}.{file_package}"
         # ensure package is accessible
@@ -32,8 +32,6 @@ class ObjectFactory:
             # only reload module after importing if spec was found before
             if object_spec is not None:
                 object_config_module = importlib.reload(object_config_module)
-            # get all parameters of scenario init
-            object_args = inspect.getfullargspec(Scenario.__init__)
             # get only args without default value and not self parameter and capitalize them
             mandatory_args = [a.upper() for a in object_args.args[1:-len(object_args.defaults)]]
             all_args = [a.upper() for a in object_args.args[1:]]
@@ -105,11 +103,13 @@ class ScenarioFactory(ObjectFactory):
         scenarios = []
         scenario_file_names = [file for file in listdir(self.scenario_path)
                                if isfile(join(self.scenario_path, file)) and file.endswith("_scenario.py")]
+        # get all parameters of scenario init
+        scenario_args = inspect.getfullargspec(Scenario.__init__)
         for file_name in scenario_file_names:
             file_package = file_name.split(".")[0]
             try:
-                scenario = self.load_object(file_package, SCENARIO_PACKAGE, "Scenario")
-            except (ValueError, AttributeError):
+                scenario = self.load_object(file_package, SCENARIO_PACKAGE, "Scenario", scenario_args)
+            except (ValueError, AttributeError, TypeError):
                 print(f'Error at Scenario file @{file_name}:')
                 traceback.print_exc()
                 continue
