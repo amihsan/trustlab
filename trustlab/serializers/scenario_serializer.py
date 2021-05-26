@@ -7,14 +7,14 @@ class ScenarioSerializer(serializers.Serializer):
     name = serializers.CharField()
     agents = StringListField()
     observations = serializers.ListField()
-    trust_thresholds = serializers.DictField()
+    scales_per_agent = serializers.DictField()
     metrics_per_agent = serializers.DictField()
     history = serializers.DictField()
     description = serializers.CharField(allow_null=True, allow_blank="True")
 
     def create(self, validated_data):
         return Scenario(validated_data.get('name'), validated_data.get('agents'), validated_data.get('observations'),
-                        validated_data.get('history'), validated_data.get('trust_thresholds'),
+                        validated_data.get('history'), validated_data.get('scales_per_agent'),
                         validated_data.get('metrics_per_agent'), validated_data.get('description', ""))
 
     def update(self, instance, validated_data):
@@ -22,7 +22,7 @@ class ScenarioSerializer(serializers.Serializer):
         instance.agents = validated_data.get('agents', instance.agents)
         instance.observations = validated_data.get('observations', instance.observations)
         instance.history = validated_data.get('history', instance.history)
-        instance.trust_thresholds = validated_data.get('trust_thresholds', instance.trust_thresholds)
+        instance.scales_per_agent = validated_data.get('scales_per_agent', instance.scales_per_agent)
         instance.metrics_per_agent = validated_data.get('metrics_per_agent', instance.metrics_per_agent)
         instance.description = validated_data.get('description', instance.description)
         return instance

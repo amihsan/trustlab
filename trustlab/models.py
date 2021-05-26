@@ -5,7 +5,7 @@ import importlib
 import importlib.util
 import inspect
 from os import listdir, mkdir
-from os.path import isfile, join, exists, isdir
+from os.path import isfile, exists, isdir
 import pprint
 from trustlab.lab.config import SCENARIO_PATH, SCENARIO_PACKAGE, RESULT_PATH
 import traceback
@@ -102,7 +102,7 @@ class ScenarioFactory(ObjectFactory):
     def load_scenarios(self):
         scenarios = []
         scenario_file_names = [file for file in listdir(self.scenario_path)
-                               if isfile(join(self.scenario_path, file)) and file.endswith("_scenario.py")]
+                               if isfile(self.scenario_path / file) and file.endswith("_scenario.py")]
         # get all parameters of scenario init
         scenario_args = inspect.getfullargspec(Scenario.__init__)
         for file_name in scenario_file_names:
@@ -131,7 +131,7 @@ class ScenarioFactory(ObjectFactory):
             # all attr
             # all_args = [a.upper() for a in scenario_args.args[1:]]
             if hasattr(scenario, "file_name"):
-                config_path = f"{self.scenario_path}/{scenario.file_name}"
+                config_path = self.scenario_path / scenario.file_name
                 self.save_object(scenario, scenario_args, config_path, file_exists=True)
             else:
                 # create file name without spaces _ and alphanumeric chars only
@@ -140,7 +140,7 @@ class ScenarioFactory(ObjectFactory):
                     file_name += ".py"
                 else:
                     file_name += "_scenario.py"
-                config_path = f"{self.scenario_path}/{file_name}"
+                config_path = self.scenario_path / file_name
                 self.save_object(scenario, scenario_args, config_path)
 
     def prepare_web_ui_print(self):
@@ -169,7 +169,7 @@ class ScenarioResult:
 
 class ResultFactory:
     def list_known_scenario_run_ids(self):
-        return [directory for directory in listdir(self.result_path) if isdir(f"{self.result_path}/{directory}")]
+        return [directory for directory in listdir(self.result_path) if isdir(self.result_path / directory)]
 
     def get_result(self, scenario_run_id):
         result_dir = self.get_result_dir(scenario_run_id)
@@ -203,7 +203,7 @@ class ResultFactory:
     def get_result_dir(self, scenario_run_id):
         split_index = len(scenario_run_id.split("_")[0]) + 1  # index to cut constant of runId -> 'scenarioRun_'
         folder_name = scenario_run_id[split_index:]
-        return f"{self.result_path}/{folder_name}"
+        return self.result_path / folder_name
 
     def __init__(self):
         self.result_path = RESULT_PATH
