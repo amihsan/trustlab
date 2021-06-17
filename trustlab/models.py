@@ -149,7 +149,7 @@ class ScenarioFactory(ObjectFactory):
             file_package = file_name.split(".")[0]
             try:
                 scenario = self.load_object(file_package, SCENARIO_PACKAGE, "Scenario", scenario_args)
-            except (ValueError, AttributeError, TypeError):
+            except (ValueError, AttributeError, TypeError, ModuleNotFoundError, SyntaxError):
                 print(f'Error at Scenario file @{file_name}:')
                 traceback.print_exc()
                 continue
