@@ -18,8 +18,26 @@ class Supervisor(models.Model):
 
 
 class ObjectFactory:
+    """
+    Generic Class for Object Factories loading and saving objects in a DSL (.py) file.
+    """
     @staticmethod
     def load_object(file_package, object_package, object_class_name, object_args):
+        """
+        Imports the DSL file of an given object and initiates it.
+
+        :param file_package: package name of the DSL file.
+        :type file_package: str
+        :param object_package: package name of the object's class.
+        :type object_package: str
+        :param object_class_name: the name of the object's class.
+        :type object_class_name: str
+        :param object_args: All the parameters of the to initiate object
+        :type object_args: inspect.FullArgSpec
+        :return: the initiated object to be loaded
+        :rtype: Any
+        :raises AttributeError: One or more mandatory attribute was not found in object's DSL file.
+        """
         # python package path
         import_package = f"{object_package}.{file_package}"
         # ensure package is accessible
@@ -47,9 +65,23 @@ class ObjectFactory:
                 # add all attrs which are in config to scenario object
                 obj = object_class(*object_attrs)
                 return obj
-            raise AttributeError("One or more mandatory attribute(s) was/were not found in object file.")
+            raise AttributeError("One or more mandatory attribute was not found in object's DSL file.")
 
     def save_object(self, obj, object_args, file_path, file_exists=False):
+        """
+        Saves an object to a DSL file.
+
+        :param obj: the object to be saved.
+        :type obj: Any
+        :param object_args: All the parameters of the to initiate object
+        :type object_args: inspect.FullArgSpec
+        :param file_path: Full path to the object's DSL file.
+        :type file_path: pathlib.Path
+        :param file_exists: whether the object's DSL file already exists.
+        :type file_exists: bool
+        :return: the initiated object to be loaded
+        :rtype: Any
+        """
         # all attr
         all_args = [a.upper() for a in object_args.args[1:]]
         # distinguish between new file writing or overwriting existing one
@@ -88,6 +120,9 @@ class ObjectFactory:
 
     @staticmethod
     def stringify_arg_value(obj, arg):
+        """
+        Prettifying the value argument's value at the given object.
+        """
         value = getattr(obj, arg.lower())
         # Prettifying the value for better human readability.
         value_prettified = pprint.pformat(value)
@@ -98,8 +133,13 @@ class ObjectFactory:
 
 
 class ScenarioFactory(ObjectFactory):
-    # load all scenarios in /trustlab/lab/scenarios with dynamic read of parameters from Scenario.__init__
     def load_scenarios(self):
+        """
+        Loads all scenarios saved /trustlab/lab/scenarios with dynamic read of parameters from Scenario.__init__.
+
+        :return: scenarios initialized as Scenario objects
+        :rtype: list
+        """
         scenarios = []
         scenario_file_names = [file for file in listdir(self.scenario_path)
                                if isfile(self.scenario_path / file) and file.endswith("_scenario.py")]
@@ -125,6 +165,11 @@ class ScenarioFactory(ObjectFactory):
         return scenarios
 
     def save_scenarios(self):
+        """
+        Saves all scenarios in self.scenarios in /trustlab/lab/scenarios.
+
+        :rtype: None
+        """
         for scenario in self.scenarios:
             # get all parameters of scenario init
             scenario_args = inspect.getfullargspec(Scenario.__init__)
@@ -144,6 +189,11 @@ class ScenarioFactory(ObjectFactory):
                 self.save_object(scenario, scenario_args, config_path)
 
     def prepare_web_ui_print(self):
+        """
+        Prepares object attributes for the Web UI print, as they are only required for easier printing at the UI.
+
+        :rtype: None
+        """
         for scenario in self.scenarios:
             if scenario.any_agents_use_metric('content_trust.authority'):
                 scenario.authorities = scenario.agents_with_metric('content_trust.authority')
@@ -161,6 +211,9 @@ class ScenarioFactory(ObjectFactory):
 
 
 class ScenarioResult:
+    """
+    Represents the results of one scenario run with its id.
+    """
     def __init__(self, scenario_run_id, trust_log, agent_trust_logs):
         self.scenario_run_id = scenario_run_id
         self.trust_log = trust_log
@@ -168,10 +221,23 @@ class ScenarioResult:
 
 
 class ResultFactory:
+    """
+    Reads and writes scenario run results from/to log files to be able to answer queries on past results.
+    """
     def list_known_scenario_run_ids(self):
+        """
+        :return: all known scenario run ids.
+        :rtype: list
+        """
         return [directory for directory in listdir(self.result_path) if isdir(self.result_path / directory)]
 
     def get_result(self, scenario_run_id):
+        """
+        :param scenario_run_id: Scenario run id to identify according results.
+        :type scenario_run_id: str
+        :return: ScenarioResult object of given scenario run id.
+        :rtype: ScenarioResult
+        """
         result_dir = self.get_result_dir(scenario_run_id)
         if exists(result_dir) and isdir(result_dir):
             agent_trust_logs = {}
@@ -189,6 +255,11 @@ class ResultFactory:
             raise OSError(f"Given path '{result_dir}' for scenario result read is not a directory or does not exist.")
 
     def save_result(self, scenario_result):
+        """
+        :param scenario_result: ScenarioResult object to be saved.
+        :type scenario_result: ScenarioResult
+        :rtype: None
+        """
         result_dir = self.get_result_dir(scenario_result.scenario_run_id)
         if not exists(result_dir) or not isdir(result_dir):
             mkdir(result_dir)
@@ -201,6 +272,12 @@ class ResultFactory:
                 print(''.join(agent_trust_log), file=agent_trust_log_file)
 
     def get_result_dir(self, scenario_run_id):
+        """
+        :param scenario_run_id: Scenario run id to identify according results.
+        :type scenario_run_id: str
+        :return: Path to results of scenario run id.
+        :rtype: pathlib.Path
+        """
         split_index = len(scenario_run_id.split("_")[0]) + 1  # index to cut constant of runId -> 'scenarioRun_'
         folder_name = scenario_run_id[split_index:]
         return self.result_path / folder_name
