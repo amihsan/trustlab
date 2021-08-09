@@ -28,8 +28,8 @@ class Director:
         """
         agents = self.scenario.agents
         # check if enough agents are free to work
-        sums = await self.connector.sums_agent_numbers()
-        free_agents = sums['sum_max_agents'] - sums['sum_agents_in_use']
+        sum_max_agents, sum_agents_in_use = await self.connector.sums_agent_numbers()
+        free_agents = sum_max_agents - sum_agents_in_use
         if free_agents < len(agents):
             raise Exception('Currently there are not enough agents free for the chosen scenario.')
         # distribute agents on supervisors
