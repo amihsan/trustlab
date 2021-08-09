@@ -1,6 +1,5 @@
-from pathlib import Path
-import os
 from os.path import dirname, abspath
+from pathlib import Path
 import re
 import asyncio
 from datetime import datetime
@@ -9,10 +8,10 @@ from random import randint
 PREPARE_SCENARIO_SEMAPHORE = asyncio.Semaphore(1)
 DISTRIBUTOR = "greedy"
 # variables for trustlab/models.py
-PROJECT_PATH = abspath(dirname(__name__))
-SCENARIO_PATH = f'{PROJECT_PATH}/trustlab/lab/scenarios'
+PROJECT_PATH = Path(abspath(dirname(__name__)))
+SCENARIO_PATH = PROJECT_PATH / 'trustlab' / 'lab' / 'scenarios'
 SCENARIO_PACKAGE = "trustlab.lab.scenarios"
-RESULT_PATH = f'{PROJECT_PATH}/trustlab/lab/results'
+RESULT_PATH = PROJECT_PATH / 'trustlab' / 'lab' / 'results'
 
 TIME_MEASURE = False
 
@@ -22,23 +21,25 @@ def get_current_time():
 
 
 def create_scenario_run_id():
-    # return "scenarioRun:" + datetime.now().strftime("%Y-%m-%d_%H:%M:%S") # URI version but not usable as channel_name
+    """
+    Creates a new Scenario Run ID with datetime pattern plus 3 digit random int,
+    e.g. 'scenarioRun_2021-05-18_16-37-54_383'.
+
+    :return: new Scenario Run ID
+    :rtype: str
+    """
     return f'scenarioRun_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}_{randint(0, 999):0=3d}'
 
 
 def validate_scenario_run_id(scenario_run_id):
+    """
+    Validates a given Scenario Run ID by pattern matching.
+
+    :param scenario_run_id: Scenario Run ID to evaluate
+    :type scenario_run_id: str
+    :return: True if validation was successful else False
+    :rtype: bool
+    """
     id_pattern = r"^scenarioRun_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}-[0-9]{2}_[0-9]{3}$"
-    return re.match(id_pattern, scenario_run_id)
-
-
-class Logging:
-    LOG_PATH = Path("trustlab/lab/log/")
-    if not LOG_PATH.is_dir():
-        os.mkdir(LOG_PATH.absolute())
-
-    @staticmethod
-    def new_log_path():
-        folder_name = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        Logging.LOG_PATH = Path("trustlab/lab/log/" + folder_name + "/")
-        os.mkdir(Logging.LOG_PATH.absolute())
+    return True if re.match(id_pattern, scenario_run_id) else False
 
