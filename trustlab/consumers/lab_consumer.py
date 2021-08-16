@@ -20,14 +20,22 @@ class LabConsumer(AsyncJsonWebsocketConsumer):
 
     async def receive_json(self, content, **kwargs):
         if content['type'] == 'run_scenario':
-            serializer = ScenarioSerializer(data=content['scenario'])
+            try:
+                scenario_desc = Scenario.correct_number_types(content['scenario'])
+            except (ModuleNotFoundError, SyntaxError) as error:
+                await self.send_json({
+                    'message': f'Scenario Description Error: {str(error)}',
+                    'type': 'error'
+                })
+                return
+            serializer = ScenarioSerializer(data=scenario_desc)
             if serializer.is_valid():
                 try:
                     scenario_factory = ScenarioFactory()
                     scenario = serializer.create(serializer.data)
                 except (ValueError, AttributeError, TypeError, ModuleNotFoundError, SyntaxError) as error:
                     await self.send_json({
-                        'message': f'ScenarioError: {str(error)}',
+                        'message': f'Scenario Error: {str(error)}',
                         'type': 'error'
                     })
                     return
