@@ -12,7 +12,7 @@ import traceback
 
 
 class Supervisor(models.Model):
-    channel_name = models.CharField(max_length=120)
+    channel_name = models.CharField(max_length=120, primary_key=True)
     max_agents = models.IntegerField(default=0)
     agents_in_use = models.IntegerField(default=0)
 
