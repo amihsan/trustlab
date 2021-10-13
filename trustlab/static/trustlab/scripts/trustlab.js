@@ -244,6 +244,8 @@ $("#close-about-dialog").click(function() {
     aboutDialog.close();
   });
 scenarioSelector.change(showScenarioDescription);
+// dynamic URL changes for deploy with enabled ProxyPass
+$("#header-index-anchor").attr("href", window.location.pathname);
 
 // using r function for correct ready state
 // explained at http://stackoverflow.com/a/30319853/1214237

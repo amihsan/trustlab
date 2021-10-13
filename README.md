@@ -11,15 +11,15 @@ Laboratory of Trust. Latest online version: [http://vsr-dem0.informatik.tu-chemn
 ## Local Installation
 1. Install Microsoft ODBC Driver 17 (Windows/Linux/MacOS)
 
-	[https://docs.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server?view=sql-server-2017](https://docs.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server?view=sql-server-2017)
-2. Clone Git Repository with git client or per terminal
-3. Open terminal and go to project directory
-4. Configure merge driver for dealing with ``.gitattributes`` or rather the merge strategy:
+    [https://docs.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server?view=sql-server-2017](https://docs.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server?view=sql-server-2017)
+2. Clone Git Repository, including all submodules. (https://git-scm.com/book/en/v2/Git-Tools-Submodules)
+
+3. Configure merge driver for dealing with ``.gitattributes`` or rather the merge strategy:
     ```bash
     git config merge.ours.driver true
     ```
 
-5. Setup pipenv in project root:
+4. Setup pipenv in project root:
     ```bash
     pipenv install
     ```
@@ -31,46 +31,37 @@ Laboratory of Trust. Latest online version: [http://vsr-dem0.informatik.tu-chemn
         odbcinst -u -d -n "ODBC Driver 17 for SQL Server"
         ```
         
-7. Modify ``Additional Options`` of your django configuration (for no auto-reload after editing scenario files) with:
+5. Modify ``Additional Options`` of your django configuration (for no auto-reload after editing scenario files) with:
     ```bash
     --noreload
     ```
 
-7. Get to work! 
+## Run
+
+1. Run aTLAS:
+    ```bash
+    python manage.py runserver 8000 --noreload
+    ```
+
+2. Run at least on supervisor with the included submodule and connect it to aTLAS. (https://github.com/N0omB/aTLAS_host)
 
 ## Notes
 
 - The ``settings.py`` is via ``.gitattributes`` under merge strategy to have always different versions in develop and master branch. To hold this construction, **always** merge without fast-forward. Thus, always create a new commit, when you merge the two branches.
 
-- Add all new python packages to ``requirements.pip`` 
-
 - djtrustlab is the main Django project with settings.py, trustlab is the subproject with all the code
 
 - All deploy-configs for daphne and nginx (and depricated gunicorn) are in ``deploy-configs/``
 
-
-
 ## How To Scenario
 
-- Currently scenario configurations can be placed in ``trustlab/lab/scenarios``.
+- Scenario configurations can be placed in ``trustlab/lab/scenarios``.
 
 - Every scenario configuration file has to end with ``_scenario.py``.
 
-- All scenario parameters require to be the upperCase version of the respective Scenario.\_\_init\_\_ arguments
+- All scenario parameters require to be the upperCase version of the respective Scenario.\_\_init\_\_ arguments.
 
-- Possible scenario arguments derive from Scenario.\_\_init\_\_ arguments list, where parameters without default value are mandatory for scenario configuration file as well
-
-## For Later
-
-- pip install markdown \- Markdown support for the browsable API.
-
-- pip install pygments \- Add syntax highlighting (to Markdown processing).
-
-- pip install django-filter \- Filtering support in Request via parameter and in REST Framework
-
-- NetworkX for graph structure in backend: https://networkx.github.io/
-
-- NVD3 for graphs and diagrams in frontend: http://nvd3.org/
+- Scenario files require to end with two new line feeds instead of one as described in the python style guide.
 
 ## Deploy
 
@@ -92,9 +83,19 @@ https://www.digitalocean.com/community/tutorials/how-to-set-up-django-with-postg
 * DEPRICATED Dark MDL CSS Style from CreativeIT \
 https://github.com/CreativeIT/material-dashboard-lite http://creativeit.io/material-dashboard-lite/
 
+## For Later
 
+- pip install markdown \- Markdown support for the browsable API.
+
+- pip install pygments \- Add syntax highlighting (to Markdown processing).
+
+- pip install django-filter \- Filtering support in Request via parameter and in REST Framework
+
+- NetworkX for graph structure in backend: https://networkx.github.io/
+
+- NVD3 for graphs and diagrams in frontend: http://nvd3.org/
 
 <!-- Identifiers, in alphabetical order -->
-[atlas-logo-orange]: /logos/atlas_orange.svg
+[atlas-logo-orange]: /_logos/atlas_orange.svg
 
 
