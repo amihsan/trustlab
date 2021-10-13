@@ -59,9 +59,11 @@ Laboratory of Trust. Latest online version: [http://vsr-dem0.informatik.tu-chemn
 
 - Every scenario configuration file has to end with ``_scenario.py``.
 
-- All scenario parameters require to be the upperCase version of the respective Scenario.\_\_init\_\_ arguments.
+- All scenario parameters require to be the upperCase version of the respective ``Scenario.__init__`` arguments.
 
-- Scenario files require to end with two new line feeds instead of one as described in the python style guide.
+- Possible scenario arguments derive from ``Scenario.__init__`` arguments list, where parameters without default value are mandatory for scenario configuration file as well.
+
+- Scenario files require ending with two new line feeds instead of one as described in the python style guide.
 
 ## Deploy
 
