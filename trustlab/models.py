@@ -92,7 +92,7 @@ class ObjectFactory:
                 # exchange all args which are in config file data
                 for arg in all_args:
                     # create regex to find argument with value.
-                    replacement = re.compile(arg + r' = .*\n\n', re.DOTALL)  # variables ends with double new lines
+                    replacement = re.compile(arg + r' = .+?\n\n', re.DOTALL)  # variables ends with double new lines
                     value = self.stringify_arg_value(obj, arg)
                     if re.search(replacement, object_data):
                         # substitute current value in config_data. Double new lines are added to help parsing
