@@ -1,4 +1,4 @@
-# <img src="https://github.com/N0omB/aTLAS/raw/master/_logos/atlas_orange.svg" alt="aTLAS orange" width="3%" height="3%"> TrustLab
+# <img src="https://github.com/N0omB/ValentinSiegert/raw/master/_logos/atlas_orange.svg" alt="aTLAS orange" width="3%" height="3%"> TrustLab
 
 Laboratory of Trust. Latest online version: [http://vsr-dem0.informatik.tu-chemnitz.de/trustlab/](http://vsr-dem0.informatik.tu-chemnitz.de/trustlab/)
 
@@ -23,7 +23,7 @@ Laboratory of Trust. Latest online version: [http://vsr-dem0.informatik.tu-chemn
     --noreload
     ```
 
-6. Install also at least one supervisor. (https://gitlab.hrz.tu-chemnitz.de/vsr/phd/siegert/trustlab_host)
+5. Install also at least one supervisor. (https://gitlab.hrz.tu-chemnitz.de/vsr/phd/siegert/trustlab_host)
 
    
 ## Run
@@ -35,7 +35,7 @@ Laboratory of Trust. Latest online version: [http://vsr-dem0.informatik.tu-chemn
     python manage.py runserver 8000 --noreload
     ```
 
-3. Run at least on supervisor with the included submodule and connect it to aTLAS. (https://github.com/N0omB/aTLAS_host)
+3. Run at least on supervisor with the included submodule and connect it to aTLAS. (https://gitlab.hrz.tu-chemnitz.de/vsr/phd/siegert/trustlab_host)
 
 ## Notes
 
