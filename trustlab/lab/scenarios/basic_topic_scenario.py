@@ -114,4 +114,3 @@ METRICS_PER_AGENT = {'A': {'__final__': {'name': 'weighted_average', 'weights': 
                                'C': {'Web Engineering': 1.0}}}}
 
 DESCRIPTION = 'This is a basic scenario with four agents, one authority and a topic metric.'
-
