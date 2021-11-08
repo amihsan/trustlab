@@ -1061,4 +1061,3 @@ METRICS_PER_AGENT = {'A': {'__final__': {'name': 'weighted_average', 'weights': 
  'Z': {'__final__': {'name': 'weighted_average', 'weights': {}}}}
 
 DESCRIPTION = 'Scalability Test with agent upscaling for WI 2020'
-
