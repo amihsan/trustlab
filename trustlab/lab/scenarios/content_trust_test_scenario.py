@@ -4,9 +4,19 @@ AGENTS = ['A', 'B', 'C', 'D']
 
 OBSERVATIONS = [{'authors': ['A'],
                  'before': [],
-                 'details': {'content_trust.topics': ['Web Engineering'],
+                 'details': {'content_trust.topics': ['Web Engineering', 'Things'],
                              'content_trust.trusted_topics': ['Web Engineering'],
-                             'uri': 'www.example.com/decentralized-web-engineering-guide.pdf'},
+                             'uri': 'www.example.com/for-dummies.html',
+                             'content_trust.context_level': 'relaxed',
+                             'content_trust.bias': 1.0,
+                             'content_trust.specificity': 0.89,
+                             'content_trust.likelihood': 1.0,
+                             'content_trust.incentive': 0.97,
+                             'content_trust.deception': 1.0,
+                             'content_trust.publication_date': 1625783748,
+                             'content_trust.related_resources': [
+                                 'www.example.com/beginners-guide-semantic-web.pdf'
+                             ]},
                  'message': 'Redecentralization of the Web',
                  'observation_id': 1,
                  'receiver': 'B',
