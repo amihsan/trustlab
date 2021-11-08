@@ -1,14 +1,14 @@
-from trustlab_host.models import Scenario
-from django.db import models
-import re
 import importlib
 import importlib.util
 import inspect
+import pprint
+import re
+import traceback
+from django.db import models
 from os import listdir, mkdir
 from os.path import isfile, exists, isdir
-import pprint
 from trustlab.lab.config import SCENARIO_PATH, SCENARIO_PACKAGE, RESULT_PATH
-import traceback
+from trustlab_host.models import Scenario
 
 
 class Supervisor(models.Model):
@@ -69,7 +69,8 @@ class ObjectFactory:
 
     def save_object(self, obj, object_args, file_path, file_exists=False):
         """
-        Saves an object to a DSL file.
+        Saves an object to a DSL file. Double new lines (empty line) within value definition of variable causes error
+        as script sees \n\n as indicator for variable end.
 
         :param obj: the object to be saved.
         :type obj: Any
@@ -88,11 +89,12 @@ class ObjectFactory:
         if file_exists:
             with open(file_path, 'r+') as object_file:
                 # read in file
-                object_data = object_file.read()
+                # add newline feed for parsing with double new lines as delimiter for value end
+                object_data = object_file.read() + '\n'
                 # exchange all args which are in config file data
                 for arg in all_args:
                     # create regex to find argument with value.
-                    replacement = re.compile(arg + r' = .+?\n\n', re.DOTALL)  # variables ends with double new lines
+                    replacement = re.compile(arg + r' = .+?\n\n', re.DOTALL)  # variables end with double new lines
                     value = self.stringify_arg_value(obj, arg)
                     if re.search(replacement, object_data):
                         # substitute current value in config_data. Double new lines are added to help parsing
@@ -104,6 +106,8 @@ class ObjectFactory:
                         arg_value = f"\n\n{arg} = {value}"  # Double new lines are added to help parsing
                         # append argument configuration at position -> end of file + whitespace tail
                         object_data = object_data[:position] + arg_value + object_data[position:]
+                # delete last new line feed to format in PEP8 style
+                object_data = object_data[:-1]
                 # jump back to begin of file and write new data
                 object_file.seek(0)
                 object_file.write(object_data)
@@ -115,8 +119,8 @@ class ObjectFactory:
                 print('"""\n\n', file=object_file)
                 for arg in all_args:
                     value = self.stringify_arg_value(obj, arg)
-                    print(f"{arg} = {value}\n", file=object_file)  # Double new lines are added to help parsing
-                print("\n\n\n", file=object_file) # 4 new lines at end of file
+                    # Double new lines are added to help parsing
+                    print(f"{arg} = {value}\n\n", file=object_file)
 
     @staticmethod
     def stringify_arg_value(obj, arg):
@@ -126,6 +130,9 @@ class ObjectFactory:
         value = getattr(obj, arg.lower())
         # Prettifying the value for better human readability.
         value_prettified = pprint.pformat(value)
+        # delete leading and trailing brackets at string prettifying AND add backslash to newline feed
+        if type(value) is str and value_prettified.startswith('('):
+            value_prettified = value_prettified.replace('\n', '\\\n')[1:-1]
         return value_prettified
 
     def __init__(self):
