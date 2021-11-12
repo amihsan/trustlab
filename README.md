@@ -1,4 +1,3 @@
-<div id="top"></div>
 
 <br />
 <div align="center">
@@ -40,7 +39,6 @@
 
 </details>
 
----
 
 ## 💡 About
 
@@ -99,9 +97,6 @@ for a decentralized web has to be done manually with a high effort.
 4. Redis Server
 5. Microsoft SQL Server with ODBC Driver 17 OR SQLite
 
-
-<p align="right"><a href="#top">back to 🔝</a></p>
-
 ## ⚡ Getting Started
 
 > By default, please follow the local setup. The setup for VSRians is only for those knowing what they do there.
@@ -156,8 +151,6 @@ for a decentralized web has to be done manually with a high effort.
     ```
 </details>
 
-<p align="right"><a href="#top">back to 🔝</a></p>
-
 ## 👟 Usage
 
 > By default, please follow the local usage. The usage for VSRians is only for those knowing what they do there.
@@ -191,8 +184,6 @@ for a decentralized web has to be done manually with a high effort.
 
 </details>
 
-<p align="right"><a href="#top">back to 🔝</a></p>
-
 ## 👀 Insights
 
 ### 📃 Notes
@@ -221,8 +212,6 @@ for a decentralized web has to be done manually with a high effort.
 
 - NVD3 for graphs and diagrams in frontend: http://nvd3.org/
 
-<p align="right"><a href="#top">back to 🔝</a></p>
-
 ## ✍ Authors & Contributors
 
 The original setup of this repository is by the first author [Valentin Siegert][valentin-siegert-website].
@@ -234,8 +223,6 @@ All authors of this work in alphabetic order:
 - [Mahda Noura](https://vsr.informatik.tu-chemnitz.de/people/mahdanoura)
 - [Valentin Siegert][valentin-siegert-website]
 
-<p align="right"><a href="#top">back to 🔝</a></p>
-
 ## 👍 Acknowledgements
 
 The authors acknowledge the work of the following students:
@@ -243,7 +230,6 @@ The authors acknowledge the work of the following students:
 - Jun Li
 - Marten Rogall
 
-<p align="right"><a href="#top">back to 🔝</a></p>
 
 <!-- Identifiers, in alphabetical order -->
 [atlas-logo-orange]: https://github.com/ValentinSiegert/aTLAS/raw/master/_logos/atlas_orange.svg
