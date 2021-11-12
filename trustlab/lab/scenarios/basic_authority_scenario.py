@@ -102,4 +102,3 @@ METRICS_PER_AGENT = {'A': {'__final__': {'name': 'weighted_average', 'weights': 
        'content_trust.recommendation': {}}}
 
 DESCRIPTION = 'This is a basic scenario with four agents and one authority.'
-

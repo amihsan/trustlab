@@ -7056,4 +7056,3 @@ METRICS_PER_AGENT = {'A': {'__final__': {'name': 'weighted_average', 'weights': 
        'content_trust.recommendation': {}}}
 
 DESCRIPTION = 'Scalability Test with observation upscaling for WI 2020'
-
