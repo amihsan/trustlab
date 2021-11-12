@@ -1,59 +1,211 @@
-# <img src="https://github.com/ValentinSiegert/aTLAS/raw/master/_logos/atlas_orange.svg" alt="aTLAS orange" width="3%" height="3%"> TrustLab
+<div id="top"></div>
 
-Laboratory of Trust. Latest online version: [http://vsr-dem0.informatik.tu-chemnitz.de/trustlab/](http://vsr-dem0.informatik.tu-chemnitz.de/trustlab/)
+<br />
+<div align="center">
+  <a href="https://github.com/github_username/repo_name">
+    <img src="https://github.com/ValentinSiegert/aTLAS/raw/master/_logos/atlas_orange.svg" alt="aTLAS orange" height="80">
+  </a>
+  <h2>TrustLab</h2>
+  <p>
+    aTLAS – evaluating trust for autonomous web apps in a redecentralized web
+    <!--<br />
+    <a href="https://github.com/github_username/repo_name"><strong>Explore the docs »</strong></a> -->
+    <br />
+    <br />
+    <a href="https://vsr-www.informatik.tu-chemnitz.de/projects/2020/atlas/demo/">View Demo</a>
+    ·
+    <a href="https://gitlab.hrz.tu-chemnitz.de/vsr/phd/siegert/trustlab/-/issues">Report Bug</a>
+    ·
+    <a href="mailto:valentin.siegert@informatik.tu-chemnitz.de?subject=Question on aTLAS">Ask Question</a>
+  </p>
+</div>
 
-## Information
-1. Python 3
+<details open="open">
+<summary>Table of Contents</summary>
+
+- [About](#-about)
+  - [Built With](#-built-with)
+- [Getting Started](#-getting-started)
+  - [Local Setup](#-local-setup)
+  - [Setup for VSRians](#-setup-for-vsrians)
+- [Usage](#-usage)
+  - [Local Usage](#-local-usage)
+  - [Usage for VSRians](#-usage-for-vsrians)
+- [Insights](#-insights)
+  - [Notes](#-notes)
+  - [How To Scenario](#-how-to-scenario)
+  - [For Later](#-for-later)
+- [Authors & Contributors](#-authors--contributors)
+- [Acknowledgements](#-acknowledgements)
+
+</details>
+
+---
+
+## 💡 About
+
+<table>
+<tr>
+<td>
+
+This is the main repository of the aTLAS testbed which includes the testbed's web server and director.
+Therewith, all front-end capabilities are fully included, but not all back-end logic, which is derived
+from the [submodule trustlab_host][trustlab-host-repo].
+The submodule is used as a library for certain models by the web server and the director and 
+includes all aspects of the testbed environment with supervisor and interacting web agents.
+
+> More details are to be found as well at the [project page][atlas-project].
+
+<details>
+<summary>Further Details</summary>
+
+The redecentralization of the web introduces new challenges on trusting data from other sources
+due to many unknown or even hidden parties.
+An application working trustworthy in a decentralized web must evaluate trust and take trustaware decisions
+autonomously without relying on a centralized infrastructure.
+This autonomy and the huge amount of available applications necessitates the web to be modelled as
+an open dynamic Multi-Agent System (MAS).
+To evaluate the trust of web agents, the most suitable trust models need to be identified and used.
+Despite the various trust models proposed in the literature for evaluating a web agent’s trust, 
+the examination of them with different scenarios and configurations is not trivial.
+To address these challenges, we initiated aTLAS, a Trust Laboratory of Multi-Agent Systems
+which is a web-based wizard testbed for researchers and web engineers to evaluate trust models systematically.
+aTLAS will enable future research regarding trust evaluations in a decentralized web.
+
+The aTLAS project intends to examine trust for a redecentralization of the web.
+It enables a broad comparison of trust mechanics, scales and models from the literature
+within the current state of the art.
+Therefore, it runs and evaluates multi-agent system scenarios, which are defined beforehand.
+As the redencentralization of the web necessitates it to be modeled as a open dynamic multi-agent system,
+such a laboratory can support the current situation where a comparision of trust approaches
+for a decentralized web has to be done manually with a high effort.
+
+> Relevant Publications:
+> 
+> [aTLAS: a Testbed to Examine Trust for a Redecentralized Web][atlas-paper]
+> 
+> [WTA: Towards a Web-based Testbed Architecture][wta-paper]
+
+</details>
+</td>
+</tr>
+</table>
+
+### 🧱 Built With
+
+1. Python 3.7
 2. Django v2
-3. Python virtual environment
-4. Microsoft SQL Server with ODBC Driver 17
+3. Python pipenv
+4. Redis Server
+5. Microsoft SQL Server with ODBC Driver 17 OR SQLite
 
-## Local Installation
-1. Install Microsoft ODBC Driver 17 (Windows/Linux/MacOS)
 
-    [https://docs.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server?view=sql-server-2017](https://docs.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server?view=sql-server-2017)
-2. Clone Git Repository, including all submodules. (https://git-scm.com/book/en/v2/Git-Tools-Submodules)
+<p align="right"><a href="#top">back to 🔝</a></p>
+
+## ⚡ Getting Started
+
+> By default, please follow the local setup. The setup for VSRians is only for those knowing what they do there.
+
+### ⚙️ Local Setup
+
+1. Install [Redis][redis-quickstart].
+
+2. Clone Git Repository, [including all submodules][git-submodules].
+
+3. Setup pipenv in project root:
+    ```shell
+    pipenv install
+    ```
+        
+4. Modify ``Additional Options`` of your django configuration (for no auto-reload after editing scenario files) with:
+    ```shell
+    --noreload
+    ```
+
+5. Install also at least one supervisor, c.f. [submodule trustlab_host][trustlab-host-repo].
+
+### 🏢 Setup for VSRians
+
+<details>
+<summary>For VSRians only</summary>
+
+1. Install [Microsoft ODBC Driver 17][microsoft-odbc-driver] (Windows/Linux/MacOS)
+
+2. Clone Git Repository, [including all submodules][git-submodules].
 
 3. Configure merge driver for dealing with ``.gitattributes`` or rather the merge strategy:
-    ```bash
+    ```shell
     git config merge.ours.driver true
     ```
 
 4. Setup pipenv in project root:
-    ```bash
+    ```shell
     pipenv install
     ```
    ODBC on MAC:
     - If you installed this formula with the registration option (default), you'll need to manually remove
     ``[ODBC Driver 17 for SQL Server]`` section from odbcinst.ini after the formula is uninstalled.
     This can be done by executing:
-        ```bash
+        ```shell
         odbcinst -u -d -n "ODBC Driver 17 for SQL Server"
         ```
         
 5. Modify ``Additional Options`` of your django configuration (for no auto-reload after editing scenario files) with:
-    ```bash
+    ```shell
     --noreload
     ```
+</details>
 
-## Run
+<p align="right"><a href="#top">back to 🔝</a></p>
+
+## 👟 Usage
+
+> By default, please follow the local usage. The usage for VSRians is only for those knowing what they do there.
+
+### 🏠 Local Usage
+
+1. Run local Redis server in shell
+    ```shell
+    redis-server
+    ```
+
+3. Run aTLAS:
+    ```bash
+    python manage.py runserver 8000 --noreload
+    ```
+
+4. Run at least on supervisor with the [submodule trustlab_host][trustlab-host-repo] and connect it to aTLAS director.
+
+
+### 🏢 Usage for VSRians
+
+<details>
+<summary>For VSRians only</summary>
 
 1. Run aTLAS:
     ```bash
     python manage.py runserver 8000 --noreload
     ```
 
-2. Run at least on supervisor with the included submodule and connect it to aTLAS. (https://github.com/N0omB/aTLAS_host)
+2. Run at least on supervisor with the [submodule trustlab_host][trustlab-host-repo] and connect it to aTLAS director.
 
-## Notes
+</details>
 
-- The ``settings.py`` is via ``.gitattributes`` under merge strategy to have always different versions in develop and master branch. To hold this construction, **always** merge without fast-forward. Thus, always create a new commit, when you merge the two branches.
+<p align="right"><a href="#top">back to 🔝</a></p>
 
-- djtrustlab is the main Django project with settings.py, trustlab is the subproject with all the code
+## 👀 Insights
 
-- All deploy-configs for daphne and nginx (and depricated gunicorn) are in ``deploy-configs/``
+### 📃 Notes
 
-## How To Scenario
+- The ``settings.py`` is via ``.gitattributes`` under merge strategy to have always different versions in develop and master branch.
+  To hold this construction, **always** merge without fast-forward.
+  Thus, always create a new commit, when you merge the two branches.
+
+- djtrustlab is the main Django project with settings.py, trustlab is the subproject with all the code.
+
+- All deploy-configs for daphne and nginx (and depricated gunicorn) are in ``_deploy-configs/``, c.f. [DEPLOY.md](_deploy-configs/DEPLOY.md).
+
+### 📩 How To Scenario
 
 - Scenario configurations can be placed in ``trustlab/lab/scenarios``.
 
@@ -63,41 +215,45 @@ Laboratory of Trust. Latest online version: [http://vsr-dem0.informatik.tu-chemn
 
 - Possible scenario arguments derive from ``Scenario.__init__`` arguments list, where parameters without default value are mandatory for scenario configuration file as well.
 
-- Scenario files require ending with two new line feeds instead of one as described in the python style guide.
-
-## Deploy
-
-- Project is deployed at master branch via a CI gitlabrunner by ``.gitlab-ci.yml``.
-
-- Password of the db user for the database is provided to ``settings.py`` at the deploy process via the script at ``/var/www/trustlab/dbkey.sh``.
-
-- The deploy script is exchanging following strings in ``settings.py``
-DB NAME, DB USER, DB PASSWORD, STATIC URL & ROOT, MEDIA URL & ROOT
-
-## Links To Know
-
-* NVD3: Re-usable chart for d3.js \
-http://nvd3.org/
-* Links for deploy \
-https://www.digitalocean.com/community/tutorials/how-to-set-up-django-with-postgres-nginx-and-gunicorn-on-ubuntu-16-04
-* DEPRICATED mdl-selectfield \
- https://github.com/meyvn/mdl-selectfield
-* DEPRICATED Dark MDL CSS Style from CreativeIT \
-https://github.com/CreativeIT/material-dashboard-lite http://creativeit.io/material-dashboard-lite/
-
-## For Later
-
-- pip install markdown \- Markdown support for the browsable API.
-
-- pip install pygments \- Add syntax highlighting (to Markdown processing).
-
-- pip install django-filter \- Filtering support in Request via parameter and in REST Framework
+### ⌚ For Later
 
 - NetworkX for graph structure in backend: https://networkx.github.io/
 
 - NVD3 for graphs and diagrams in frontend: http://nvd3.org/
 
+<p align="right"><a href="#top">back to 🔝</a></p>
+
+## ✍ Authors & Contributors
+
+The original setup of this repository is by the first author [Valentin Siegert][valentin-siegert-website].
+
+All authors of this work in alphabetic order:
+
+- [Martin Gaedke](https://vsr.informatik.tu-chemnitz.de/people/gaedke)
+- Arved Kirchhoff
+- [Mahda Noura](https://vsr.informatik.tu-chemnitz.de/people/mahdanoura)
+- [Valentin Siegert][valentin-siegert-website]
+
+<p align="right"><a href="#top">back to 🔝</a></p>
+
+## 👍 Acknowledgements
+
+The authors acknowledge the work of the following students:
+
+- Jun Li
+- Marten Rogall
+
+<p align="right"><a href="#top">back to 🔝</a></p>
+
 <!-- Identifiers, in alphabetical order -->
-[atlas-logo-orange]: /_logos/atlas_orange.svg
-
-
+[atlas-logo-orange]: https://github.com/ValentinSiegert/aTLAS/raw/master/_logos/atlas_orange.svg
+[atlas-paper]: https://vsr.informatik.tu-chemnitz.de/research/publications/2020/010/
+[atlas-project]: https://vsr.informatik.tu-chemnitz.de/projects/2020/atlas/
+[demo-extern]: https://vsr-www.informatik.tu-chemnitz.de/projects/2020/atlas/demo/
+[demo-intern]: https://vsr-dem0.informatik.tu-chemnitz.de/trustlab/
+[git-submodules]: https://git-scm.com/book/en/v2/Git-Tools-Submodules
+[microsoft-odbc-driver]: https://docs.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server?view=sql-server-2017
+[redis-quickstart]: https://redis.io/topics/quickstart
+[trustlab-host-repo]: https://gitlab.hrz.tu-chemnitz.de/vsr/phd/siegert/trustlab_host
+[valentin-siegert-website]: https://vsr.informatik.tu-chemnitz.de/people/siegert
+[wta-paper]: https://vsr.informatik.tu-chemnitz.de/research/publications/2021/007/
