@@ -7,6 +7,7 @@ import traceback
 from django.db import models
 from os import listdir, mkdir
 from os.path import isfile, exists, isdir
+from pathlib import Path
 from trustlab.lab.config import SCENARIO_PATH, SCENARIO_PACKAGE, RESULT_PATH
 from trustlab_host.models import Scenario
 
@@ -63,6 +64,31 @@ class ObjectFactory:
                 return obj
             raise AttributeError("One or more mandatory attribute was not found in object's DSL file.")
 
+    @staticmethod
+    def load_object_identifier(identifier, file_path):
+        """
+        Imports the DSL file of an given object by only returning the value of the given identifier as string.
+
+        :param identifier: the identifier attribute which value is to be returned.
+        :type identifier: str
+        :param file_path: the full path to the DSL file.
+        :type file_path: Path
+        :return: the value of the given identifier
+        :rtype: str
+        :raises AttributeError: Identifier attribute could not be found in DSL file.
+        """
+        with open(file_path, 'r') as object_file:
+            object_data = object_file.read() + '\n'
+            identifier_re = re.compile(identifier + r' = (.+?)\n\n', re.DOTALL)  # variables end with double new lines
+            match = re.search(identifier_re, object_data)
+            if match:
+                # delete the surrounding ' of string representation in file
+                return_str = match.group(1)[1:-1] if match.group(1)[0] == "'" and match.group(1)[-1] == "'"\
+                    else match.group(1)
+                return return_str
+            else:
+                raise AttributeError(f'Identifier attribute could not be found in file name. {identifier}@{file_path}')
+
     def save_object(self, obj, object_args, file_path, file_exists=False):
         """
         Saves an object to a DSL file. Double new lines (empty line) within value definition of variable causes error
@@ -74,7 +100,7 @@ class ObjectFactory:
         :param object_args: All the parameters of the to initiate object
         :type object_args: inspect.FullArgSpec
         :param file_path: Full path to the object's DSL file.
-        :type file_path: pathlib.Path
+        :type file_path: Path
         :param file_exists: whether the object's DSL file already exists.
         :type file_exists: bool
         :return: the initiated object to be loaded
@@ -149,11 +175,13 @@ class ObjectFactory:
 
 
 class ScenarioFactory(ObjectFactory):
-    def load_scenarios(self):
+    def load_scenarios(self, lazy_load=False):
         """
         Loads all scenarios saved /trustlab/lab/scenarios with dynamic read of parameters from Scenario.__init__.
 
-        :return: scenarios initialized as Scenario objects
+        :param lazy_load: distinguished lazy load with only tuple of name and file_name in list instead of object
+        :type lazy_load: bool
+        :return: scenarios initialized as Scenario objects or tuple representation from lazy load
         :rtype: list
         """
         scenarios = []
@@ -162,21 +190,25 @@ class ScenarioFactory(ObjectFactory):
         # get all parameters of scenario init
         scenario_args = inspect.getfullargspec(Scenario.__init__)
         for file_name in scenario_file_names:
-            file_package = file_name.split(".")[0]
-            try:
-                scenario = self.load_object(f"{SCENARIO_PACKAGE}.{file_package}", "Scenario", scenario_args)
-            except (ValueError, AttributeError, TypeError, ModuleNotFoundError, SyntaxError):
-                print(f'Error at Scenario file @{file_name}:')
-                traceback.print_exc()
-                continue
-            if any(s.name == scenario.name for s in scenarios):
-                error = f"Scenario {scenario.name}@{file_name} was not loaded due to existing scenario with same name."
+            if lazy_load:
+                scenario = (self.load_object_identifier('NAME', self.scenario_path / file_name), file_name)
+            else:
+                file_package = file_name.split(".")[0]
                 try:
-                    raise RuntimeError(error)
-                except RuntimeError:
+                    scenario = self.load_object(f"{self.scenario_package}.{file_package}", "Scenario", scenario_args)
+                except (ValueError, AttributeError, TypeError, ModuleNotFoundError, SyntaxError):
+                    print(f'Error at Scenario file @{file_name}:')
                     traceback.print_exc()
-                continue
-            scenario.file_name = file_name
+                    continue
+                if any(s.name == scenario.name for s in scenarios):
+                    error = f"Scenario {scenario.name}@{file_name} was not loaded due to existing scenario " \
+                            f"with same name."
+                    try:
+                        raise RuntimeError(error)
+                    except RuntimeError:
+                        traceback.print_exc()
+                    continue
+                scenario.file_name = file_name
             scenarios.append(scenario)
         return scenarios
 
@@ -216,10 +248,11 @@ class ScenarioFactory(ObjectFactory):
             if scenario.any_agents_use_metric('content_trust.topic'):
                 scenario.topics = scenario.agents_with_metric('content_trust.topic')
 
-    def __init__(self):
+    def __init__(self, lazy_load=False):
         super().__init__()
         self.scenario_path = SCENARIO_PATH
-        self.scenarios = self.load_scenarios()
+        self.scenario_package = SCENARIO_PACKAGE
+        self.scenarios = self.load_scenarios(lazy_load)
         self.init_scenario_number = len(self.scenarios)
 
     def __del__(self):
@@ -302,4 +335,3 @@ class ResultFactory:
         self.result_path = RESULT_PATH
         if not exists(RESULT_PATH) or not isdir(RESULT_PATH):
             mkdir(RESULT_PATH)
-
