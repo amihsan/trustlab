@@ -22,14 +22,12 @@ class ObjectFactory:
     Generic Class for Object Factories loading and saving objects in a DSL (.py) file.
     """
     @staticmethod
-    def load_object(file_package, object_package, object_class_name, object_args):
+    def load_object(import_package, object_class_name, object_args):
         """
         Imports the DSL file of an given object and initiates it.
 
-        :param file_package: package name of the DSL file.
-        :type file_package: str
-        :param object_package: package name of the object's class.
-        :type object_package: str
+        :param import_package: python package path of the DSL file.
+        :type import_package: str
         :param object_class_name: the name of the object's class.
         :type object_class_name: str
         :param object_args: All the parameters of the to initiate object
@@ -38,8 +36,6 @@ class ObjectFactory:
         :rtype: Any
         :raises AttributeError: One or more mandatory attribute was not found in object's DSL file.
         """
-        # python package path
-        import_package = f"{object_package}.{file_package}"
         # ensure package is accessible
         implementation_spec = importlib.util.find_spec(import_package)
         if implementation_spec is not None:
@@ -62,7 +58,7 @@ class ObjectFactory:
                         object_attrs.append(getattr(object_config_module, attr))
                 # get object's class by name, requires class to be in global spec thus imported
                 object_class = globals()[object_class_name]
-                # add all attrs which are in config to scenario object
+                # add all attrs which are in config to object
                 obj = object_class(*object_attrs)
                 return obj
             raise AttributeError("One or more mandatory attribute was not found in object's DSL file.")
@@ -168,7 +164,7 @@ class ScenarioFactory(ObjectFactory):
         for file_name in scenario_file_names:
             file_package = file_name.split(".")[0]
             try:
-                scenario = self.load_object(file_package, SCENARIO_PACKAGE, "Scenario", scenario_args)
+                scenario = self.load_object(f"{SCENARIO_PACKAGE}.{file_package}", "Scenario", scenario_args)
             except (ValueError, AttributeError, TypeError, ModuleNotFoundError, SyntaxError):
                 print(f'Error at Scenario file @{file_name}:')
                 traceback.print_exc()
