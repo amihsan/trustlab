@@ -140,10 +140,11 @@ class ObjectFactory:
                         arg_value = f"\n\n{arg} = {value}"  # Double new lines are added to help parsing
                         # append argument configuration at position -> end of file + whitespace tail
                         object_data = object_data[:position] + arg_value + object_data[position:]
-                # delete last new line feed to format in PEP8 style
-                object_data = object_data[:-1]
-                # jump back to begin of file and write new data if object changed after load
+                # only write anything if object changed after load
                 if object_changed:
+                    # delete last new line feed to format in PEP8 style
+                    object_data = object_data[:-1]
+                    # jump back to begin of file and write new data
                     object_file.seek(0)
                     object_file.write(object_data)
                     object_file.truncate()
