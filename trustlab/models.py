@@ -71,6 +71,7 @@ class ObjectFactory:
         """
         Saves an object to a DSL file. Double new lines (empty line) within value definition of variable causes error
         as script sees \n\n as indicator for variable end.
+        Only writes into files if object or its string representation has changed since loading.
 
         :param obj: the object to be saved.
         :type obj: Any
@@ -96,10 +97,21 @@ class ObjectFactory:
                     # create regex to find argument with value.
                     replacement = re.compile(arg + r' = .+?\n\n', re.DOTALL)  # variables end with double new lines
                     value = self.stringify_arg_value(obj, arg)
-                    if re.search(replacement, object_data):
+                    match = re.search(replacement, object_data)
+                    arg_value_str = f"{arg} = {value}\n\n"
+                    object_changed = False
+                    if match and match.group() != arg_value_str:
+                        # only substitute value if object changed
                         # substitute current value in config_data. Double new lines are added to help parsing
-                        object_data = replacement.sub(f"{arg} = {value}\n\n", object_data)
+                        object_data = replacement.sub(arg_value_str, object_data)
+                        # set object_changed to true to indicate file writing later on
+                        object_changed = True
+                    elif match and match.group() == arg_value_str:
+                        # not changing anything if file does not need a change for this arg
+                        pass
                     else:
+                        # as object added obligatory argument, file needs to be written again
+                        object_changed = True
                         # get position of last non whitespace char in config data
                         position = object_data.rfind(next((char for char in reversed(object_data) if char != "\n"
                                                            and char != "\t" and char != " "))) + 1
@@ -108,10 +120,11 @@ class ObjectFactory:
                         object_data = object_data[:position] + arg_value + object_data[position:]
                 # delete last new line feed to format in PEP8 style
                 object_data = object_data[:-1]
-                # jump back to begin of file and write new data
-                object_file.seek(0)
-                object_file.write(object_data)
-                object_file.truncate()
+                # jump back to begin of file and write new data if object changed after load
+                if object_changed:
+                    object_file.seek(0)
+                    object_file.write(object_data)
+                    object_file.truncate()
         else:
             with open(file_path, 'w+') as object_file:
                 print('"""', file=object_file)
