@@ -15,7 +15,7 @@ class IndexView(generic.TemplateView):
         # add saved Scenarios
         try:
             # ScenarioFactory throws AssertionError if no predefined scenarios could be loaded
-            scenario_factory = ScenarioFactory()
+            scenario_factory = ScenarioFactory(lazy_load=True)
             scenario_factory.prepare_web_ui_print()
             context["scenarios"] = scenario_factory.scenarios
             # for manipulation of scenarios via JS, send them also as JSON
