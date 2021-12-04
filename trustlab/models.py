@@ -7,6 +7,7 @@ import traceback
 from django.db import models
 from os import listdir, mkdir
 from os.path import isfile, exists, isdir, getsize
+from pathlib import Path
 from trustlab.lab.config import SCENARIO_PATH, SCENARIO_PACKAGE, RESULT_PATH, SCENARIO_LARGE_SIZE
 from trustlab_host.models import Scenario
 
@@ -22,17 +23,15 @@ class ObjectFactory:
     Generic Class for Object Factories loading and saving objects in a DSL (.py) file.
     """
     @staticmethod
-    def load_object(file_package, object_package, object_class_name, object_args, lazy_args=None):
+    def load_object(import_package, object_class_name, object_args, lazy_args=None):
         """
         Imports the DSL file of an given object and initiates it.
 
-        :param file_package: package name of the DSL file.
-        :type file_package: str
-        :param object_package: package name of the object's class.
-        :type object_package: str
+        :param import_package: python package path of the DSL file.
+        :type import_package: str
         :param object_class_name: the name of the object's class.
         :type object_class_name: str
-        :param object_args: All the parameters of the to initiate object.
+        :param object_args: All the parameters of the to initiate object
         :type object_args: inspect.FullArgSpec
         :param lazy_args: List of arguments for the lazy load of too large files. Default is None.
         :type lazy_args: list
@@ -40,8 +39,6 @@ class ObjectFactory:
         :rtype: Any
         :raises AttributeError: One or more mandatory attribute was not found in object's DSL file.
         """
-        # python package path
-        import_package = f"{object_package}.{file_package}"
         # ensure package is accessible
         implementation_spec = importlib.util.find_spec(import_package)
         if implementation_spec is not None:
@@ -70,7 +67,7 @@ class ObjectFactory:
                             object_attrs[attr.lower()] = getattr(object_config_module, attr)
                 # get object's class by name, requires class to be in global spec thus imported
                 object_class = globals()[object_class_name]
-                # add all attrs which are in config to scenario object
+                # add all attrs which are in config to object
                 obj = object_class(**object_attrs)
                 return obj
             raise AttributeError("One or more mandatory attribute was not found in object's DSL file.")
@@ -79,13 +76,14 @@ class ObjectFactory:
         """
         Saves an object to a DSL file. Double new lines (empty line) within value definition of variable causes error
         as script sees \n\n as indicator for variable end.
+        Only writes into files if object or its string representation has changed since loading.
 
         :param obj: the object to be saved.
         :type obj: Any
         :param object_args: All the parameters of the to initiate object
         :type object_args: inspect.FullArgSpec
         :param file_path: Full path to the object's DSL file.
-        :type file_path: pathlib.Path
+        :type file_path: Path
         :param file_exists: whether the object's DSL file already exists.
         :type file_exists: bool
         :return: the initiated object to be loaded
@@ -104,22 +102,35 @@ class ObjectFactory:
                     # create regex to find argument with value.
                     replacement = re.compile(arg + r' = .+?\n\n', re.DOTALL)  # variables end with double new lines
                     value = self.stringify_arg_value(obj, arg)
-                    if re.search(replacement, object_data):
+                    match = re.search(replacement, object_data)
+                    arg_value_str = f"{arg} = {value}\n\n"
+                    object_changed = False
+                    if match and match.group() != arg_value_str:
+                        # only substitute value if object changed
                         # substitute current value in config_data. Double new lines are added to help parsing
-                        object_data = replacement.sub(f"{arg} = {value}\n\n", object_data)
+                        object_data = replacement.sub(arg_value_str, object_data)
+                        # set object_changed to true to indicate file writing later on
+                        object_changed = True
+                    elif match and match.group() == arg_value_str:
+                        # not changing anything if file does not need a change for this arg
+                        pass
                     else:
+                        # as object added obligatory argument, file needs to be written again
+                        object_changed = True
                         # get position of last non whitespace char in config data
                         position = object_data.rfind(next((char for char in reversed(object_data) if char != "\n"
                                                            and char != "\t" and char != " "))) + 1
                         arg_value = f"\n\n{arg} = {value}"  # Double new lines are added to help parsing
                         # append argument configuration at position -> end of file + whitespace tail
                         object_data = object_data[:position] + arg_value + object_data[position:]
-                # delete last new line feed to format in PEP8 style
-                object_data = object_data[:-1]
-                # jump back to begin of file and write new data
-                object_file.seek(0)
-                object_file.write(object_data)
-                object_file.truncate()
+                # only write anything if object changed after load
+                if object_changed:
+                    # delete last new line feed to format in PEP8 style
+                    object_data = object_data[:-1]
+                    # jump back to begin of file and write new data
+                    object_file.seek(0)
+                    object_file.write(object_data)
+                    object_file.truncate()
         else:
             with open(file_path, 'w+') as object_file:
                 print('"""', file=object_file)
@@ -152,7 +163,7 @@ class ScenarioFactory(ObjectFactory):
         """
         Loads all scenarios saved /trustlab/lab/scenarios with dynamic read of parameters from Scenario.__init__.
 
-        :return: scenarios initialized as Scenario objects
+        :return: scenarios initialized as Scenario objects or tuple representation from lazy load
         :rtype: list
         """
         scenarios = []
@@ -167,9 +178,9 @@ class ScenarioFactory(ObjectFactory):
             file_size = getsize(self.scenario_path / file_name)
             try:
                 if not self.large_file_size or (self.large_file_size and file_size < self.large_file_size):
-                    scenario = self.load_object(file_package, SCENARIO_PACKAGE, "Scenario", scenario_args)
+                    scenario = self.load_object(f"{SCENARIO_PACKAGE}.{file_package}", "Scenario", scenario_args)
                 else:
-                    scenario = self.load_object(file_package, SCENARIO_PACKAGE, "Scenario", scenario_args,
+                    scenario = self.load_object(f"{SCENARIO_PACKAGE}.{file_package}", "Scenario", scenario_args,
                                                 scenario_lazy_args)
                     if self.large_file_size > 999999:
                         file_size_str = f'{file_size / 1000000} MB'
@@ -178,8 +189,8 @@ class ScenarioFactory(ObjectFactory):
                         file_size_str = f'{file_size / 1000} KB'
                         large_size_str = f'{self.large_file_size / 1000} KB'
                     scenario.lazy_note = f'This scenario file exceeded with its file size of {file_size_str} ' \
-                                           f'the file size limit of {large_size_str}. Thus, the scenario was lazy ' \
-                                           f'loaded and will only include its description.'
+                                         f'the file size limit of {large_size_str}. Thus, the scenario was lazy ' \
+                                         f'loaded and will only include its description.'
             except (ValueError, AttributeError, TypeError, ModuleNotFoundError, SyntaxError):
                 print(f'Error at Scenario file @{file_name}:')
                 traceback.print_exc()
@@ -236,7 +247,6 @@ class ScenarioFactory(ObjectFactory):
         self.scenario_path = SCENARIO_PATH
         self.large_file_size = SCENARIO_LARGE_SIZE if lazy_load else None
         self.scenarios = self.load_scenarios()
-        self.init_scenario_number = len(self.scenarios)
 
     def __del__(self):
         if not self.large_file_size:
@@ -319,4 +329,3 @@ class ResultFactory:
         self.result_path = RESULT_PATH
         if not exists(RESULT_PATH) or not isdir(RESULT_PATH):
             mkdir(RESULT_PATH)
-
