@@ -1,8 +1,8 @@
-from channels.generic.websocket import AsyncJsonWebsocketConsumer
+from trustlab.consumers.chunk_consumer import ChunkAsyncJsonWebsocketConsumer
 from trustlab.models import Supervisor
 
 
-class SupervisorsConsumer(AsyncJsonWebsocketConsumer):
+class SupervisorsConsumer(ChunkAsyncJsonWebsocketConsumer):
     async def connect(self):
         Supervisor.objects.create(channel_name=self.channel_name)
         await self.accept()
@@ -11,7 +11,7 @@ class SupervisorsConsumer(AsyncJsonWebsocketConsumer):
         Supervisor.objects.filter(channel_name__exact=self.channel_name).delete()
 
     async def scenario_registration(self, event):
-        await self.send_json({
+        await self.send_websocket_message({
             "type": "scenario_registration",
             "scenario": event["scenario"],
             "scenario_run_id": event["scenario_run_id"],
@@ -19,28 +19,28 @@ class SupervisorsConsumer(AsyncJsonWebsocketConsumer):
         })
 
     async def scenario_discovery(self, event):
-        await self.send_json({
+        await self.send_websocket_message({
             "type": "scenario_discovery",
             "scenario_run_id": event["scenario_run_id"],
             "discovery": event["discovery"]
         })
 
     async def scenario_start(self, event):
-        await self.send_json({
+        await self.send_websocket_message({
             "type": "scenario_start",
             "scenario_run_id": event["scenario_run_id"],
             "scenario_status": event["scenario_status"]
         })
 
     async def observation_done(self, event):
-        await self.send_json({
+        await self.send_websocket_message({
             "type": "observation_done",
             "scenario_run_id": event["scenario_run_id"],
             "observations_done": event["observations_done"]
         })
 
     async def scenario_end(self, event):
-        await self.send_json({
+        await self.send_websocket_message({
             "type": "scenario_end",
             "scenario_run_id": event["scenario_run_id"],
             "scenario_status": event["scenario_status"]
