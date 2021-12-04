@@ -32,6 +32,16 @@
                         <summary>Details</summary>
                         {% for scenario in scenarios %}
                         <ul class="mdl-list scenario-ul not-displayed" data-scenario="{{scenario.name|safe}}">
+                        {% if scenario.lazy_note %}
+                          <li class="mdl-list__item">
+                            <span>
+                              <span class="mdl-list__item-primary-content">Featured Note</span>
+                              <span class="trustlab-li-body">
+                                {{scenario.lazy_note|safe}}
+                              </span>
+                            </span>
+                          </li>
+                        {% endif %}
                           <li class="mdl-list__item">
                             <span>
                               <span class="mdl-list__item-primary-content">Description</span>
@@ -40,6 +50,7 @@
                               </span>
                             </span>
                           </li>
+                        {% if not scenario.lazy_note %}
                           <li class="mdl-list__item">
                             <span>
                               <span class="mdl-list__item-primary-content">Agents</span>
@@ -144,6 +155,7 @@
                             </span>
                           </li>
                           {% endif %}
+                        {% endif %}
                           {# For each important aspect in the scenario you can print it out here within this list #}
                         </ul>
                         {% endfor %}
