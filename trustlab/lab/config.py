@@ -14,6 +14,8 @@ SCENARIO_PACKAGE = "trustlab.lab.scenarios"
 RESULT_PATH = PROJECT_PATH / 'trustlab' / 'lab' / 'results'
 # determines the file size of scenario files which are declared as large in bytes
 SCENARIO_LARGE_SIZE = 1000000
+# determines the max size of one websocket message in bytes for potential chunked websocket messages
+WEBSOCKET_MAX = 985000  # tested this limit 990000 seems to large for supervisor side
 
 TIME_MEASURE = False
 

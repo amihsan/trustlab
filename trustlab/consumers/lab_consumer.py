@@ -1,13 +1,13 @@
-from channels.generic.websocket import AsyncJsonWebsocketConsumer
 import json
 import trustlab.lab.config as config
 import time
+from trustlab.consumers.chunk_consumer import ChunkAsyncJsonWebsocketConsumer
 from trustlab.models import *
 from trustlab.serializers.scenario_serializer import ScenarioSerializer
 from trustlab.lab.director import Director
 
 
-class LabConsumer(AsyncJsonWebsocketConsumer):
+class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
     """
     LabConsumer class, with sequential process logic of the Director in its receive_json method.
     It is therewith the main interface between User Agent and Director.
