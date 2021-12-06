@@ -107,7 +107,7 @@ class ObjectFactory:
                     object_changed = False
                     if match and match.group() != arg_value_str:
                         # only substitute value if object changed
-                        # substitute current value in config_data. Double new lines are added to help parsing
+                        # substitute current value in config_data.
                         object_data = replacement.sub(arg_value_str, object_data)
                         # set object_changed to true to indicate file writing later on
                         object_changed = True
@@ -120,7 +120,7 @@ class ObjectFactory:
                         # get position of last non whitespace char in config data
                         position = object_data.rfind(next((char for char in reversed(object_data) if char != "\n"
                                                            and char != "\t" and char != " "))) + 1
-                        arg_value = f"\n\n{arg} = {value}"  # Double new lines are added to help parsing
+                        arg_value = f"\n\n{arg} = {value}"  # Double new lines are added to support parsing
                         # append argument configuration at position -> end of file + whitespace tail
                         object_data = object_data[:position] + arg_value + object_data[position:]
                 # only write anything if object changed after load
@@ -138,7 +138,7 @@ class ObjectFactory:
                 print('"""\n\n', file=object_file)
                 for arg in all_args:
                     value = self.stringify_arg_value(obj, arg)
-                    # Double new lines are added to help parsing
+                    # Double new lines are added to support parsing
                     print(f"{arg} = {value}\n\n", file=object_file)
 
     @staticmethod
