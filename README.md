@@ -194,7 +194,7 @@ for a decentralized web has to be done manually with a high effort.
 
 - djtrustlab is the main Django project with settings.py, trustlab is the subproject with all the code.
 
-- All deploy-configs for daphne and nginx (and depricated gunicorn) are in ``_deploy-configs/``, c.f. [DEPLOY.md](_deploy-configs/DEPLOY.md).
+- All deploy-configs for daphne and nginx (and deprecated gunicorn) are in ``_deploy-configs/``, c.f. [DEPLOY.md](_deploy-configs/DEPLOY.md).
 
 ### 📩 How To Scenario
 
@@ -202,9 +202,11 @@ for a decentralized web has to be done manually with a high effort.
 
 - Every scenario configuration file has to end with ``_scenario.py``.
 
-- All scenario parameters require to be the upperCase version of the respective ``Scenario.__init__`` arguments.
+- All scenario parameters require to be the upperCase version of the respective ``Scenario.scenario_args`` arguments.
 
-- Possible scenario arguments derive from ``Scenario.__init__`` arguments list, where parameters without default value are mandatory for scenario configuration file as well.
+- Possible scenario arguments derive from ``Scenario.scenario_args`` arguments list, where parameters without default value are mandatory for scenario configuration file as well.
+
+- You can make use of the scenario generation script at [_scenario_generation/](_scenario_generation/README.md) to generate larger scenarios.
 
 ### ⌚ For Later
 
