@@ -47,19 +47,21 @@ class SupervisorsConsumer(ChunkAsyncJsonWebsocketConsumer):
         })
 
     async def receive_json(self, content, **kwargs):
-        if content["type"] and content["type"] == "max_agents":
-            supervisor = Supervisor.objects.get(channel_name=self.channel_name)
-            supervisor.max_agents = content["max_agents"]
-            supervisor.save()
-            answer = {"type": "max_agents", "status": 200}
-            await self.send_json(answer)
-        elif content["type"] and (content["type"] == "agent_discovery" or content["type"] == "scenario_end"):
-            await self.channel_layer.send(content["scenario_run_id"], content)
-        elif content["type"] and content["type"] == "observation_done":
-            content["channel_name"] = self.channel_name
-            await self.channel_layer.send(content["scenario_run_id"], content)
-        else:
-            print(content)
-            await self.send_json(content)
+        handled = await super().receive_chunk_ack(content)
+        if not handled:
+            if content["type"] and content["type"] == "max_agents":
+                supervisor = Supervisor.objects.get(channel_name=self.channel_name)
+                supervisor.max_agents = content["max_agents"]
+                supervisor.save()
+                answer = {"type": "max_agents", "status": 200}
+                await self.send_json(answer)
+            elif content["type"] and (content["type"] == "agent_discovery" or content["type"] == "scenario_end"):
+                await self.channel_layer.send(content["scenario_run_id"], content)
+            elif content["type"] and content["type"] == "observation_done":
+                content["channel_name"] = self.channel_name
+                await self.channel_layer.send(content["scenario_run_id"], content)
+            else:
+                print(content)
+                await self.send_json(content)
 
 
