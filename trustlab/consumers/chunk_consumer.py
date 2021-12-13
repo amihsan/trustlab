@@ -1,3 +1,4 @@
+import asyncio
 import json
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from pympler import asizeof
@@ -8,6 +9,7 @@ class ChunkAsyncJsonWebsocketConsumer(AsyncJsonWebsocketConsumer):
     """
     A websocket consumer for async handling with only json messages and the capability of chunked transfer.
     """
+    parts_to_send = []
 
     async def send_websocket_message(self, message):
         """
@@ -23,11 +25,24 @@ class ChunkAsyncJsonWebsocketConsumer(AsyncJsonWebsocketConsumer):
             await self.send_json(message)
         else:
             message_str = json.dumps(message)
-            parts = [message_str[i:i + WEBSOCKET_MAX] for i in range(0, len(message_str), WEBSOCKET_MAX)]
-            for number, part in enumerate(parts, 1):
-                print(f'Transferring part {number}/{len(parts)} ...')
-                await self.send_json({
-                    'type': 'chunked_transfer',
-                    'part_number': (number, len(parts)),
-                    'part': part
-                })
+            self.parts_to_send = [message_str[i:i + WEBSOCKET_MAX] for i in range(0, len(message_str), WEBSOCKET_MAX)]
+            await self.send_part(0)
+
+    async def send_part(self, part_number):
+        existing_parts = len(self.parts_to_send)
+        if self.parts_to_send and part_number < existing_parts:
+            print(f'Transferring part {part_number + 1}/{existing_parts} ...')
+            await self.send_json({
+                'type': 'chunked_transfer',
+                'part_number': (part_number + 1, existing_parts),
+                'part': self.parts_to_send[part_number]
+            })
+            if part_number == existing_parts - 1:
+                self.parts_to_send = []
+
+    async def receive_chunk_ack(self, content):
+        if content["type"] and content["type"] == "chunked_transfer_ack":
+            await self.send_part(content["part_number"][0])
+            return True
+        else:
+            return False
