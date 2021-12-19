@@ -230,4 +230,3 @@ def get_letter_code(n, letters=string.ascii_uppercase):
         n = q
 
     return result
-
