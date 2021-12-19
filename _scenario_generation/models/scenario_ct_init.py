@@ -40,38 +40,65 @@ scales = {
 
 
 class Scenario(object):
-    def __init__(self) -> None:
+    def __init__(self, observations, agents, file) -> None:
         super().__init__()
-        self.name = 'Random_' + str(datetime.now().timestamp())
-        self.description = ''
+        # contraints
+        self.n_observations = observations
+        self.n_agents = agents
+
+        # output handles
+        self.output_file_name = file
+        self.output_file_handle = open(file, 'w+')
+
+        # data
         self.agents = []
-        self.observations = []
-        self.history = {}
-        self.scales = {}
-        self.metrics = {}
         self.__topics__ = []
         self.__uris__ = []
 
-    def generate(self, observations, agents):
-        self.__uris__ = [str(uuid.uuid4()) for _ in range(observations)]
-        self.description = f'Randomly generated Scenario with {str(observations)} observations and {str(agents)} agents'
-        self.__generateAgentNames__(agents)
-        self.__generateTopics__(observations)
-        self.__generateObservations__(observations, agents)
-        self.__generateHistory__()
-        self.__generateScalesPerAgent__()
-        self.__generateMetricsPerAgent__()
+    def generate_and_write_to_file(self):
+        # pre-generate internal data
+        self.__uris__ = [str(uuid.uuid4()) for _ in range(self.n_observations)]
+        self.generate_agent_names(self.n_agents)
+        self.generate_topics(self.n_observations)
 
-    def __generateAgentNames__(self, agents):
+        # add metadata to scenario file
+        self.write_named_object_to_output(
+            'NAME', f'Random_{self.n_agents}A-{self.n_observations}O_{int(round(random.random(), 6) * 1e6)}')
+        self.write_named_object_to_output(
+            'DESCRIPTION', f'Randomly generated scenario with {self.n_agents} agents and {self.n_observations} observations')
+        self.write_named_object_to_output('AGENTS', self.agents)
+
+        # observations
+        self.generate_observations(self.n_observations, self.n_agents)
+
+        # history
+        self.generate_history()
+
+        # scales
+        self.generate_scales_per_agent()
+
+        # metrics
+        self.generate_metrics_per_agent()
+
+    def write_string_to_output(self, str):
+        self.output_file_handle.write(str)
+
+    def write_named_object_to_output(self, name, obj):
+        self.output_file_handle.write(f'{name} = {pprint.pformat(obj)}\n\n')
+
+    def generate_agent_names(self, agents):
         for i in range(agents):
-            self.agents.append(add_to_string_recursive('', i))
+            self.agents.append(get_letter_code(i))
 
-    def __generateTopics__(self, observations, max_length=20):
+    def generate_topics(self, observations, max_length=20):
         letters = string.ascii_letters
         for _ in range(math.ceil(observations * (1 + random.random()))):
-            self.__topics__.append(''.join(random.choice(letters) for i in range(random.randint(1, max_length))))
+            self.__topics__.append(''.join(random.choice(letters)
+                                   for i in range(random.randint(1, max_length))))
 
-    def __generateObservations__(self, observations, agents_count):
+    def generate_observations(self, observations, agents_count):
+        self.write_string_to_output('OBSERVATIONS = [')
+
         for i in range(observations):
             observation = {'observation_id': i,
                            'authors': random.sample(self.agents, random.randint(1, min(agents_count, 5))),
@@ -95,24 +122,48 @@ class Scenario(object):
                 'content_trust.publication_date': datetime.now().timestamp() - (max_seconds_time_delay *
                                                                                 random.random())
             }
-            self.observations.append(observation)
 
-    def __generateHistory__(self):
-        for agent in self.agents:
+            self.write_string_to_output(pprint.pformat(observation))
+
+            # if last object isn't reached, add comma and newline
+            if i < observations - 1:
+                self.write_string_to_output(',\n')
+
+        self.write_string_to_output(']\n\n')
+
+    def generate_history(self):
+        self.write_string_to_output('HISTORY = {')
+
+        for i, agent in enumerate(self.agents):
             agent_history = []
             for other_agent in self.agents:
                 if other_agent != agent:
-                    agent_history.append((other_agent, random.choice(self.__uris__), random.random() * 2 - 1))
+                    agent_history.append((other_agent, random.choice(
+                        self.__uris__), random.random() * 2 - 1))
 
             if len(agent_history) > 0:
-                self.history[agent] = agent_history
+                # even if i is smaller than len(self.agents), the randomness might prevent another entry
+                # -> add comma and newline here to prevent commas before empty lines
+                str = ',\n' if i > 0 else ''
+                str += f'{pprint.pformat(agent)}: {pprint.pformat(agent_history)}'
+                self.write_string_to_output(str)
 
-    def __generateScalesPerAgent__(self):
-        for agent in self.agents:
-            self.scales[agent] = scales['marsh_briggs']
+        self.write_string_to_output('}\n\n')
 
-    def __generateMetricsPerAgent__(self):
-        for agent in self.agents:
+    def generate_scales_per_agent(self):
+        self.write_string_to_output('SCALES_PER_AGENT = {')
+
+        for i, agent in enumerate(self.agents):
+            str = ',\n' if i > 0 else ''
+            str += f'{pprint.pformat(agent)}: {pprint.pformat(scales["marsh_briggs"])}'
+            self.write_string_to_output(str)
+
+        self.write_string_to_output('}\n\n')
+
+    def generate_metrics_per_agent(self):
+        self.write_string_to_output('METRICS_PER_AGENT = {')
+
+        for i, agent in enumerate(self.agents):
             thresholds = sorted([random.random() for _ in range(3)])
             # generate trusted topics
             trusted_topics = {}
@@ -148,24 +199,12 @@ class Scenario(object):
             # add enforce lifetime
             if random.random() < 0.3:
                 prefs['content_trust.enforce_lifetime'] = {}
-            self.metrics[agent] = prefs
 
-    def save(self, filename):
-        # name
-        file_string = add_to_file_string('NAME', self.name)
-        # agents    
-        file_string = add_to_file_string('AGENTS', self.agents, file_string)
-        # observations
-        file_string = add_to_file_string('OBSERVATIONS', self.observations, file_string)
-        # history
-        file_string = add_to_file_string('HISTORY', self.history, file_string)
-        # scales
-        file_string = add_to_file_string('SCALES_PER_AGENT', self.scales, file_string)
-        # metrics
-        file_string = add_to_file_string('METRICS_PER_AGENT', self.metrics, file_string)
-        # description
-        file_string = add_to_file_string('DESCRIPTION', self.description, file_string)
-        open(filename, 'w+').write(file_string)
+            str = ',\n' if i > 0 else ''
+            str += f"{pprint.pformat(agent)}: {pprint.pformat(prefs)}"
+            self.write_string_to_output(str)
+
+        self.write_string_to_output('}\n\n')
 
 
 def add_to_file_string(name, object2add, file_string='\n'):
@@ -177,10 +216,18 @@ def generate_message(max_length=50):
     return ''.join(random.choice(letters) for i in range(random.randint(1, max_length)))
 
 
-def add_to_string_recursive(name, i, letters=string.ascii_uppercase):
-    if i < len(letters):
-        name += letters[i]
-        return name
-    else:
-        name += letters[0]
-        return add_to_string_recursive(name, i - len(letters), letters)
+def get_letter_code(n, letters=string.ascii_uppercase):
+    if n == 0:
+        return letters[0]
+
+    result = ''
+    base = len(letters)
+    while n > 0:
+        q = n // base
+        r = n % base
+        result = letters[r] + result
+
+        n = q
+
+    return result
+
