@@ -18,6 +18,7 @@ class IndexView(generic.TemplateView):
             scenario_factory = ScenarioFactory(lazy_load=True)
             scenario_factory.prepare_web_ui_print()
             context["scenarios"] = scenario_factory.scenarios
+            context['scenario_categories'] = scenario_factory.get_scenarios_in_categories()
             # for manipulation of scenarios via JS, send them also as JSON
             scenario_serializer = ScenarioSerializer(scenario_factory.scenarios, many=True)
             context["scenarios_JSON"] = JSONRenderer().render(scenario_serializer.data).decode('utf-8')

@@ -6,9 +6,9 @@ import re
 import traceback
 from django.db import models
 from os import listdir, mkdir
-from os.path import isfile, exists, isdir, getsize
+from os.path import isfile, exists, isdir, getsize, basename
 from pathlib import Path
-from trustlab.lab.config import SCENARIO_PATH, SCENARIO_PACKAGE, RESULT_PATH, SCENARIO_LARGE_SIZE
+from trustlab.lab.config import SCENARIO_PATH, SCENARIO_PACKAGE, RESULT_PATH, SCENARIO_LARGE_SIZE, SCENARIO_CATEGORY_SORT
 from trustlab_host.models import Scenario
 
 
@@ -167,14 +167,12 @@ class ScenarioFactory(ObjectFactory):
         :rtype: list
         """
         scenarios = []
-        scenario_file_names = [file for file in listdir(self.scenario_path)
-                               if isfile(self.scenario_path / file) and file.endswith("_scenario.py")]
+        scenario_files = self.get_scenario_files()
         # get all parameters of scenario init
         scenario_args = inspect.getfullargspec(Scenario.scenario_args)
         # only take name and description as more is not required for lazy load
         scenario_lazy_args = ['NAME', 'DESCRIPTION']
-        for file_name in scenario_file_names:
-            file_package = file_name.split(".")[0]
+        for file_name, file_package in scenario_files:
             file_size = getsize(self.scenario_path / file_name)
             try:
                 if not self.large_file_size or (self.large_file_size and file_size < self.large_file_size):
@@ -241,6 +239,47 @@ class ScenarioFactory(ObjectFactory):
                 scenario.authorities = scenario.agents_with_metric('content_trust.authority')
             if scenario.any_agents_use_metric('content_trust.topic'):
                 scenario.topics = scenario.agents_with_metric('content_trust.topic')
+
+    def get_scenario_files(self):
+        """
+        To categorize scenarios, this method scans for scenarios in direct subdirs of the scenario dir.
+
+        :return: All scenario files as tuples with their package name.
+        :rtype: list
+        """
+        scenario_file_names = [file for file in listdir(self.scenario_path)
+                               if isfile(self.scenario_path / file) and file.endswith("_scenario.py")]
+        subpackages = [self.scenario_path / sub for sub in listdir(self.scenario_path)
+                       if isdir(self.scenario_path / sub) and '__init__.py' in listdir(self.scenario_path / sub)]
+        for subpackage in subpackages:
+            subpackage_scenarios = [f'{basename(subpackage)}/{file}' for file in listdir(subpackage)
+                                    if isfile(subpackage / file) and file.endswith("_scenario.py")]
+            scenario_file_names += subpackage_scenarios
+        scenario_files = [(file, file.split(".")[0].replace('/', '.')) for file in scenario_file_names]
+        return scenario_files
+
+    def get_scenarios_in_categories(self):
+        """
+        Creates a dict of categories as keys and list of scenario names as values to visualize in scenario.hmtl card.
+
+        :return: Dictionary items of categories as keys, and list of scenario's names related to the scenario.
+        :rtype: list
+        """
+        scenario_categories = {}
+        for scenario in self.scenarios:
+            if '/' in scenario.file_name:
+                category = scenario.file_name.split('/')[0]
+            else:
+                category = 'Misc'
+            if category not in scenario_categories.keys():
+                scenario_categories[category] = []
+            scenario_categories[category].append(scenario.name)
+        for key in scenario_categories.keys():
+            scenario_categories[key] = sorted(scenario_categories[key])
+        # sort by categories
+        category_sort = SCENARIO_CATEGORY_SORT + sorted([c for c in scenario_categories.keys() if c not in SCENARIO_CATEGORY_SORT and c != 'Misc']) + ['Misc']
+        index_map = {v: i for i, v in enumerate(category_sort)}
+        return sorted(scenario_categories.items(), key=lambda pair: index_map[pair[0]])
 
     def __init__(self, lazy_load=False):
         super().__init__()
