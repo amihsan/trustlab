@@ -33,9 +33,9 @@ class ObjectFactory:
         :type object_class_name: str
         :param object_args: All the parameters of the to initiate object
         :type object_args: inspect.FullArgSpec
-        :return: the initiated object to be loaded
         :param lazy_args: List of arguments for the lazy load of too large files. Default is None.
         :type lazy_args: list
+        :return: the initiated object to be loaded
         :rtype: Any
         :raises AttributeError: One or more mandatory attribute was not found in object's DSL file.
         """
