@@ -6,7 +6,7 @@ Type=simple
 User=gitlab-runner
 Group=www-data
 WorkingDirectory=/var/www/trustlab/src/trustlab_host
-ExecStart=/var/www/trustlab/trustlab_host-env/.venv/bin/python3 -u /var/www/trustlab/src/trustlab_host/supervisor.py 10
+ExecStart=/var/www/trustlab/trustlab_host-env/.venv/bin/python3 -u /var/www/trustlab/src/trustlab_host/supervisor.py 100
 
 [Install]
 WantedBy=multi-user.target

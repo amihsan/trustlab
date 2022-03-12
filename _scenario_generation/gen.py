@@ -8,7 +8,8 @@ def main(argv):
     agents = 0
     outfile = ''
     try:
-        opts, args = getopt.getopt(argv, "hm:a:o:", ["messages=", "agents=", "ofile"])
+        opts, _ = getopt.getopt(
+            argv, "hm:a:o:", ["messages=", "agents=", "ofile"])
     except getopt.GetoptError:
         print('gen.py -m <number of messages> -a <number of agents> -o <output file>')
         sys.exit(2)
@@ -25,9 +26,8 @@ def main(argv):
             agents = int(arg)
         elif opt in ('-o', '--ofile'):
             outfile = arg
-    scenario = Scenario()   
-    scenario.generate(observations, agents)
-    scenario.save(outfile)
+    scenario = Scenario(observations, agents, outfile)
+    scenario.generate_and_write_to_file()
 
 
 if __name__ == "__main__":
