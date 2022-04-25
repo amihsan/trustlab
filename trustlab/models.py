@@ -8,8 +8,9 @@ from django.db import models
 from os import listdir, mkdir
 from os.path import isfile, exists, isdir, getsize, basename
 from pathlib import Path
-from trustlab.lab.config import SCENARIO_PATH, SCENARIO_PACKAGE, RESULT_PATH, SCENARIO_LARGE_SIZE, SCENARIO_CATEGORY_SORT
+from trustlab.lab.config import SCENARIO_PATH, SCENARIO_PACKAGE, RESULT_PACKAGE, RESULT_PATH, SCENARIO_LARGE_SIZE, SCENARIO_CATEGORY_SORT
 from trustlab_host.models import Scenario
+from types import SimpleNamespace
 
 
 class Supervisor(models.Model):
@@ -23,7 +24,7 @@ class ObjectFactory:
     Generic Class for Object Factories loading and saving objects in a DSL (.py) file.
     """
     @staticmethod
-    def load_object(import_package, object_class_name, object_args, lazy_args=None):
+    def load_object(import_package, object_class_name, object_args, lazy_args=None, known_key_values=None):
         """
         Imports the DSL file of an given object and initiates it.
 
@@ -35,6 +36,8 @@ class ObjectFactory:
         :type object_args: inspect.FullArgSpec
         :param lazy_args: List of arguments for the lazy load of too large files. Default is None.
         :type lazy_args: list
+        :param known_key_values: Dict of known key value pairs. Default is None.
+        :type known_key_values: dict
         :return: the initiated object to be loaded
         :rtype: Any
         :raises AttributeError: One or more mandatory attribute was not found in object's DSL file.
@@ -54,7 +57,7 @@ class ObjectFactory:
             all_args = [a.upper() for a in object_args.args[1:]]
             # check if all mandatory args are in scenario config
             if all(hasattr(object_config_module, attr) for attr in mandatory_args):
-                object_attrs = {}
+                object_attrs = known_key_values if known_key_values else {}
                 if not lazy_args:
                     for attr in all_args:
                         # check if attr is in config as optional ones may not be present with allowance
@@ -296,13 +299,15 @@ class ScenarioResult:
     """
     Represents the results of one scenario run with its id.
     """
-    def __init__(self, scenario_run_id, trust_log, agent_trust_logs):
+    def __init__(self, scenario_run_id, trust_log, trust_log_dict, agent_trust_logs, agent_trust_logs_dict):
         self.scenario_run_id = scenario_run_id
         self.trust_log = trust_log
+        self.trust_log_dict = trust_log_dict
         self.agent_trust_logs = agent_trust_logs
+        self.agent_trust_logs_dict = agent_trust_logs_dict
 
 
-class ResultFactory:
+class ResultFactory(ObjectFactory):
     """
     Reads and writes scenario run results from/to log files to be able to answer queries on past results.
     """
@@ -332,7 +337,10 @@ class ResultFactory:
                 with open(path, 'r') as agent_trust_log_file:
                     agent_trust_log_lines = [line for line in agent_trust_log_file.readlines() if line != "\n"]
                     agent_trust_logs[agent] = ''.join(agent_trust_log_lines)
-            return ScenarioResult(scenario_run_id, trust_log, agent_trust_logs)
+            result_key_values = {'scenario_run_id': scenario_run_id, 'trust_log': trust_log, 'trust_log_dict': None,
+                                 'agent_trust_logs': agent_trust_logs, 'agent_trust_logs_dict': None}
+            return self.load_object(f'{self.result_package}.{result_dir.name}.dict_log', "ScenarioResult",
+                                    self.dict_log_params, known_key_values=result_key_values)
         else:
             raise OSError(f"Given path '{result_dir}' for scenario result read is not a directory or does not exist.")
 
@@ -352,6 +360,8 @@ class ResultFactory:
             agent_trust_log_path = f"{result_dir}/{agent}_trust_log.txt"
             with open(agent_trust_log_path, 'w+') as agent_trust_log_file:
                 print(''.join(agent_trust_log), file=agent_trust_log_file)
+        dict_log_path = result_dir / "dict_log.py"
+        self.save_object(scenario_result, self.dict_log_params, dict_log_path, file_exists=False)
 
     def get_result_dir(self, scenario_run_id):
         """
@@ -360,11 +370,14 @@ class ResultFactory:
         :return: Path to results of scenario run id.
         :rtype: pathlib.Path
         """
-        split_index = len(scenario_run_id.split("_")[0]) + 1  # index to cut constant of runId -> 'scenarioRun_'
-        folder_name = scenario_run_id[split_index:]
+        folder_name = scenario_run_id.replace('-', '')
         return self.result_path / folder_name
 
     def __init__(self):
+        super().__init__()
+        # adding dict log parameters for loading and saving, is in SimpleNameSpace for object with args variable
+        self.dict_log_params = SimpleNamespace(args=['self', 'trust_log_dict', 'agent_trust_logs_dict'], defaults=[])
         self.result_path = RESULT_PATH
+        self.result_package = RESULT_PACKAGE
         if not exists(RESULT_PATH) or not isdir(RESULT_PATH):
             mkdir(RESULT_PATH)

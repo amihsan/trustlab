@@ -26,12 +26,16 @@ function onLabSocketMessage(messageEvent){
      * @property {string} type
      * @property {string} scenario_run_id
      * @property {string} trust_log
+     * @property {string} trust_log_dict
      * @property {string} agents_log
+     * @property {string} agents_log_dict
      * @property {string} message
      */
     /** @type {webSocketMsg} */
     let data = JSON.parse(messageEvent.data);
     if (data.type === "scenario_results") {
+        trustLogDict = JSON.parse(data.trust_log_dict);
+        agentsLogDict = JSON.parse(data.agents_log_dict);
         $("#trust_log").text(data.trust_log);
         let agents_log = JSON.parse(data.agents_log);
         let agents_log_end = $("#agents_log_end");
@@ -266,6 +270,9 @@ r(function(){
         }
     }
 });
+// define global variables
+let trustLogDict = [];
+let agentsLogDict = [];
 
 
 
