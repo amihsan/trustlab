@@ -12,6 +12,7 @@ PROJECT_PATH = Path(abspath(dirname(__name__)))
 SCENARIO_PATH = PROJECT_PATH / 'trustlab' / 'lab' / 'scenarios'
 SCENARIO_PACKAGE = "trustlab.lab.scenarios"
 RESULT_PATH = PROJECT_PATH / 'trustlab' / 'lab' / 'results'
+RESULT_PACKAGE = "trustlab.lab.results"
 # determines the file size of scenario files which are declared as large in bytes
 SCENARIO_LARGE_SIZE = 1000000
 # determines the max size of one websocket message in bytes for potential chunked websocket messages
