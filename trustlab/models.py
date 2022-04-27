@@ -231,18 +231,6 @@ class ScenarioFactory(ObjectFactory):
                 config_path = self.scenario_path / file_name
                 self.save_object(scenario, scenario_args, config_path)
 
-    def prepare_web_ui_print(self):
-        """
-        Prepares object attributes for the Web UI print, as they are only required for easier printing at the UI.
-
-        :rtype: None
-        """
-        for scenario in self.scenarios:
-            if scenario.any_agents_use_metric('content_trust.authority'):
-                scenario.authorities = scenario.agents_with_metric('content_trust.authority')
-            if scenario.any_agents_use_metric('content_trust.topic'):
-                scenario.topics = scenario.agents_with_metric('content_trust.topic')
-
     def get_scenario_files(self):
         """
         To categorize scenarios, this method scans for scenarios in direct subdirs of the scenario dir.

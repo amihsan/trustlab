@@ -184,11 +184,13 @@ function showScenarioDescription() {
     let scenarioDetails = $('#scenario-details');
     if (scenarioDetails.hasClass("not-displayed")) {
         scenarioDetails.removeClass("not-displayed");
+        scenarioDetails.html(SCENARIO_DETAILS(scenarios.find(s => s.name === value)));
     } else if (value === "" && !scenarioDetails.hasClass("not-displayed")){
         scenarioDetails.addClass("not-displayed");
+    } else {
+        scenarioDetails.html(SCENARIO_DETAILS(scenarios.find(s => s.name === value)));
     }
-    $(".scenario-ul:not(.not-displayed)").addClass("not-displayed");
-    $(".scenario-ul[data-scenario='"+value+"']").removeClass("not-displayed");
+    hljs.highlightAll();
 }
 
 function cancelScenarioResults() {

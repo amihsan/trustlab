@@ -11,7 +11,7 @@
 {% block scripts %}
     <script>
         let scenarios;
-        {% if scenarios %}
+        {% if scenarios_JSON %}
         scenarios = {{ scenarios_JSON|safe }};
         {% endif %}
         const INDEX_URL = "{{ index_url }}"
@@ -21,6 +21,7 @@
         scenario_load_error = "{{ ScenarioLoadError }}";
         {% endif %}
     </script>
+    <script src="{% static 'trustlab/scripts/highlight.min.js' %}"></script>
     <script src="{% static 'trustlab/scripts/trustlab.js' %}"></script>
 {% endblock %}
 
