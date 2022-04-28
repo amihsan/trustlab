@@ -65,7 +65,7 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                         preparation_end_timer = time.time()
                         print(f"Preparation took {preparation_end_timer - preparation_start_timer} s")
                         execution_start_timer = time.time()
-                    trust_log, agent_trust_logs = await director.run_scenario()
+                    trust_log, trust_log_dict, agent_trust_logs, agent_trust_logs_dict = await director.run_scenario()
                     if config.TIME_MEASURE:
                         execution_end_timer = time.time()
                         # noinspection PyUnboundLocalVariable
@@ -80,7 +80,9 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                         agent_trust_logs[agent] = "".join(agent_trust_logs[agent])
                     await self.send_json({
                             'agents_log': json.dumps(agent_trust_logs),
+                            'agents_log_dict': json.dumps(agent_trust_logs_dict),
                             'trust_log': "".join(trust_log),
+                            'trust_log_dict': json.dumps(trust_log_dict),
                             'scenario_run_id': director.scenario_run_id,
                             'type': "scenario_results"
                         })
@@ -102,7 +104,9 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                     scenario_result = result_factory.get_result(current_id)
                     await self.send_json({
                         'agents_log': json.dumps(scenario_result.agent_trust_logs),
+                        'agents_log_dict': json.dumps(scenario_result.agent_trust_logs_dict),
                         'trust_log': "".join(scenario_result.trust_log),
+                        'trust_log_dict': json.dumps(scenario_result.trust_log_dict),
                         'scenario_run_id': scenario_result.scenario_run_id,
                         'type': "scenario_results"
                     })
