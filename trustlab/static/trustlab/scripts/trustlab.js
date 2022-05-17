@@ -43,7 +43,7 @@ function onLabSocketMessage(messageEvent){
         timeLog.text('Your scenario "{0}" finished!'.f(scenario_result.scenarioName));
         if (data.atlas_times) {
             scenario_result.atlasTimes = data.atlas_times;
-            timeLog.text('{0} in {1}s!\nIt took {2}s for preparation, {3}s for exection,and {4}s for clean up.'.f(
+            timeLog.text('{0} in {1}s!\nIt took:\nfor preparation: {2}s\nfor execution: {3}s\nfor clean up: {4}s'.f(
                 timeLog.text().slice(0, -1),scenario_result.atlasTimes.preparation_time+scenario_result.atlasTimes.execution_time+scenario_result.atlasTimes.cleanup_time,
                 scenario_result.atlasTimes.preparation_time, scenario_result.atlasTimes.execution_time, scenario_result.atlasTimes.cleanup_time));
         }
