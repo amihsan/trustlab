@@ -98,7 +98,8 @@ class Director:
         :type agent_trust_logs_dict: dict
         """
         result_factory = ResultFactory()
-        result = ScenarioResult(self.scenario_run_id, trust_log, trust_log_dict, agent_trust_logs, agent_trust_logs_dict)
+        result = ScenarioResult(self.scenario_run_id, self.scenario.name, trust_log, trust_log_dict, agent_trust_logs,
+                                agent_trust_logs_dict)
         result_factory.save_result(result)
 
     async def end_scenario(self):
