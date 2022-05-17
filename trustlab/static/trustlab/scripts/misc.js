@@ -54,7 +54,7 @@ function copy_text_to_clipboard(input_id)
     let copyText = document.getElementById(input_id);
     copyText.select();
     copyText.setSelectionRange(0, 99999);
-    document.execCommand("copy");
+    navigator.clipboard.writeText(copyText.value);
 }
 
 // got original function from https://stackoverflow.com/a/21394730
