@@ -35,9 +35,6 @@ class ScenarioSerializer(serializers.Serializer):
         instance.scales_per_agent = validated_data.get('scales_per_agent', instance.scales_per_agent)
         instance.metrics_per_agent = validated_data.get('metrics_per_agent', instance.metrics_per_agent)
         instance.description = validated_data.get('description', instance.description)
-        # if validated_data.get('lazy_note', None) is not None:
-        #     instance.lazy_note = validated_data.get('lazy_note', instance.lazy_note)
-        # instance.lazy_note = validated_data.get('lazy_note', instance.lazy_note)
         return instance
 
 

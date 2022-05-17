@@ -33,7 +33,7 @@ class ObjectFactory:
         :param object_class_name: the name of the object's class.
         :type object_class_name: str
         :param object_args: All the parameters of the to initiate object
-        :type object_args: inspect.FullArgSpec
+        :type object_args: inspect.FullArgSpec or SimpleNamespace
         :param lazy_args: List of arguments for the lazy load of too large files. Default is None.
         :type lazy_args: list
         :param known_key_values: Dict of known key value pairs. Default is None.
@@ -84,7 +84,7 @@ class ObjectFactory:
         :param obj: the object to be saved.
         :type obj: Any
         :param object_args: All the parameters of the to initiate object
-        :type object_args: inspect.FullArgSpec
+        :type object_args: inspect.FullArgSpec or SimpleNamespace
         :param file_path: Full path to the object's DSL file.
         :type file_path: Path
         :param file_exists: whether the object's DSL file already exists.
@@ -287,12 +287,15 @@ class ScenarioResult:
     """
     Represents the results of one scenario run with its id.
     """
-    def __init__(self, scenario_run_id, trust_log, trust_log_dict, agent_trust_logs, agent_trust_logs_dict):
+    def __init__(self, scenario_run_id, scenario_name, trust_log, trust_log_dict, agent_trust_logs,
+                 agent_trust_logs_dict, atlas_times=None):
         self.scenario_run_id = scenario_run_id
+        self.scenario_name = scenario_name
         self.trust_log = trust_log
         self.trust_log_dict = trust_log_dict
         self.agent_trust_logs = agent_trust_logs
         self.agent_trust_logs_dict = agent_trust_logs_dict
+        self.atlas_times = atlas_times
 
 
 class ResultFactory(ObjectFactory):
@@ -325,8 +328,9 @@ class ResultFactory(ObjectFactory):
                 with open(path, 'r') as agent_trust_log_file:
                     agent_trust_log_lines = [line for line in agent_trust_log_file.readlines() if line != "\n"]
                     agent_trust_logs[agent] = ''.join(agent_trust_log_lines)
-            result_key_values = {'scenario_run_id': scenario_run_id, 'trust_log': trust_log, 'trust_log_dict': None,
-                                 'agent_trust_logs': agent_trust_logs, 'agent_trust_logs_dict': None}
+            result_key_values = {'scenario_run_id': scenario_run_id, 'scenario_name':None, 'trust_log': trust_log,
+                                 'trust_log_dict': None, 'agent_trust_logs': agent_trust_logs,
+                                 'agent_trust_logs_dict': None, 'atlas_times': None}
             return self.load_object(f'{self.result_package}.{result_dir.name}.dict_log', "ScenarioResult",
                                     self.dict_log_params, known_key_values=result_key_values)
         else:
@@ -351,6 +355,20 @@ class ResultFactory(ObjectFactory):
         dict_log_path = result_dir / "dict_log.py"
         self.save_object(scenario_result, self.dict_log_params, dict_log_path, file_exists=False)
 
+    def save_dict_log_result(self, scenario_result):
+        """
+        Save only dict_log variables to file.
+
+        :param scenario_result: ScenarioResult object to be saved.
+        :type scenario_result: ScenarioResult
+        :rtype: None
+        """
+        result_dir = self.get_result_dir(scenario_result.scenario_run_id)
+        if not exists(result_dir) or not isdir(result_dir):
+            mkdir(result_dir)
+        dict_log_path = result_dir / "dict_log.py"
+        self.save_object(scenario_result, self.dict_log_params, dict_log_path, file_exists=False)
+
     def get_result_dir(self, scenario_run_id):
         """
         :param scenario_run_id: Scenario run id to identify according results.
@@ -364,7 +382,8 @@ class ResultFactory(ObjectFactory):
     def __init__(self):
         super().__init__()
         # adding dict log parameters for loading and saving, is in SimpleNameSpace for object with args variable
-        self.dict_log_params = SimpleNamespace(args=['self', 'trust_log_dict', 'agent_trust_logs_dict'], defaults=[])
+        self.dict_log_params = SimpleNamespace(args=['self', 'scenario_name', 'trust_log_dict', 'agent_trust_logs_dict',
+                                                     'atlas_times'], defaults=tuple([None]))
         self.result_path = RESULT_PATH
         self.result_package = RESULT_PACKAGE
         if not exists(RESULT_PATH) or not isdir(RESULT_PATH):

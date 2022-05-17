@@ -63,29 +63,46 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                     })
                     if config.TIME_MEASURE:
                         preparation_end_timer = time.time()
-                        print(f"Preparation took {preparation_end_timer - preparation_start_timer} s")
+                        preparation_time = preparation_end_timer - preparation_start_timer
+                        print(f"Preparation took {preparation_time} s")
                         execution_start_timer = time.time()
                     trust_log, trust_log_dict, agent_trust_logs, agent_trust_logs_dict = await director.run_scenario()
                     if config.TIME_MEASURE:
                         execution_end_timer = time.time()
                         # noinspection PyUnboundLocalVariable
-                        print(f"Execution took {execution_end_timer - execution_start_timer} s")
+                        execution_time = execution_end_timer - execution_start_timer
+                        print(f"Execution took {execution_time} s")
                         cleanup_start_timer = time.time()
                     await director.end_scenario()
                     if config.TIME_MEASURE:
                         cleanup_end_timer = time.time()
                         # noinspection PyUnboundLocalVariable
-                        print(f"CleanUp took {cleanup_end_timer - cleanup_start_timer} s")
+                        cleanup_time = cleanup_end_timer - cleanup_start_timer
+                        print(f"CleanUp took {cleanup_time} s")
                     for agent in agent_trust_logs:
                         agent_trust_logs[agent] = "".join(agent_trust_logs[agent])
-                    await self.send_json({
-                            'agents_log': json.dumps(agent_trust_logs),
-                            'agents_log_dict': json.dumps(agent_trust_logs_dict),
-                            'trust_log': "".join(trust_log),
-                            'trust_log_dict': json.dumps(trust_log_dict),
-                            'scenario_run_id': director.scenario_run_id,
-                            'type': "scenario_results"
-                        })
+                    log_message = {
+                        'agents_log': json.dumps(agent_trust_logs),
+                        'agents_log_dict': json.dumps(agent_trust_logs_dict),
+                        'trust_log': "".join(trust_log),
+                        'trust_log_dict': json.dumps(trust_log_dict),
+                        'scenario_run_id': director.scenario_run_id,
+                        'scenario_name': scenario.name,
+                        'type': "scenario_results"
+                    }
+                    if config.TIME_MEASURE:
+                        # noinspection PyUnboundLocalVariable
+                        atlas_times = {
+                            'preparation_time': preparation_time,
+                            'execution_time': execution_time,
+                            'cleanup_time': cleanup_time
+                        }
+                        log_message['atlas_times'] = atlas_times
+                        result_factory = ResultFactory()
+                        scenario_result = result_factory.get_result(director.scenario_run_id)
+                        scenario_result.atlas_times = atlas_times
+                        result_factory.save_dict_log_result(scenario_result)
+                    await self.send_json(log_message)
                 except Exception as exception:
                     await self.send_json({
                         'message': str(exception),
@@ -102,14 +119,18 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
             if config.validate_scenario_run_id(current_id):
                 try:
                     scenario_result = result_factory.get_result(current_id)
-                    await self.send_json({
+                    result_message = {
                         'agents_log': json.dumps(scenario_result.agent_trust_logs),
                         'agents_log_dict': json.dumps(scenario_result.agent_trust_logs_dict),
                         'trust_log': "".join(scenario_result.trust_log),
                         'trust_log_dict': json.dumps(scenario_result.trust_log_dict),
                         'scenario_run_id': scenario_result.scenario_run_id,
+                        'scenario_name': scenario_result.scenario_name,
                         'type': "scenario_results"
-                    })
+                    }
+                    if config.TIME_MEASURE:
+                        result_message['atlas_times'] = scenario_result.atlas_times
+                    await self.send_json(result_message)
                 except OSError as exception:
                     await self.send_json({
                         'message': "Scenario Result not found",

@@ -20,7 +20,7 @@ WEBSOCKET_MAX = 900000  # tested this limit 990000 seems to large for supervisor
 
 SCENARIO_CATEGORY_SORT = ['ConTED_ICWE22', 'aTLAS_WI-IAT20']
 
-TIME_MEASURE = False
+TIME_MEASURE = True
 
 
 def get_current_time():
