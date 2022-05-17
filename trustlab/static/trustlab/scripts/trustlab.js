@@ -29,13 +29,24 @@ function onLabSocketMessage(messageEvent){
      * @property {string} trust_log_dict
      * @property {string} agents_log
      * @property {string} agents_log_dict
+     * @property {string} scenario_name
+     * @property {string} atlas_times
      * @property {string} message
      */
     /** @type {webSocketMsg} */
     let data = JSON.parse(messageEvent.data);
     if (data.type === "scenario_results") {
-        trustLogDict = JSON.parse(data.trust_log_dict);
-        agentsLogDict = JSON.parse(data.agents_log_dict);
+        scenario_result.scenarioName = data.scenario_name;
+        scenario_result.trustLog = JSON.parse(data.trust_log_dict);
+        scenario_result.agentsLog = JSON.parse(data.agents_log_dict);
+        let timeLog = $("#time_log");
+        timeLog.text('Your scenario "{0}" finished!'.f(scenario_result.scenarioName));
+        if (data.atlas_times) {
+            scenario_result.atlasTimes = data.atlas_times;
+            timeLog.text('{0} in {1}s!\nIt took:\nfor preparation: {2}s\nfor execution: {3}s\nfor clean up: {4}s'.f(
+                timeLog.text().slice(0, -1),scenario_result.atlasTimes.preparation_time+scenario_result.atlasTimes.execution_time+scenario_result.atlasTimes.cleanup_time,
+                scenario_result.atlasTimes.preparation_time, scenario_result.atlasTimes.execution_time, scenario_result.atlasTimes.cleanup_time));
+        }
         $("#trust_log").text(data.trust_log);
         let agents_log = JSON.parse(data.agents_log);
         let agents_log_end = $("#agents_log_end");
@@ -273,8 +284,6 @@ r(function(){
     }
 });
 // define global variables
-let trustLogDict = [];
-let agentsLogDict = [];
-
+let scenario_result = {scenarioName: "", atlasTimes: {}, trustLog: {}, agentsLog: {}};
 
 
