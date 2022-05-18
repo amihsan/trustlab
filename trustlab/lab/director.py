@@ -24,7 +24,8 @@ class Director:
         signalling them to prepare everything for the run,
         and distributing the global agent discovery to all involved supervisors.
 
-        :rtype: None
+        :return: The amount of supervisors used for this scenario run.
+        :rtype: int
         """
         agents = self.scenario.agents
         # check if enough agents are free to work
@@ -40,6 +41,7 @@ class Director:
         self.discovery = await self.connector.reserve_agents(self.distribution, self.scenario_run_id,
                                                              scenario_serializer.data)
         print(self.discovery)
+        return len(self.distribution.keys())
 
     async def run_scenario(self):
         """
@@ -98,8 +100,8 @@ class Director:
         :type agent_trust_logs_dict: dict
         """
         result_factory = ResultFactory()
-        result = ScenarioResult(self.scenario_run_id, self.scenario.name, trust_log, trust_log_dict, agent_trust_logs,
-                                agent_trust_logs_dict)
+        result = ScenarioResult(self.scenario_run_id, self.scenario.name, len(self.distribution.keys()), trust_log,
+                                trust_log_dict, agent_trust_logs, agent_trust_logs_dict)
         result_factory.save_result(result)
 
     async def end_scenario(self):

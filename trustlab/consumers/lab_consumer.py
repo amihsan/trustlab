@@ -53,10 +53,11 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                         scenario = [scen for scen in scenario_factory.scenarios if scenario.name == scen.name][0]
                 director = Director(scenario)
                 try:
+                    supervisor_amount = 0
                     async with config.PREPARE_SCENARIO_SEMAPHORE:
                         if config.TIME_MEASURE:
                             preparation_start_timer = time.time()
-                        await director.prepare_scenario()
+                        supervisor_amount = await director.prepare_scenario()
                     await self.send_json({
                         'scenario_run_id': director.scenario_run_id,
                         'type': "scenario_run_id"
@@ -88,6 +89,7 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                         'trust_log_dict': json.dumps(trust_log_dict),
                         'scenario_run_id': director.scenario_run_id,
                         'scenario_name': scenario.name,
+                        'supervisor_amount': supervisor_amount,
                         'type': "scenario_results"
                     }
                     if config.TIME_MEASURE:
@@ -126,6 +128,7 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                         'trust_log_dict': json.dumps(scenario_result.trust_log_dict),
                         'scenario_run_id': scenario_result.scenario_run_id,
                         'scenario_name': scenario_result.scenario_name,
+                        'supervisor_amount': scenario_result.supervisor_amount,
                         'type': "scenario_results"
                     }
                     if config.TIME_MEASURE:
