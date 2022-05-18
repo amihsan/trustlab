@@ -41,7 +41,7 @@ function onLabSocketMessage(messageEvent){
         scenario_result.trustLog = JSON.parse(data.trust_log_dict);
         scenario_result.agentsLog = JSON.parse(data.agents_log_dict);
         scenario_result.supervisorAmount = data.supervisor_amount;
-        $("#supervisor_log").text('The scenario was in this run executed on {0} supervisor(s).'.f(data.supervisor_amount));
+        $("#supervisor_log").text('The scenario run was executed on {0} supervisor(s).'.f(data.supervisor_amount));
         let timeLog = $("#time_log");
         timeLog.text('Your scenario "{0}" finished!'.f(scenario_result.scenarioName));
         if (data.atlas_times) {
