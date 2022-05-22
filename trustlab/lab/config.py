@@ -22,6 +22,8 @@ SCENARIO_CATEGORY_SORT = ['ConTED_ICWE22', 'aTLAS_WI-IAT20']
 
 TIME_MEASURE = True
 
+EVALUATION_SCRIPT_RUNS = False
+
 
 def get_current_time():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")

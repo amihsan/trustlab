@@ -255,14 +255,6 @@ $(".btn-share-results").click(function() {
 $("#close-share-dialog").click(function() {
     shareDialog.close();
   });
-let aboutDialog = $("#about-dialog")[0];
-$("#btn-about-dialog").click(function() {
-    aboutDialog.showModal();
-    /* Or dialog.show(); to show the dialog without a backdrop. */
-  });
-$("#close-about-dialog").click(function() {
-    aboutDialog.close();
-  });
 scenarioSelector.change(showScenarioDescription);
 
 // using r function for correct ready state

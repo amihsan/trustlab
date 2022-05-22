@@ -9,6 +9,7 @@
 {#{% block nav_home %}class="active"{% endblock %}#}
 
 {% block scripts %}
+    {% if not eval_run %}
     <script>
         let scenarios;
         {% if scenarios_JSON %}
@@ -23,14 +24,18 @@
     </script>
     <script src="{% static 'trustlab/scripts/highlight.min.js' %}"></script>
     <script src="{% static 'trustlab/scripts/trustlab.js' %}"></script>
+    {% endif %}
 {% endblock %}
-
 {% block body %}
+    {% include "cards/about.html" %}
+{% if not eval_run %}
     {% include "cards/start.html" %}
     {% include "cards/pick_results.html" %}
     {% include "cards/scenario.html" %}
     {% include "cards/runtime.html" %}
     {% include "cards/loading_results.html" %}
     {% include "cards/results.html" %}
-    {% include "cards/about.html" %}
+{% else %}
+    {% include "cards/eval_run.html" %}
+{% endif %}
 {% endblock %}

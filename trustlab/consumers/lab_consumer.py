@@ -145,7 +145,7 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                     'message': "Scenario Run ID is not valid",
                     'type': 'scenario_result_error'
                 })
-
-
-
-
+        elif content['type'] == 'register_eval_run':
+            config.EVALUATION_SCRIPT_RUNS = True
+        elif content['type'] == 'unregister_eval_run':
+            config.EVALUATION_SCRIPT_RUNS = False
