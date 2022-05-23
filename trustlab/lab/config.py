@@ -6,7 +6,7 @@ from datetime import datetime
 from random import randint
 
 PREPARE_SCENARIO_SEMAPHORE = asyncio.Semaphore(1)
-DISTRIBUTOR = "greedy"
+DISTRIBUTOR = "round_robin"
 # variables for trustlab/models.py
 PROJECT_PATH = Path(abspath(dirname(__name__)))
 SCENARIO_PATH = PROJECT_PATH / 'trustlab' / 'lab' / 'scenarios'
@@ -16,11 +16,13 @@ RESULT_PACKAGE = "trustlab.lab.results"
 # determines the file size of scenario files which are declared as large in bytes
 SCENARIO_LARGE_SIZE = 1000000
 # determines the max size of one websocket message in bytes for potential chunked websocket messages
-WEBSOCKET_MAX = 900000  # tested this limit 990000 seems to large for supervisor side
+WEBSOCKET_MAX = 900000  # tested this limit 990000 seems too large for supervisor side
 
 SCENARIO_CATEGORY_SORT = ['ConTED_ICWE22', 'aTLAS_WI-IAT20']
 
 TIME_MEASURE = True
+
+EVALUATION_SCRIPT_RUNS = False
 
 
 def get_current_time():

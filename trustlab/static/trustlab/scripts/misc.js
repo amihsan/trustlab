@@ -93,6 +93,15 @@ String.prototype.format = String.prototype.f = function() {
     return s;
 };
 
+let aboutDialog = $("#about-dialog")[0];
+$("#btn-about-dialog").click(function() {
+    aboutDialog.showModal();
+    /* Or dialog.show(); to show the dialog without a backdrop. */
+  });
+$("#close-about-dialog").click(function() {
+    aboutDialog.close();
+  });
+
 // unused functions, kept for potential re-usage
 
 // function ajaxFunc(url, method, data, successHandler, dataType = "json", contentType = "application/json") {
