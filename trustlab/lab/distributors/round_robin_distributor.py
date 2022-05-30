@@ -1,4 +1,5 @@
 from trustlab.lab.distributors.basic_distributor import BasicDistributor
+from asgiref.sync import sync_to_async
 
 
 class RoundRobinDistributor(BasicDistributor):
@@ -6,6 +7,7 @@ class RoundRobinDistributor(BasicDistributor):
     Distributes given agents of a scenario in a fair fashion over all available supervisors
     with a Round Robin algorithm. All supervisors get min(free_agents, fair_share) agents.
     """
+    @sync_to_async
     def distribute(self, agents, supervisors):
         distribution = {}
         supervisors = sorted(supervisors, key=lambda s: s.max_agents - s.agents_in_use)
@@ -20,4 +22,3 @@ class RoundRobinDistributor(BasicDistributor):
             distribution[supervisor.channel_name] = agents[:agents_to_take]
             agents = agents[agents_to_take:]
         return distribution
-

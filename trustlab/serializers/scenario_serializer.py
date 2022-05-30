@@ -6,12 +6,12 @@ from trustlab.serializers.string_list_field import StringListField
 
 class ScenarioSerializer(serializers.Serializer):
     name = serializers.CharField()
-    agents = StringListField()
-    observations = serializers.ListField()
-    scales_per_agent = serializers.DictField()
-    metrics_per_agent = serializers.DictField()
-    history = serializers.DictField()
-    description = serializers.CharField(allow_null=True, allow_blank=True)
+    agents = StringListField(allow_null=True, required=False)
+    observations = serializers.ListField(allow_null=True, required=False)
+    scales_per_agent = serializers.DictField(allow_null=True, required=False)
+    metrics_per_agent = serializers.DictField(allow_null=True, required=False)
+    history = serializers.DictField(allow_null=True, required=False)
+    description = serializers.CharField(allow_null=True, allow_blank=True, required=False)
     lazy_note = serializers.CharField(allow_null=True, allow_blank=True, required=False)
 
     def to_representation(self, instance):
