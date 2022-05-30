@@ -30,6 +30,7 @@ function onLabSocketMessage(messageEvent){
      * @property {string} agents_log
      * @property {string} agents_log_dict
      * @property {string} scenario_name
+     * @property {int} supervisor_amount
      * @property {string} atlas_times
      * @property {string} message
      */
@@ -39,6 +40,8 @@ function onLabSocketMessage(messageEvent){
         scenario_result.scenarioName = data.scenario_name;
         scenario_result.trustLog = JSON.parse(data.trust_log_dict);
         scenario_result.agentsLog = JSON.parse(data.agents_log_dict);
+        scenario_result.supervisorAmount = data.supervisor_amount;
+        $("#supervisor_log").text('The scenario run was executed on {0} supervisor(s).'.f(data.supervisor_amount));
         let timeLog = $("#time_log");
         timeLog.text('Your scenario "{0}" finished!'.f(scenario_result.scenarioName));
         if (data.atlas_times) {
@@ -252,14 +255,6 @@ $(".btn-share-results").click(function() {
 $("#close-share-dialog").click(function() {
     shareDialog.close();
   });
-let aboutDialog = $("#about-dialog")[0];
-$("#btn-about-dialog").click(function() {
-    aboutDialog.showModal();
-    /* Or dialog.show(); to show the dialog without a backdrop. */
-  });
-$("#close-about-dialog").click(function() {
-    aboutDialog.close();
-  });
 scenarioSelector.change(showScenarioDescription);
 
 // using r function for correct ready state
@@ -284,6 +279,6 @@ r(function(){
     }
 });
 // define global variables
-let scenario_result = {scenarioName: "", atlasTimes: {}, trustLog: {}, agentsLog: {}};
+let scenario_result = {scenarioName: "", supervisorAmount: 0, atlasTimes: {}, trustLog: {}, agentsLog: {}};
 
 
