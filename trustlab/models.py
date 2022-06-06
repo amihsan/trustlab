@@ -3,6 +3,7 @@ import importlib.util
 import inspect
 import pprint
 import re
+import shutil
 import traceback
 from django.db import models
 from os import listdir, mkdir
@@ -443,6 +444,19 @@ class ResultFactory(ObjectFactory):
         """
         scenario_run_name = scenario_run_id.replace('-', '').replace('scenarioRun', 'sr')
         return scenario_run_name
+
+    def copy_result_pys(self, scenario_run_id):
+        """
+        Copy python files from result folders to evaluator results dir.
+
+        :param scenario_run_id: Scenario run id.
+        :type scenario_run_id: str
+        :return: None
+        """
+        eval_result_path = self.result_path / 'evaluator_results'
+        if not exists(eval_result_path):
+            mkdir(eval_result_path)
+        shutil.copy(self.get_result_dir(scenario_run_id) / f"{self.get_run_name(scenario_run_id)}.py", eval_result_path)
 
     def __init__(self):
         super().__init__()

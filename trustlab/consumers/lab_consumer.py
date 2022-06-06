@@ -114,6 +114,9 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                         scenario_result = result_factory.get_result(director.scenario_run_id)
                         scenario_result.atlas_times = atlas_times
                         result_factory.save_dict_log_result(scenario_result)
+                    if hasattr(self, 'copy_result_pys') and self.copy_result_pys:
+                        result_factory = ResultFactory()
+                        result_factory.copy_result_pys(director.scenario_run_id)
                     if 'is_evaluator' in content and content['is_evaluator']:
                         await self.send_json({
                             'scenario_run_id': director.scenario_run_id,
@@ -167,6 +170,7 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
             if content['type'] == 'register_eval_run':
                 # only memorize the eval run if the webUI is not already registered
                 self.changed_evaluation_status = not config.EVALUATION_SCRIPT_RUNS
+                self.copy_result_pys = True
             config.EVALUATION_SCRIPT_RUNS = True
             await self.send_json({
                 'message': 'Locked WebUI',
