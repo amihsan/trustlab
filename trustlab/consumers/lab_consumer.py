@@ -12,11 +12,12 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
     LabConsumer class, with sequential process logic of the Director in its receive_json method.
     It is therewith the main interface between User Agent and Director.
     """
+
     async def connect(self):
         await self.accept()
 
     async def disconnect(self, close_code):
-        if hasattr(self, 'is_evaluator_connection') and self.is_evaluator_connection:
+        if hasattr(self, 'changed_evaluation_status') and self.changed_evaluation_status:
             config.EVALUATION_SCRIPT_RUNS = False
 
     async def receive_json(self, content, **kwargs):
@@ -58,6 +59,7 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                             'type': 'error'
                         })
                         return
+                    # TODO: implement save for new scenario as currently it won't be saved tue to name only load
                     scenario_factory.scenarios.append(scenario)
                 director = Director(scenario)
                 try:
@@ -161,23 +163,21 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                     'message': "Scenario Run ID is not valid",
                     'type': 'scenario_result_error'
                 })
-        elif content['type'] == 'register_eval_run':
+        elif content['type'] == 'register_eval_run' or content['type'] == 'lock_webUI':
+            if content['type'] == 'register_eval_run':
+                # only memorize the eval run if the webUI is not already registered
+                self.changed_evaluation_status = not config.EVALUATION_SCRIPT_RUNS
             config.EVALUATION_SCRIPT_RUNS = True
-            self.is_evaluator_connection = True
             await self.send_json({
-                'message': 'locked WebUI.',
-                'type': 'register_eval_run'
+                'message': 'Locked WebUI',
+                'type': content['type']
             })
-        elif content['type'] == 'unregister_eval_run':
+        elif content['type'] == 'unregister_eval_run' or content['type'] == 'unlock_webUI':
             config.EVALUATION_SCRIPT_RUNS = False
-            self.is_evaluator_connection = False
+            self.changed_evaluation_status = False
             await self.send_json({
-                'message': 'Unlocked WebUI.',
-                'type': 'unregister_eval_run'
+                'message': 'Unlocked WebUI',
+                'type': content['type']
             })
         elif content['type'] == 'end_socket':
             await self.send_json(content)
-
-    def __int__(self):
-        super().__init__()
-        self.is_evaluator_connection = False
