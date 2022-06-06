@@ -3,6 +3,7 @@ import importlib.util
 import inspect
 import pprint
 import re
+import shutil
 import traceback
 from django.db import models
 from os import listdir, mkdir
@@ -171,27 +172,26 @@ class ScenarioFactory(ObjectFactory):
         """
         scenarios = []
         scenario_files = self.get_scenario_files()
-        # get all parameters of scenario init
-        scenario_args = inspect.getfullargspec(Scenario.scenario_args)
-        # only take name and description as more is not required for lazy load
-        scenario_lazy_args = ['NAME', 'DESCRIPTION']
         for file_name, file_package in scenario_files:
             file_size = getsize(self.scenario_path / file_name)
             try:
-                if not self.large_file_size or (self.large_file_size and file_size < self.large_file_size):
-                    scenario = self.load_object(f"{SCENARIO_PACKAGE}.{file_package}", "Scenario", scenario_args)
+                if (not self.large_file_size or (self.large_file_size and file_size < self.large_file_size)) \
+                        and not self.names_only_load:
+                    scenario = self.load_object(f"{SCENARIO_PACKAGE}.{file_package}", "Scenario", self.scenario_args)
                 else:
-                    scenario = self.load_object(f"{SCENARIO_PACKAGE}.{file_package}", "Scenario", scenario_args,
-                                                scenario_lazy_args)
-                    if self.large_file_size > 999999:
-                        file_size_str = f'{file_size / 1000000} MB'
-                        large_size_str = f'{self.large_file_size / 1000000} MB'
-                    else:
-                        file_size_str = f'{file_size / 1000} KB'
-                        large_size_str = f'{self.large_file_size / 1000} KB'
-                    scenario.lazy_note = f'This scenario file exceeded with its file size of {file_size_str} ' \
-                                         f'the file size limit of {large_size_str}. Thus, the scenario was lazy ' \
-                                         f'loaded and will only include its description.'
+                    scenario = self.load_object(f"{SCENARIO_PACKAGE}.{file_package}", "Scenario", self.scenario_args,
+                                                self.scenario_lazy_args)
+                    if not self.names_only_load:
+                        if self.large_file_size > 999999:
+                            file_size_str = f'{file_size / 1000000} MB'
+                            large_size_str = f'{self.large_file_size / 1000000} MB'
+                        else:
+                            file_size_str = f'{file_size / 1000} KB'
+                            large_size_str = f'{self.large_file_size / 1000} KB'
+                        scenario.lazy_note = f'This scenario file exceeded with its file size of {file_size_str} ' \
+                                             f'the file size limit of {large_size_str}. Thus, the scenario was lazy ' \
+                                             f'loaded and will only include its description.'
+                    scenario.not_fully_loaded = True
             except (ValueError, AttributeError, TypeError, ModuleNotFoundError, SyntaxError):
                 print(f'Error at Scenario file @{file_name}:')
                 traceback.print_exc()
@@ -246,7 +246,7 @@ class ScenarioFactory(ObjectFactory):
             subpackage_scenarios = [f'{basename(subpackage)}/{file}' for file in listdir(subpackage)
                                     if isfile(subpackage / file) and file.endswith("_scenario.py")]
             scenario_file_names += subpackage_scenarios
-        scenario_files = [(file, file.split(".")[0].replace('/', '.')) for file in scenario_file_names]
+        scenario_files = [(file, self.get_package(file)) for file in scenario_file_names]
         return scenario_files
 
     def get_scenarios_in_categories(self):
@@ -268,18 +268,72 @@ class ScenarioFactory(ObjectFactory):
         for key in scenario_categories.keys():
             scenario_categories[key] = sorted(scenario_categories[key])
         # sort by categories
-        category_sort = SCENARIO_CATEGORY_SORT + sorted([c for c in scenario_categories.keys() if c not in SCENARIO_CATEGORY_SORT and c != 'Misc']) + ['Misc']
+        category_sort = SCENARIO_CATEGORY_SORT + sorted([c for c in scenario_categories.keys() if c not in
+                                                         SCENARIO_CATEGORY_SORT and c != 'Misc']) + ['Misc']
         index_map = {v: i for i, v in enumerate(category_sort)}
         return sorted(scenario_categories.items(), key=lambda pair: index_map[pair[0]])
 
-    def __init__(self, lazy_load=False):
+    def get_scenario(self, name):
+        """
+        Returns the fully loaded scenario with the given name.
+
+        :param name: Name of the scenario.
+        :type name: str
+        :return: Scenario with the given name.
+        :rtype: Scenario
+        :raises RuntimeError: If no scenario with the given name is found or Scenario could not be loaded.
+        """
+        for scenario_in_list in self.scenarios:
+            if scenario_in_list.name == name:
+                if hasattr(scenario_in_list, "not_fully_loaded"):
+                    try:
+                        scenario = self.load_object(f"{SCENARIO_PACKAGE}.{self.get_package(scenario_in_list.file_name)}",
+                                                    "Scenario", self.scenario_args)
+                    except (ValueError, AttributeError, TypeError, ModuleNotFoundError, SyntaxError):
+                        print(f'Error at Scenario file @{scenario_in_list.file_name}:')
+                        traceback.print_exc()
+                        raise RuntimeError(f"Scenario {scenario_in_list.name}@{scenario_in_list.file_name}"
+                                           f"was not loaded due to error.")
+                    return scenario
+                else:
+                    return scenario_in_list
+        raise RuntimeError(f"Scenario {name} not found.")
+
+    def scenario_exists(self, name):
+        """
+        Returns True if a scenario with the given name exists by only checking scenario names.
+
+        :param name: Name of the scenario.
+        :type name: str
+        :rtype: bool
+        """
+        return any([True if scenario.name == name else False for scenario in self.scenarios])
+
+    @staticmethod
+    def get_package(file_name):
+        """
+        Returns the package name of the scenario with the given file name.
+
+        :param file_name: Name of the scenario file.
+        :type file_name: str
+        :return: Package name of the scenario.
+        :rtype: str
+        """
+        return file_name.split(".")[0].replace('/', '.')
+
+    def __init__(self, lazy_load=False, names_only_load=False):
         super().__init__()
         self.scenario_path = SCENARIO_PATH
         self.large_file_size = SCENARIO_LARGE_SIZE if lazy_load else None
+        self.names_only_load = names_only_load
+        # get all parameters of scenario init
+        self.scenario_args = inspect.getfullargspec(Scenario.scenario_args)
+        # only take name and description as more is not required for lazy load
+        self.scenario_lazy_args = ['NAME', 'DESCRIPTION']
         self.scenarios = self.load_scenarios()
 
     def __del__(self):
-        if not self.large_file_size:
+        if not self.large_file_size and not self.names_only_load:
             self.save_scenarios()
 
 
@@ -390,6 +444,19 @@ class ResultFactory(ObjectFactory):
         """
         scenario_run_name = scenario_run_id.replace('-', '').replace('scenarioRun', 'sr')
         return scenario_run_name
+
+    def copy_result_pys(self, scenario_run_id):
+        """
+        Copy python files from result folders to evaluator results dir.
+
+        :param scenario_run_id: Scenario run id.
+        :type scenario_run_id: str
+        :return: None
+        """
+        eval_result_path = self.result_path / 'evaluator_results'
+        if not exists(eval_result_path):
+            mkdir(eval_result_path)
+        shutil.copy(self.get_result_dir(scenario_run_id) / f"{self.get_run_name(scenario_run_id)}.py", eval_result_path)
 
     def __init__(self):
         super().__init__()
