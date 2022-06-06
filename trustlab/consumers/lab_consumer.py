@@ -33,7 +33,7 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
             serializer = ScenarioSerializer(data=content['scenario'])
             if serializer.is_valid():
                 try:
-                    scenario_factory = ScenarioFactory()
+                    scenario_factory = ScenarioFactory(names_only_load=True)
                     scenario = serializer.create(serializer.data)
                 except (ValueError, AttributeError, TypeError, ModuleNotFoundError, SyntaxError) as error:
                     await self.send_json({
@@ -41,18 +41,24 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                         'type': 'error'
                     })
                     return
-                if len(scenario.agents) > 0:
-                    if scenario not in scenario_factory.scenarios:
-                        scenario_factory.scenarios.append(scenario)
+                if scenario_factory.scenario_exists(scenario.name):
+                    try:
+                        scenario = scenario_factory.get_scenario(scenario.name)
+                    except RuntimeError as error:
+                        await self.send_json({
+                            'message': f'Scenario Load Error: {str(error)}',
+                            'type': 'error'
+                        })
+                        return
+                    # TODO: implement what happens if scenario is updated
                 else:
-                    if not any([True if scen.name == scenario.name else False for scen in scenario_factory.scenarios]):
+                    if len(scenario.agents) == 0:
                         await self.send_json({
                             'message': f'Scenario Error: Scenario transmitted is empty and not known.',
                             'type': 'error'
                         })
                         return
-                    else:
-                        scenario = [scen for scen in scenario_factory.scenarios if scenario.name == scen.name][0]
+                    scenario_factory.scenarios.append(scenario)
                 director = Director(scenario)
                 try:
                     supervisor_amount = 0
