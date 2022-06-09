@@ -1,4 +1,4 @@
-from os.path import dirname, abspath
+from os.path import abspath, dirname, exists
 from pathlib import Path
 import re
 import asyncio
@@ -13,6 +13,7 @@ SCENARIO_PATH = PROJECT_PATH / 'trustlab' / 'lab' / 'scenarios'
 SCENARIO_PACKAGE = "trustlab.lab.scenarios"
 RESULT_PATH = PROJECT_PATH / 'trustlab' / 'lab' / 'results'
 RESULT_PACKAGE = "trustlab.lab.results"
+LOG_PATH = PROJECT_PATH / 'trustlab' / 'lab' / 'log'
 # determines the file size of scenario files which are declared as large in bytes
 SCENARIO_LARGE_SIZE = 1000000
 # determines the max size of one websocket message in bytes for potential chunked websocket messages
@@ -23,6 +24,7 @@ SCENARIO_CATEGORY_SORT = ['ConTED_ICWE22', 'aTLAS_WI-IAT20']
 TIME_MEASURE = True
 
 EVALUATION_SCRIPT_RUNS = False
+LOG_SCENARIO_STATUS = True
 
 
 def get_current_time():
@@ -52,3 +54,29 @@ def validate_scenario_run_id(scenario_run_id):
     id_pattern = r"^scenarioRun_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}-[0-9]{2}_[0-9]{3}$"
     return True if re.match(id_pattern, scenario_run_id) else False
 
+
+def get_scenario_run_name(scenario_run_id):
+    """
+    :param scenario_run_id: Scenario run id.
+    :type scenario_run_id: str
+    :return: Name of scenario run id.
+    :rtype: str
+    """
+    scenario_run_name = scenario_run_id.replace('-', '').replace('scenarioRun', 'sr')
+    return scenario_run_name
+
+
+def write_scenario_status(scenario_run_id, status):
+    """
+    Logs the scenario status to a file.
+
+    :param status: The status of the scenario run.
+    :type status: str
+    :param scenario_run_id: The scenario run id.
+    :type scenario_run_id: str
+    """
+    print(status)
+    if LOG_SCENARIO_STATUS and EVALUATION_SCRIPT_RUNS:
+        log_path = LOG_PATH / f"{get_scenario_run_name(scenario_run_id)}.txt"
+        with open(log_path, 'a+' if exists(log_path) else 'w+') as log_file:
+            print(status, file=log_file)

@@ -10,7 +10,7 @@ from os import listdir, mkdir
 from os.path import isfile, exists, isdir, getsize, basename
 from pathlib import Path
 from trustlab.lab.config import SCENARIO_PATH, SCENARIO_PACKAGE, RESULT_PACKAGE, RESULT_PATH, SCENARIO_LARGE_SIZE,\
-    SCENARIO_CATEGORY_SORT
+    SCENARIO_CATEGORY_SORT, get_scenario_run_name
 from trustlab_host.models import Scenario
 from types import SimpleNamespace
 
@@ -410,7 +410,7 @@ class ResultFactory(ObjectFactory):
             agent_trust_log_path = f"{result_dir}/{agent}_trust_log.txt"
             with open(agent_trust_log_path, 'w+') as agent_trust_log_file:
                 print(''.join(agent_trust_log), file=agent_trust_log_file)
-        dict_log_path = result_dir / f"{self.get_run_name(scenario_result.scenario_run_id)}.py"
+        dict_log_path = result_dir / f"{get_scenario_run_name(scenario_result.scenario_run_id)}.py"
         self.save_object(scenario_result, self.dict_log_params, dict_log_path, file_exists=False)
 
     def save_dict_log_result(self, scenario_result):
@@ -424,7 +424,7 @@ class ResultFactory(ObjectFactory):
         result_dir = self.get_result_dir(scenario_result.scenario_run_id)
         if not exists(result_dir) or not isdir(result_dir):
             mkdir(result_dir)
-        dict_log_path = result_dir / f"{self.get_run_name(scenario_result.scenario_run_id)}.py"
+        dict_log_path = result_dir / f"{get_scenario_run_name(scenario_result.scenario_run_id)}.py"
         self.save_object(scenario_result, self.dict_log_params, dict_log_path, file_exists=False)
 
     def get_result_dir(self, scenario_run_id):
@@ -434,19 +434,8 @@ class ResultFactory(ObjectFactory):
         :return: Path to results of scenario run id.
         :rtype: pathlib.Path
         """
-        folder_name = self.get_run_name(scenario_run_id)
+        folder_name = get_scenario_run_name(scenario_run_id)
         return self.result_path / folder_name
-
-    @staticmethod
-    def get_run_name(scenario_run_id):
-        """
-        :param scenario_run_id: Scenario run id.
-        :type scenario_run_id: str
-        :return: Name of scenario run id.
-        :rtype: str
-        """
-        scenario_run_name = scenario_run_id.replace('-', '').replace('scenarioRun', 'sr')
-        return scenario_run_name
 
     def copy_result_pys(self, scenario_run_id):
         """
@@ -459,7 +448,8 @@ class ResultFactory(ObjectFactory):
         eval_result_path = self.result_path / 'evaluator_results'
         if not exists(eval_result_path):
             mkdir(eval_result_path)
-        shutil.copy(self.get_result_dir(scenario_run_id) / f"{self.get_run_name(scenario_run_id)}.py", eval_result_path)
+        shutil.copy(self.get_result_dir(scenario_run_id) / f"{get_scenario_run_name(scenario_run_id)}.py",
+                    eval_result_path)
 
     def __init__(self):
         super().__init__()
