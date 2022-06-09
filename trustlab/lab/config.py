@@ -1,8 +1,9 @@
-from os.path import abspath, dirname, exists
-from pathlib import Path
-import re
 import asyncio
+import re
 from datetime import datetime
+from os import mkdir
+from os.path import abspath, dirname, exists, isdir
+from pathlib import Path
 from random import randint
 
 PREPARE_SCENARIO_SEMAPHORE = asyncio.Semaphore(1)
@@ -77,6 +78,8 @@ def write_scenario_status(scenario_run_id, status):
     """
     print(status)
     if LOG_SCENARIO_STATUS and EVALUATION_SCRIPT_RUNS:
+        if not exists(LOG_PATH) or not isdir(LOG_PATH):
+            mkdir(LOG_PATH)
         log_path = LOG_PATH / f"{get_scenario_run_name(scenario_run_id)}.txt"
         with open(log_path, 'a+' if exists(log_path) else 'w+') as log_file:
             print(status, file=log_file)

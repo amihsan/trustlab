@@ -389,7 +389,7 @@ class ResultFactory(ObjectFactory):
             result_key_values = {'scenario_run_id': scenario_run_id, 'scenario_name': '', 'supervisor_amount': 0,
                                  'trust_log': trust_log, 'trust_log_dict': None, 'agent_trust_logs': agent_trust_logs,
                                  'agent_trust_logs_dict': None, 'atlas_times': None}
-            return self.load_object(f'{self.result_package}.{result_dir.name}.{self.get_run_name(scenario_run_id)}',
+            return self.load_object(f'{self.result_package}.{result_dir.name}.{get_scenario_run_name(scenario_run_id)}',
                                     "ScenarioResult", self.dict_log_params, known_key_values=result_key_values)
         else:
             raise OSError(f"Given path '{result_dir}' for scenario result read is not a directory or does not exist.")

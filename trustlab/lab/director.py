@@ -42,7 +42,7 @@ class Director:
         self.discovery = await self.connector.reserve_agents(self.distribution, self.scenario_run_id,
                                                              scenario_serializer.data)
         await sync_to_async(config.write_scenario_status)(self.scenario_run_id,
-                                                          f"Scenario Distribution:\n{self.discovery}\n")
+                                                          f"Scenario Distribution:\n{self.discovery}")
         return len(self.distribution.keys())
 
     async def run_scenario(self):
