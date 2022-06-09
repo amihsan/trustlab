@@ -21,4 +21,5 @@ class RoundRobinDistributor(BasicDistributor):
             rest_supervisors -= 1
             distribution[supervisor.channel_name] = agents[:agents_to_take]
             agents = agents[agents_to_take:]
+        distribution = {key: value for key, value in distribution.items() if value}
         return distribution
