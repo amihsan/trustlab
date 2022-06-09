@@ -9,7 +9,8 @@ from django.db import models
 from os import listdir, mkdir
 from os.path import isfile, exists, isdir, getsize, basename
 from pathlib import Path
-from trustlab.lab.config import SCENARIO_PATH, SCENARIO_PACKAGE, RESULT_PACKAGE, RESULT_PATH, SCENARIO_LARGE_SIZE, SCENARIO_CATEGORY_SORT
+from trustlab.lab.config import SCENARIO_PATH, SCENARIO_PACKAGE, RESULT_PACKAGE, RESULT_PATH, SCENARIO_LARGE_SIZE,\
+    SCENARIO_CATEGORY_SORT
 from trustlab_host.models import Scenario
 from types import SimpleNamespace
 
@@ -18,6 +19,8 @@ class Supervisor(models.Model):
     channel_name = models.CharField(max_length=120, primary_key=True)
     max_agents = models.IntegerField(default=0)
     agents_in_use = models.IntegerField(default=0)
+    ip_address = models.CharField(max_length=20, default="")
+    hostname = models.CharField(max_length=260, default="")
 
 
 class ObjectFactory:
