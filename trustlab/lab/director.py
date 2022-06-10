@@ -61,7 +61,7 @@ class Director:
         while scenario_runs:
             done_dict = await self.connector.get_next_done_observation(self.scenario_run_id)
             await sync_to_async(config.write_scenario_status)(self.scenario_run_id,
-                                                              f"Did observation: {done_dict['observation_id']}")
+                                                              f"Did observation {done_dict['observation_id']}")
             done_observations_with_id.append(done_dict['observation_id'])
             supervisors_to_inform = await self.connector.get_supervisors_without_given(done_dict["channel_name"])
             await self.connector.broadcast_done_observation(self.scenario_run_id, done_observations_with_id,
