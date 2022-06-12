@@ -56,7 +56,7 @@ class Director:
         agent_trust_logs = dict((agent, []) for agent in self.scenario.agents)
         agent_trust_logs_dict = dict((agent, []) for agent in self.scenario.agents)
         scenario_runs = True
-        observations_to_do_with_id = [observation["observation_id"] for observation in self.scenario.observations]
+        observations_to_do_amount = len([observation["observation_id"] for observation in self.scenario.observations])
         done_observations_with_id = []
         while scenario_runs:
             done_dict = await self.connector.get_next_done_observation(self.scenario_run_id)
@@ -80,7 +80,7 @@ class Director:
             trust_log_dict.extend(new_trust_log_dict)
             agent_trust_logs[obs_receiver].extend(new_receiver_log)
             agent_trust_logs_dict[obs_receiver].extend(new_receiver_log_dict)
-            if done_observations_with_id == observations_to_do_with_id:
+            if len(done_observations_with_id) == observations_to_do_amount:
                 scenario_runs = False
                 await sync_to_async(config.write_scenario_status)(self.scenario_run_id, f"Scenario finished.")
         for agent, log in agent_trust_logs.items():

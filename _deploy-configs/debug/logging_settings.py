@@ -6,13 +6,12 @@ LOGGING = {
             'class': 'logging.StreamHandler',
         },
         'file': {
-            'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': '/var/www/trustlab/django.debug.log',
+            'filename': BASE_DIR + '/debug.log',
         },
     },
     'root': {
         'handlers': ['file'],
-        'level': 'DEBUG',
+        'level': 'INFO',
     },
 }
