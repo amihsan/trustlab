@@ -1,12 +1,12 @@
 import socket
 import trustlab.lab.config as config
+from asgiref.sync import sync_to_async
 from trustlab.lab.connectors.channels_connector import ChannelsConnector
 from trustlab.lab.distributors.greedy_distributor import GreedyDistributor
 from trustlab.lab.distributors.round_robin_distributor import RoundRobinDistributor
 from trustlab.serializers.scenario_serializer import ScenarioSerializer
 from trustlab.models import ResultFactory, ScenarioResult
 from trustlab_host.models import Scenario
-from asgiref.sync import sync_to_async
 
 
 class Director:
@@ -38,9 +38,11 @@ class Director:
         self.distribution = await self.distributor.distribute(agents, supervisors_with_free_agents)
         # reserve agents at supervisors
         scenario_serializer = ScenarioSerializer(self.scenario)
+        await sync_to_async(config.write_scenario_status)(self.scenario_run_id, f"Reserving Agents..")
         self.discovery = await self.connector.reserve_agents(self.distribution, self.scenario_run_id,
                                                              scenario_serializer.data)
-        print(self.discovery)
+        await sync_to_async(config.write_scenario_status)(self.scenario_run_id,
+                                                          f"Scenario Distribution:\n{self.discovery}")
         return len(self.distribution.keys())
 
     async def run_scenario(self):
@@ -54,11 +56,12 @@ class Director:
         agent_trust_logs = dict((agent, []) for agent in self.scenario.agents)
         agent_trust_logs_dict = dict((agent, []) for agent in self.scenario.agents)
         scenario_runs = True
-        observations_to_do_with_id = [observation["observation_id"] for observation in self.scenario.observations]
+        observations_to_do_amount = len([observation["observation_id"] for observation in self.scenario.observations])
         done_observations_with_id = []
         while scenario_runs:
             done_dict = await self.connector.get_next_done_observation(self.scenario_run_id)
-            # print(f"Received next done at director with id {done_dict['observation_id']}")
+            await sync_to_async(config.write_scenario_status)(self.scenario_run_id,
+                                                              f"Did observation {done_dict['observation_id']}")
             done_observations_with_id.append(done_dict['observation_id'])
             supervisors_to_inform = await self.connector.get_supervisors_without_given(done_dict["channel_name"])
             await self.connector.broadcast_done_observation(self.scenario_run_id, done_observations_with_id,
@@ -77,8 +80,9 @@ class Director:
             trust_log_dict.extend(new_trust_log_dict)
             agent_trust_logs[obs_receiver].extend(new_receiver_log)
             agent_trust_logs_dict[obs_receiver].extend(new_receiver_log_dict)
-            if done_observations_with_id == observations_to_do_with_id:
+            if len(done_observations_with_id) == observations_to_do_amount:
                 scenario_runs = False
+                await sync_to_async(config.write_scenario_status)(self.scenario_run_id, f"Scenario finished.")
         for agent, log in agent_trust_logs.items():
             if len(log) == 0:
                 agent_trust_logs[agent].append("The scenario reported no agent trust log for this agent.")
