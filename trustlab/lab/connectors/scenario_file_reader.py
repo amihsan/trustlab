@@ -1,22 +1,22 @@
 import time
 import types
 from collections import deque
-import ParserDefinitions
-import MongoDbConnector
+import trustlab.lab.connectors.ParserDefinitions as ParserDefinitions
+import trustlab.lab.connectors.MongoDbConnector as MongoDbConnector
 import importlib
 
 class ScenarioReader:
 
-    def __init__(self, scenariopath, connector):
+    def __init__(self, scenario_name, scenariopath, connector):
         self.filepath = scenariopath
         self.connector = connector
+        self.scenario_name = scenario_name
         self.q = deque()
         self.definitions = deque()
 
     def read(self):
         with open(self.filepath) as file:
             for line in file:
-                print(line)
                 while len(line) > 0:
                     line = self.analyze_line(line)
 
@@ -43,7 +43,7 @@ class ScenarioReader:
             doneObjects = currentobject.get_done_objects(currentobject)
             if len(doneObjects) > 0:
                 for object in doneObjects:
-                    self.connector.add_data(currentobject.__name__.lower(), object)
+                    self.connector.add_data(self.scenario_name, currentobject.__name__.lower(), object)
                 currentobject.clear_objects(currentobject)
 
             if not currentobject.is_done(currentobject):
@@ -56,12 +56,10 @@ class ScenarioReader:
 
 if __name__ == "__main__":
 
-    CONNECTIONSTRING = "mongodb://ma-sosmos-mongodb:ebQCT5S2XaGsVXX5VTQg7Ih2NEXBRguApReu6ASXOVvfj5HX7Vmb7qoHiC84GSqth" \
-                       "3evm7Za8yYbXMbP1Z7d1w==@ma-sosmos-mongodb.mongo.cosmos.azure.com:10255/?ssl=true&replicaSet=g" \
-                       "lobaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@ma-sosmos-mongodb@"
+    CONNECTIONSTRING = "mongodb://localhost:27017"
 
     connector = MongoDbConnector.MongoDbConnector(CONNECTIONSTRING)
 
-    reader = ScenarioReader("/mnt/volume_intern/Uni/MA/trustlab/trustlab/lab/scenarios/ConTED_WI-IAT22/scaleC_25x25_scenario.py", connector)
+    reader = ScenarioReader("Basic Scenario", "/mnt/volume_intern/Uni/MA/trustlab/trustlab/lab/scenarios/basic_scenario.py", connector)
     reader.read()
 

@@ -6,6 +6,8 @@ from trustlab.consumers.chunk_consumer import ChunkAsyncJsonWebsocketConsumer
 from trustlab.models import *
 from trustlab.serializers.scenario_serializer import ScenarioSerializer
 from trustlab.lab.director import Director
+from trustlab.lab.connectors.scenario_file_reader import ScenarioReader
+from trustlab.lab.connectors.MongoDbConnector import MongoDbConnector
 
 
 class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
@@ -32,37 +34,47 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                         'type': 'error'
                     })
                     return
+            print(content['scenario']['name'])
+
             serializer = ScenarioSerializer(data=content['scenario'])
             if serializer.is_valid():
                 try:
                     scenario_factory = ScenarioFactory(names_only_load=True)
-                    scenario = serializer.create(serializer.data)
+
+                    for scenario in scenario_factory.scenarios:
+                        if scenario.name == content['scenario']['name']:
+                            print(scenario.file_name)
+                            #self.get_database().reset_scenario(content['scenario']['name'])
+                            #reader = ScenarioReader(content['scenario']['name'], "trustlab/lab/scenarios/" + scenario.file_name, self.get_database())
+                            #reader.read()
+
+                    #scenario = serializer.create(serializer.data)
                 except (ValueError, AttributeError, TypeError, ModuleNotFoundError, SyntaxError) as error:
                     await self.send_json({
                         'message': f'Scenario Error: {str(error)}',
                         'type': 'error'
                     })
                     return
-                if scenario_factory.scenario_exists(scenario.name):
-                    try:
-                        scenario = scenario_factory.get_scenario(scenario.name)
-                    except RuntimeError as error:
-                        await self.send_json({
-                            'message': f'Scenario Load Error: {str(error)}',
-                            'type': 'error'
-                        })
-                        return
-                    # TODO: implement what happens if scenario is updated
-                else:
-                    if len(scenario.agents) == 0:
-                        await self.send_json({
-                            'message': f'Scenario Error: Scenario transmitted is empty and not known.',
-                            'type': 'error'
-                        })
-                        return
-                    # TODO: implement save for new scenario as currently it won't be saved due to name only load
-                    scenario_factory.scenarios.append(scenario)
-                director = Director(scenario)
+                #if scenario_factory.scenario_exists(scenario.name):
+                #    try:
+                #        scenario = scenario_factory.get_scenario(scenario.name)
+                #    except RuntimeError as error:
+                #        await self.send_json({
+                #            'message': f'Scenario Load Error: {str(error)}',
+                #            'type': 'error'
+                #        })
+                #        return
+                #    # TODO: implement what happens if scenario is updated
+                #else:
+                #    if len(scenario.agents) == 0:
+                #        await self.send_json({
+                #            'message': f'Scenario Error: Scenario transmitted is empty and not known.',
+                #            'type': 'error'
+                #        })
+                #        return
+                #    # TODO: implement save for new scenario as currently it won't be saved due to name only load
+                #    scenario_factory.scenarios.append(scenario)
+                director = Director(content['scenario']['name'])
                 try:
                     supervisor_amount = 0
                     async with config.PREPARE_SCENARIO_SEMAPHORE:
@@ -102,7 +114,7 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                         'trust_log': "".join(trust_log),
                         'trust_log_dict': json.dumps(trust_log_dict),
                         'scenario_run_id': director.scenario_run_id,
-                        'scenario_name': scenario.name,
+                        'scenario_name': content['scenario']['name'],
                         'supervisor_amount': supervisor_amount,
                         'type': "scenario_results"
                     }
@@ -124,7 +136,7 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                     if 'is_evaluator' in content and content['is_evaluator']:
                         await self.send_json({
                             'scenario_run_id': director.scenario_run_id,
-                            'scenario_name': scenario.name,
+                            'scenario_name': content['scenario']['name'],
                             'supervisor_amount': supervisor_amount,
                             'type': "scenario_results"
                         })
@@ -189,3 +201,9 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
             })
         elif content['type'] == 'end_socket':
             await self.send_json(content)
+
+    def get_database(self):
+        if not hasattr(self, "dbConnecor"):
+            CONNECTIONSTRING = "mongodb://localhost:27017"
+            self.dbConnecor = MongoDbConnector(CONNECTIONSTRING)
+        return self.dbConnecor
