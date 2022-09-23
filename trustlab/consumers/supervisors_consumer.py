@@ -1,9 +1,6 @@
-import time
-
 from trustlab.consumers.chunk_consumer import ChunkAsyncJsonWebsocketConsumer
 from trustlab.models import Supervisor
-from trustlab.lab.connectors.MongoDbConnector import MongoDbConnector
-import re
+from trustlab.serializers.MongoDbConnector import MongoDbConnector
 
 
 class SupervisorsConsumer(ChunkAsyncJsonWebsocketConsumer):
@@ -15,7 +12,6 @@ class SupervisorsConsumer(ChunkAsyncJsonWebsocketConsumer):
         Supervisor.objects.filter(channel_name__exact=self.channel_name).delete()
 
     async def scenario_registration(self, event):
-        #TODO muss hier weg
         print(event["scenario_name"])
         self.get_database().set_all_observations_not_done(event["scenario_name"], event["scenario_run_id"])
         self.get_database().set_all_agents_nothing_to_do(event["scenario_name"], event["scenario_run_id"])

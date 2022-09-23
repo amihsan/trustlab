@@ -70,11 +70,11 @@ class HISTORY:
     storedKey = None
 
     q = deque()
+    tq = deque()
 
     def add_line(self, line):
 
-        line = self.storedString + line
-        self.storedString = ""
+        line = line.strip()
 
         if len(line) == 0:
             return
@@ -121,7 +121,6 @@ class HISTORY:
         else:
             resstring = ""
             index = 0
-            tq = deque()
             untilEnd = False
 
             if line[0] not in ['{', '[', '(', '\'']:
@@ -129,46 +128,48 @@ class HISTORY:
 
             while index < len(line):
                 if line[index] in ['{', '[', '(']:
-                    tq.append(line[index])
+                    self.tq.append(line[index])
 
                 if line[index] == '}':
-                    if tq.pop() != '{':
+                    if self.tq.pop() != '{':
                         raise Exception("Configuration not valid!")
 
                 if line[index] == ')':
-                    if tq.pop() != '(':
+                    if self.tq.pop() != '(':
                         raise Exception("Configuration not valid!")
 
                 if line[index] == ']':
-                    if tq.pop() != '[':
+                    if self.tq.pop() != '[':
                         raise Exception("Configuration not valid!")
 
                 if line[index] == "'":
-                    if len(tq) == 0:
-                        tq.append("'")
+                    if len(self.tq) == 0:
+                        self.tq.append("'")
                     else:
-                        last = tq.pop()
+                        last = self.tq.pop()
                         if not last == "'":
-                            tq.append(last)
-                            tq.append("'")
+                            self.tq.append(last)
+                            self.tq.append("'")
 
                 resstring += line[index]
                 index += 1
 
-                if len(tq) == 0 and (not untilEnd or (len(line) > index and line[index] in ['}', ']', ')', ','])):
+                if len(self.tq) == 0 and (not untilEnd or (len(line) > index and line[index] in ['}', ']', ')', ','])):
                     untilEnd = False
                     break
 
-            if len(tq) > 0 or untilEnd:
-                self.storedString = line
+            if len(self.tq) > 0 or untilEnd:
+                self.storedString = self.storedString + line
                 return ""
 
-            parts = re.split("^.'([^']*)',(?: |)'([^']*)',(?: |)((?:-|)\\d*[.]*\\d*).", resstring)
+            parts = re.split("^.'([^']*)',(?: |)'([^']*)',(?: |)((?:-|)\\d*[.]*\\d*).", self.storedString + resstring)
 
             self.object["parent"] = self.storedKey
             self.object["child"] = parts[1]
             self.object["url"] = parts[2]
             self.object["value"] = float(parts[3])
+
+            self.storedString = ""
 
             return line[index:]
 
@@ -587,6 +588,7 @@ class SCALES_PER_AGENT:
     def is_done(self):
         return self.isdone
 
+
 class METRICS_PER_AGENT:
     object = None
     doneobjects = []
@@ -598,11 +600,11 @@ class METRICS_PER_AGENT:
     next_object = None
 
     q = deque()
+    tq = deque()
 
     def add_line(self, line):
 
-        line = (self.storedString + line).strip()
-        self.storedString = ""
+        line = line.strip()
 
         if len(line) == 0:
             return
@@ -662,7 +664,6 @@ class METRICS_PER_AGENT:
             else:
                 resstring = ""
                 index = 0
-                tq = deque()
                 untilEnd = False
 
                 if line[0] not in ['{', '[', '(', '\'']:
@@ -670,41 +671,42 @@ class METRICS_PER_AGENT:
 
                 while index < len(line):
                     if line[index] in ['{', '[', '(']:
-                        tq.append(line[index])
+                        self.tq.append(line[index])
 
                     if line[index] == '}':
-                        if tq.pop() != '{':
+                        if self.tq.pop() != '{':
                             raise Exception("Configuration not valid!")
 
                     if line[index] == ')':
-                        if tq.pop() != '(':
+                        if self.tq.pop() != '(':
                             raise Exception("Configuration not valid!")
 
                     if line[index] == ']':
-                        if tq.pop() != '[':
+                        if self.tq.pop() != '[':
                             raise Exception("Configuration not valid!")
 
                     if line[index] == "'":
-                        if len(tq) == 0:
-                            tq.append("'")
+                        if len(self.tq) == 0:
+                            self.tq.append("'")
                         else:
-                            last = tq.pop()
+                            last = self.tq.pop()
                             if not last == "'":
-                                tq.append(last)
-                                tq.append("'")
+                                self.tq.append(last)
+                                self.tq.append("'")
 
                     resstring += line[index]
                     index += 1
 
-                    if len(tq) == 0 and (not untilEnd or (len(line) > index and line[index] in ['}', ']', ')', ','])):
+                    if len(self.tq) == 0 and (not untilEnd or (len(line) > index and line[index] in ['}', ']', ')', ','])):
                         untilEnd = False
                         break
 
-                if len(tq) > 0 or untilEnd:
-                    self.storedString = line
+                if len(self.tq) > 0 or untilEnd:
+                    self.storedString = self.storedString + line
                     return ""
 
-                self.object[self.storedKey] = ast.literal_eval(resstring)
+                self.object[self.storedKey] = ast.literal_eval(self.storedString + resstring)
+                self.storedString = ""
 
                 return line[index:]
 

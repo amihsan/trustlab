@@ -1,15 +1,12 @@
 import socket
-import time
 
 import trustlab.lab.config as config
 from asgiref.sync import sync_to_async
 from trustlab.lab.connectors.channels_connector import ChannelsConnector
 from trustlab.lab.distributors.greedy_distributor import GreedyDistributor
 from trustlab.lab.distributors.round_robin_distributor import RoundRobinDistributor
-from trustlab.serializers.scenario_serializer import ScenarioSerializer
 from trustlab.models import ResultFactory, ScenarioResult
-from trustlab_host.models import Scenario
-from trustlab.lab.connectors.MongoDbConnector import MongoDbConnector
+from trustlab.serializers.MongoDbConnector import MongoDbConnector
 
 
 class Director:

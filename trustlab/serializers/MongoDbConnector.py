@@ -5,6 +5,7 @@ import pymongo
 class MongoDbConnector:
 
     def __init__(self, connectionString):
+        self.connectionString = connectionString
         self.client = MongoClient(connectionString)
 
         try:
@@ -19,6 +20,7 @@ class MongoDbConnector:
 
     def add_data(self, scenario_name, type, data):
         collection = self.database[scenario_name]
+        #print("Adding " + type + " to Scenario " + scenario_name)
         data["Type"] = type.lower()
         collection.insert_one(data)
 
@@ -285,6 +287,11 @@ class MongoDbConnector:
 
         return all_agents
 
+    def check_if_scenario_exists(self, scenario_name):
+        names = self.database.list_collection_names()
+
+        return scenario_name in names
+
     def get_observations_count(self, scenario_name):
         collection = self.database[scenario_name]
 
@@ -313,6 +320,9 @@ if __name__ == "__main__":
     print(connector.set_all_agents_nothing_to_do("aTLAS", "test"))
     # print(connector.set_observation_done("test", 1))
     # print(connector.set_observation_done("test", 2))
+
+    print(connector.check_if_scenario_exists("aTLAS"))
+    print(connector.check_if_scenario_exists("nichtdabei"))
 
     agents = connector.get_agents_nothing_to_do("aTLAS", "test")
 

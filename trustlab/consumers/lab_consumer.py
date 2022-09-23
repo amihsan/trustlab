@@ -6,8 +6,8 @@ from trustlab.consumers.chunk_consumer import ChunkAsyncJsonWebsocketConsumer
 from trustlab.models import *
 from trustlab.serializers.scenario_serializer import ScenarioSerializer
 from trustlab.lab.director import Director
-from trustlab.lab.connectors.scenario_file_reader import ScenarioReader
-from trustlab.lab.connectors.MongoDbConnector import MongoDbConnector
+from trustlab.serializers.MongoDbConnector import MongoDbConnector
+from trustlab.serializers.scenario_file_reader import ScenarioReader
 
 
 class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
@@ -39,14 +39,15 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
             serializer = ScenarioSerializer(data=content['scenario'])
             if serializer.is_valid():
                 try:
-                    scenario_factory = ScenarioFactory(names_only_load=True)
+                    scenario_factory = ScenarioFactory(lazy_load=True, names_only_load=True)
 
                     for scenario in scenario_factory.scenarios:
                         if scenario.name == content['scenario']['name']:
                             print(scenario.file_name)
-                            #self.get_database().reset_scenario(content['scenario']['name'])
-                            #reader = ScenarioReader(content['scenario']['name'], "trustlab/lab/scenarios/" + scenario.file_name, self.get_database())
-                            #reader.read()
+                            self.get_database().reset_scenario(content['scenario']['name'])
+                            if not self.get_database().check_if_scenario_exists(content['scenario']['name']):
+                                reader = ScenarioReader(content['scenario']['name'], "trustlab/lab/scenarios/" + scenario.file_name, self.get_database())
+                                reader.read()
 
                     #scenario = serializer.create(serializer.data)
                 except (ValueError, AttributeError, TypeError, ModuleNotFoundError, SyntaxError) as error:
