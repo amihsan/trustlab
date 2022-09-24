@@ -1,6 +1,7 @@
 import ast
 import re
 import uuid
+import json
 from collections import deque
 
 
@@ -299,7 +300,7 @@ class DETAILS:
                 self.storedString = line
                 return ""
 
-            self.object[self.storedKey] = ast.literal_eval(resstring)
+            self.object[self.storedKey] = json.loads(resstring.replace("'", '"'))
 
             return line[index:]
 
@@ -425,7 +426,7 @@ class OBSERVATIONS:
                 self.storedString = line
                 return ""
 
-            self.object[self.storedKey] = ast.literal_eval(resstring)
+            self.object[self.storedKey] = json.loads(resstring.replace("'", '"'))
 
             return line[index:]
 
@@ -565,7 +566,7 @@ class SCALES_PER_AGENT:
                     self.storedString = line
                     return ""
 
-                self.object[self.storedKey] = ast.literal_eval(resstring)
+                self.object[self.storedKey] = json.loads(resstring.replace("'", '"'))
 
                 return line[index:]
 
@@ -593,7 +594,7 @@ class METRICS_PER_AGENT:
     object = None
     doneobjects = []
 
-    storedString = ""
+    storedStrings = []
     storedKey = None
     parent = None
     isdone = False
@@ -601,6 +602,7 @@ class METRICS_PER_AGENT:
 
     q = deque()
     tq = deque()
+    tqcount = 0
 
     def add_line(self, line):
 
@@ -609,43 +611,45 @@ class METRICS_PER_AGENT:
         if len(line) == 0:
             return
 
-        if line[:1] == '}' and len(self.q) == 1:
-            self.isdone = True
-            self.q.pop()
-            return line[1:].strip()
+        if self.tqcount == 0:
 
-        if line[:1] == '{' and len(self.q) == 0:
-            self.q.append('{')
-            return line[1:].strip()
+            if line[:1] == '}' and len(self.q) == 1:
+                self.isdone = True
+                self.q.pop()
+                return line[1:].strip()
 
-        if line[:1] == '{' and len(self.q) == 1:
-            self.object = {}
-            self.q.append('{')
-            self.object["_id"] = uuid.uuid4().hex
-            self.object["parent"] = self.parent
-            return line[1:].strip()
+            if line[:1] == '{' and len(self.q) == 0:
+                self.q.append('{')
+                return line[1:].strip()
 
-        if line[:1] == '}' and len(self.q) == 2:
-            self.doneobjects.append(self.object)
-            self.q.pop()
-            self.object = None
-            return line[1:].strip()
+            if line[:1] == '{' and len(self.q) == 1:
+                self.object = {}
+                self.q.append('{')
+                self.object["_id"] = uuid.uuid4().hex
+                self.object["parent"] = self.parent
+                return line[1:].strip()
 
-        if line[:1] == ',' and len(self.q) == 1:
-            self.parent = None
-            self.storedKey = None
-            return line[1:].strip()
+            if line[:1] == '}' and len(self.q) == 2:
+                self.doneobjects.append(self.object)
+                self.q.pop()
+                self.object = None
+                return line[1:].strip()
 
-        if line[:1] == ',' and len(self.q) == 2:
-            self.storedKey = None
-            return line[1:].strip()
+            if line[:1] == ',' and len(self.q) == 1:
+                self.parent = None
+                self.storedKey = None
+                return line[1:].strip()
+
+            if line[:1] == ',' and len(self.q) == 2:
+                self.storedKey = None
+                return line[1:].strip()
 
         if self.parent is None:
             parts = re.split("^'([^']{1,})':(?:,|)(.*)", line)
 
-            if len(parts) <= 2:
-                self.storedString = line
-                return ""
+            #if len(parts) <= 2:
+            #    self.storedString[0] = self.storedString[0] + line
+            #    return ""
 
             self.parent = parts[1]
 
@@ -654,9 +658,9 @@ class METRICS_PER_AGENT:
             if self.storedKey is None:
                 parts = re.split("^'([^']{1,})':(?:,|)(.*)", line)
 
-                if len(parts) <= 2:
-                    self.storedString = line
-                    return ""
+                #if len(parts) <= 2:
+                #    self.storedString[0] = self.storedString[0] + line
+                #    return ""
 
                 self.storedKey = parts[1]
 
@@ -672,41 +676,50 @@ class METRICS_PER_AGENT:
                 while index < len(line):
                     if line[index] in ['{', '[', '(']:
                         self.tq.append(line[index])
+                        self.tqcount+=1
 
                     if line[index] == '}':
                         if self.tq.pop() != '{':
                             raise Exception("Configuration not valid!")
+                        self.tqcount-=1
 
                     if line[index] == ')':
                         if self.tq.pop() != '(':
                             raise Exception("Configuration not valid!")
+                        self.tqcount-=1
 
                     if line[index] == ']':
                         if self.tq.pop() != '[':
                             raise Exception("Configuration not valid!")
+                        self.tqcount-=1
 
                     if line[index] == "'":
-                        if len(self.tq) == 0:
+                        if self.tqcount == 0:
                             self.tq.append("'")
+                            self.tqcount+=1
                         else:
                             last = self.tq.pop()
+                            self.tqcount-=1
                             if not last == "'":
                                 self.tq.append(last)
                                 self.tq.append("'")
+                                self.tqcount+=2
 
                     resstring += line[index]
                     index += 1
 
-                    if len(self.tq) == 0 and (not untilEnd or (len(line) > index and line[index] in ['}', ']', ')', ','])):
+                    if self.tqcount == 0 and (not untilEnd or (len(line) > index and line[index] in ['}', ']', ')', ','])):
                         untilEnd = False
                         break
 
-                if len(self.tq) > 0 or untilEnd:
-                    self.storedString = self.storedString + line
+                if self.tqcount > 0 or untilEnd:
+                    #self.storedString = "".join(self.storedString, line)
+                    self.storedStrings.append(line)
                     return ""
 
-                self.object[self.storedKey] = ast.literal_eval(self.storedString + resstring)
-                self.storedString = ""
+                self.storedStrings.append(resstring)
+                self.object[self.storedKey] = json.loads(("".join(self.storedStrings)).replace("'", '"'))
+                self.storedStrings = []
 
                 return line[index:]
 

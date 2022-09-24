@@ -1,5 +1,9 @@
 from pymongo import MongoClient
 import pymongo
+import time
+import json
+import gridfs
+import ast
 
 
 class MongoDbConnector:
@@ -14,15 +18,52 @@ class MongoDbConnector:
             raise TimeoutError("Invalid API")
 
         self.database = self.client["testdatabase"]
+        self.fs = gridfs.GridFS(self.database)
 
     def reset_scenario(self, scenario_name):
         self.database.drop_collection(scenario_name)
 
+        querry = {
+            "type": "metrics_per_agent",
+            "scenario_name": scenario_name
+        }
+
+        for gridout in self.fs.find(querry):
+            self.fs.delete(gridout._id)
+
+    def add_metrics_grid_data(self, scenario_name, type, data):
+        t = time.localtime()
+        current_time = time.strftime("%H:%M:%S", t)
+        print("Adding " + type + " to Scenario " + scenario_name + "[" + current_time + "]")
+        data["Type"] = type.lower()
+        self.fs.put(json.dumps(data).encode(), type=type, scenario_name=scenario_name, parent=data["parent"])
+
     def add_data(self, scenario_name, type, data):
+        if type == "metrics_per_agent":
+            return self.add_metrics_grid_data(scenario_name, type, data)
         collection = self.database[scenario_name]
-        #print("Adding " + type + " to Scenario " + scenario_name)
+        t = time.localtime()
+        current_time = time.strftime("%H:%M:%S", t)
+        print("Adding " + type + " to Scenario " + scenario_name + "[" + current_time + "]")
         data["Type"] = type.lower()
         collection.insert_one(data)
+
+    def add_many_data(self, scenario_name, datas):
+        newdatas = []
+        for data in datas:
+            if "Type" in data and data["Type"] == "metrics_per_agent":
+                self.add_metrics_grid_data(scenario_name, "metrics_per_agent", data)
+            else:
+                newdatas.append(data)
+
+        if len(newdatas) == 0:
+            return
+
+        collection = self.database[scenario_name]
+        t = time.localtime()
+        current_time = time.strftime("%H:%M:%S", t)
+        print("Adding data (len: " + str(len(newdatas)) + " ) to Scenario " + scenario_name + "[" + current_time + "]")
+        collection.insert_many(newdatas)
 
     def get_observations(self, scenario_name, scenario_id, agents):
         collection = self.database[scenario_name]
@@ -188,15 +229,21 @@ class MongoDbConnector:
         collection.insert_one(data)
 
     def get_metrics(self, scenario_name, agent):
-        agents = self.database[scenario_name]
 
-        finds = agents.find({
-            "Type": "metrics_per_agent",
-            "parent": agent
-        })
+        finds = []
+
+        querry = {
+            "type": "metrics_per_agent",
+            "parent": agent,
+            "scenario_name": scenario_name
+        }
+
+        for gridout in self.fs.find(querry):
+            dataString = gridout.read()
+            finds.append(json.loads(dataString))
 
         if finds:
-            return finds[0]
+            return list(finds)[0]
         return None
 
     def get_agents_nothing_to_do(self, scenario_name, scenario_id):
@@ -254,7 +301,9 @@ class MongoDbConnector:
         })
 
         if finds:
-            return finds[0]
+            flist = list(finds)
+            if len(flist) > 0:
+                return list(flist)[0]
         return None
 
     def get_history(self, scenario_name, agent):
@@ -309,37 +358,43 @@ if __name__ == "__main__":
     CONNECTIONSTRING = "mongodb://localhost:27017"
 
     connector = MongoDbConnector(CONNECTIONSTRING)
-    # connector.add_data("agents", {"name": "A"})
+    #connector.reset_scenario("aTLAS2")
+    #connector.add_data("aTLAS2", "metrics_per_agent", {"parent": "A"})
     # connector.add_data("agents", {"name": "B"})
     # connector.add_data("agents", {"name": "D"})
 
     # connector.add_data("observation", {"observadion_id": 0, "message": "Das ist ein Test", "sender": "A", "receiver": "B", "before": []})
     # connector.add_data("observation", {"observadion_id": 1, "message": "Das ist ein Test", "sender": "A", "receiver": "B", "before": [0]})
 
-    print(connector.set_all_observations_not_done("aTLAS", "test"))
-    print(connector.set_all_agents_nothing_to_do("aTLAS", "test"))
+    print(connector.set_all_observations_not_done("Basic Scenario", "test202222"))
+    print(connector.set_all_agents_nothing_to_do("Basic Scenario", "test202222"))
     # print(connector.set_observation_done("test", 1))
     # print(connector.set_observation_done("test", 2))
 
-    print(connector.check_if_scenario_exists("aTLAS"))
-    print(connector.check_if_scenario_exists("nichtdabei"))
+    #print(connector.check_if_scenario_exists("aTLAS"))
+    #print(connector.check_if_scenario_exists("nichtdabei"))
 
-    agents = connector.get_agents_nothing_to_do("aTLAS", "test")
+    #agents = connector.get_agents_list("aTLAS2")
 
-    for o in agents:
-        print(o)
+    #for o in agents:
+    #    print(o)
 
-    connector.set_agent_has_something_todo("aTLAS", "test", "A")
-    connector.set_agent_has_something_todo("aTLAS", "test", "B")
-    connector.set_agent_nothing_todo("aTLAS", "test", "B")
-    connector.set_agent_nothing_todo("aTLAS", "test", "C")
+    #connector.set_agent_has_something_todo("aTLAS", "test", "A")
+    #connector.set_agent_has_something_todo("aTLAS", "test", "B")
+    #connector.set_agent_nothing_todo("aTLAS", "test", "B")
+    #connector.set_agent_nothing_todo("aTLAS", "test", "C")
 
-    agents = connector.get_agents_nothing_to_do("aTLAS", "test")
+    #agents = connector.get_agents_nothing_to_do("aTLAS", "test")
 
-    for o in agents:
-        print(o)
+    #for o in agents:
+    #    print(o)
 
-    observations = connector.get_observations("aTLAS", "test", ['A'])
+    observations = connector.get_observations("Basic Scenario", "test202222", ['A', 'B', 'C', 'D'])
 
     for o in observations:
         print(o)
+
+    #metrics = connector.get_metrics("aTLAS2", "A")
+
+    #for o in metrics:
+    #    print(o)

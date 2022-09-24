@@ -1,6 +1,7 @@
 from trustlab.consumers.chunk_consumer import ChunkAsyncJsonWebsocketConsumer
 from trustlab.models import Supervisor
 from trustlab.serializers.MongoDbConnector import MongoDbConnector
+import time
 
 
 class SupervisorsConsumer(ChunkAsyncJsonWebsocketConsumer):
@@ -36,6 +37,8 @@ class SupervisorsConsumer(ChunkAsyncJsonWebsocketConsumer):
         #    "scenario_status": event["scenario_status"],
         #    "scenario_name": event["scenario_name"]
         #})
+        time.sleep(1)
+        print("start!")
         await self.send_new_agent_data(event["scenario_run_id"], event["scenario_name"])
 
     async def observation_done(self, event):
@@ -68,6 +71,7 @@ class SupervisorsConsumer(ChunkAsyncJsonWebsocketConsumer):
                         "scenario_run_id": scenario_id,
                         "scenario_name": scenario_name,
                         "data": observation}
+                    print(answer)
                     await self.send_websocket_message(answer)
                     self.get_database().set_agent_has_something_todo(scenario_name, scenario_id, observation["sender"])
 
@@ -127,9 +131,6 @@ class SupervisorsConsumer(ChunkAsyncJsonWebsocketConsumer):
             elif content["type"] and content["type"] == "get_metrics_per_agent":
                 agent = content["agent"]
                 data = self.get_database().get_metrics(content["scenario_name"], agent)
-                del data['_id']
-                del data['parent']
-                del data['Type']
                 answer = {
                     "type": "get_metrics_per_agent",
                     "scenario_run_id": content["scenario_run_id"],

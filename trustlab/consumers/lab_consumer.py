@@ -44,7 +44,7 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                     for scenario in scenario_factory.scenarios:
                         if scenario.name == content['scenario']['name']:
                             print(scenario.file_name)
-                            self.get_database().reset_scenario(content['scenario']['name'])
+                            #self.get_database().reset_scenario(content['scenario']['name'])
                             if not self.get_database().check_if_scenario_exists(content['scenario']['name']):
                                 reader = ScenarioReader(content['scenario']['name'], "trustlab/lab/scenarios/" + scenario.file_name, self.get_database())
                                 reader.read()

@@ -2,11 +2,10 @@ import math
 from collections import deque
 import time
 import threading
-import trustlab.serializers.ParserDefinitions as ParserDefinitions
-import trustlab.serializers.MongoDbConnector as MongoDbConnector
-
-lock = threading.Lock()
-
+#import trustlab.serializers.ParserDefinitions as ParserDefinitions
+import ParserDefinitions as ParserDefinitions
+#import trustlab.serializers.MongoDbConnector as MongoDbConnector
+import MongoDbConnector as MongoDbConnector
 
 class ScenarioReader:
 
@@ -15,27 +14,39 @@ class ScenarioReader:
         self.connector = connector
         self.scenario_name = scenario_name
         self.q = deque()
-        self.doneItems = deque()
+        self.doneItems = []
         self.definitions = deque()
+        print("Evaluating Filelines")
         self.numlines = sum(1 for line in open(self.filepath))
+        print("Filelines: " + str(self.numlines))
         self.running = False
+        self.threads = []
+        self.lock = threading.Lock()
 
     def uploadData(self):
         while self.running or len(self.doneItems) > 0:
-            item = None
-            with lock:
-                if len(self.doneItems) > 0:
+            items = []
+            max = 0
+            while True:
+                with self.lock:
+                    if len(self.doneItems) == 0 or max >= 100:
+                        break
                     item = self.doneItems.pop()
+                if item is not None:
+                    item[2]["Type"] = item[1]
+                    items.append(item[2])
+                max+=1
 
-            if item is not None:
-                self.connector.add_data(item[0], item[1], item[2])
+            if len(items) > 0:
+                self.connector.add_many_data(self.scenario_name, items)
 
     def read(self):
         self.running = True
 
-        for n in range(0, 20):
+        for n in range(0, 4):
             x = threading.Thread(target=self.uploadData)
             x.start()
+            self.threads.append(x)
 
         percentage = -1.00
         current_line_index = 0
@@ -59,8 +70,13 @@ class ScenarioReader:
                 while line is not None and len(line) > 0:
                     line = self.analyze_line(line)
 
-        self.running = False
         while len(self.doneItems) > 0:
+            time.sleep(0.5)
+        self.running = False
+        while len(self.threads) > 0:
+            for t in self.threads:
+                if not t.is_alive():
+                    self.threads.remove(t)
             time.sleep(0.5)
         print("reading done!")
 
@@ -77,7 +93,11 @@ class ScenarioReader:
 
                 if classificationparts[0].strip() in userDefinedClasses:
                     self.definitions.append(eval("ParserDefinitions." + classificationparts[0].strip()))
-                    print(classificationparts[0])
+
+                    t = time.localtime()
+                    current_time = time.strftime("%H:%M:%S", t)
+                    print(classificationparts[0] + "[" + current_time + "]")
+
                     return classificationparts[1]
             return ""
         else:
@@ -88,11 +108,12 @@ class ScenarioReader:
             doneObjects = currentobject.get_done_objects(currentobject)
             if len(doneObjects) > 0:
                 for object in doneObjects:
-                    self.doneItems.append([self.scenario_name, currentobject.__name__.lower(), object])
+                    with self.lock:
+                        self.doneItems.append([self.scenario_name, currentobject.__name__.lower(), object])
                     #self.connector.add_data(self.scenario_name, currentobject.__name__.lower(), object)
                 currentobject.clear_objects(currentobject)
-                while len(self.doneItems) > 40:
-                    time.sleep(0.5)
+                while len(self.doneItems) > 400:
+                    time.sleep(0.00001)
 
             if not currentobject.is_done(currentobject):
                 self.definitions.append(currentobject)
@@ -108,8 +129,11 @@ if __name__ == "__main__":
 
     connector = MongoDbConnector.MongoDbConnector(CONNECTIONSTRING)
 
-    connector.reset_scenario("aTLAS3")
+    connector.reset_scenario("Random_1000A-1000O_74970")
+    #connector.reset_scenario("Test")
+    #connector.reset_scenario("Basic Scenario")
 
-    reader = ScenarioReader("aTLAS3", "/mnt/volume_intern/Uni/MA/trustlab/trustlab/lab/scenarios/scaleB_500_scenario.py", connector)
+    #reader = ScenarioReader("Basic Scenario", "trustlab/lab/scenarios/basic_scenario.py", connector)
+    reader = ScenarioReader("Random_1000A-1000O_74970", "trustlab/lab/scenarios/1000x1000_scenario_2.py", connector)
     reader.read()
 
