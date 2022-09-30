@@ -71,7 +71,6 @@ class SupervisorsConsumer(ChunkAsyncJsonWebsocketConsumer):
                         "scenario_run_id": scenario_id,
                         "scenario_name": scenario_name,
                         "data": observation}
-                    print(answer)
                     await self.send_websocket_message(answer)
                     self.get_database().set_agent_has_something_todo(scenario_name, scenario_id, observation["sender"])
 

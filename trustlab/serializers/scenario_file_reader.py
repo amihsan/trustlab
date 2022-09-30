@@ -2,10 +2,10 @@ import math
 from collections import deque
 import time
 import threading
-#import trustlab.serializers.ParserDefinitions as ParserDefinitions
-import ParserDefinitions as ParserDefinitions
-#import trustlab.serializers.MongoDbConnector as MongoDbConnector
-import MongoDbConnector as MongoDbConnector
+import trustlab.serializers.ParserDefinitions as ParserDefinitions
+#import ParserDefinitions as ParserDefinitions
+import trustlab.serializers.MongoDbConnector as MongoDbConnector
+#import MongoDbConnector as MongoDbConnector
 
 class ScenarioReader:
 
