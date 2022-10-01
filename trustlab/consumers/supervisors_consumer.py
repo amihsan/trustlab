@@ -75,7 +75,8 @@ class SupervisorsConsumer(ChunkAsyncJsonWebsocketConsumer):
                     self.get_database().set_agent_has_something_todo(scenario_name, scenario_id, observation["sender"])
 
     async def receive_json(self, content, **kwargs):
-        handled = await super().receive_chunk_ack(content)
+        handled, new_content = await super().receive_chunk_traffic(content)
+        content = new_content if new_content else content
         if not handled:
             if content["type"] and content["type"] == "max_agents":
                 supervisor = Supervisor.objects.get(channel_name=self.channel_name)
@@ -146,8 +147,8 @@ class SupervisorsConsumer(ChunkAsyncJsonWebsocketConsumer):
                 await self.channel_layer.send(content["scenario_run_id"], content)
                 await self.send_new_agent_data(content["scenario_run_id"], content["scenario_name"])
             else:
-                print(content)
-                await self.send_json(content)
+                print("Could not resolve message and pinged back.")
+                await self.send_websocket_message(content)
 
     def get_database(self):
         if not hasattr(self, "dbConnecor"):

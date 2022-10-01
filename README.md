@@ -111,6 +111,7 @@ for a decentralized web has to be done manually with a high effort.
     ```shell
     pipenv install
     ```
+   >For more information on pipenv, cf. [Pipenv: Python Dev Workflow for Humans][pipenv].
         
 4. Modify ``Additional Options`` of your django configuration (for no auto-reload after editing scenario files) with:
     ```shell
@@ -137,6 +138,8 @@ for a decentralized web has to be done manually with a high effort.
     ```shell
     pipenv install
     ```
+   >For more information on pipenv, cf. [Pipenv: Python Dev Workflow for Humans][pipenv].
+
    ODBC on MAC:
     - If you installed this formula with the registration option (default), you'll need to manually remove
     ``[ODBC Driver 17 for SQL Server]`` section from odbcinst.ini after the formula is uninstalled.
@@ -241,6 +244,7 @@ The authors acknowledge the work of the following students:
 [demo-intern]: https://vsr-dem0.informatik.tu-chemnitz.de/trustlab/
 [git-submodules]: https://git-scm.com/book/en/v2/Git-Tools-Submodules
 [microsoft-odbc-driver]: https://docs.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server?view=sql-server-2017
+[pipenv]: https://pipenv.pypa.io/en/latest/
 [redis-quickstart]: https://redis.io/topics/quickstart
 [trustlab-host-repo]: https://gitlab.hrz.tu-chemnitz.de/vsr/phd/siegert/trustlab_host
 [valentin-siegert-website]: https://vsr.informatik.tu-chemnitz.de/people/siegert
