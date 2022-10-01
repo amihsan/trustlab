@@ -17,8 +17,6 @@ RESULT_PACKAGE = "trustlab.lab.results"
 LOG_PATH = PROJECT_PATH / 'trustlab' / 'lab' / 'log'
 # determines the file size of scenario files which are declared as large in bytes
 SCENARIO_LARGE_SIZE = 1000000
-# determines the max size of one websocket message in bytes for potential chunked websocket messages
-WEBSOCKET_MAX = 900000  # tested this limit 990000 seems too large for supervisor side
 
 SCENARIO_CATEGORY_SORT = ['ConTED_WI-IAT22', 'aTLAS_WI-IAT20']
 
