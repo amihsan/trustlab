@@ -24,6 +24,7 @@ function snackMessage(isErrorMsg = false, message = "", action = null, actionTex
         snack_icon.text("cancel");
         snack_icon.css("color", "#FE2B36");
         snack_action.css("color", "#FE2B36");
+        console.error(message);
     }
     else
     {
@@ -33,7 +34,7 @@ function snackMessage(isErrorMsg = false, message = "", action = null, actionTex
     }
     let data = {
       message: message,
-      timeout: 3000,
+      timeout: 4000,
       actionHandler: action,
       actionText: actionText
     };
