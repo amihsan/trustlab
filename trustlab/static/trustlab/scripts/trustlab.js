@@ -16,7 +16,6 @@ function openLabSocket() {
 function onLabSocketClose(closingEvent){
     let socketClosedMsg = 'Lab socket closed unexpectedly!';
     snackMessage(true, socketClosedMsg);
-    console.error(socketClosedMsg);
     console.error(closingEvent);
 }
 
