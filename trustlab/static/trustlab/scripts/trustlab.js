@@ -73,6 +73,7 @@ function onLabSocketMessage(messageEvent){
         snackMessage(true, data.message);
     } else if (data.type === "error") {
         snackMessage(true, data.message);
+        cardVisibilityChangeAtError();
     }
 }
 
@@ -234,6 +235,14 @@ function inRuntimeState() {
 function isValidScenarioRunId(scenarioRunId) {
     let idPattern = /^scenarioRun_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}-[0-9]{2}_[0-9]{3}$/;
     return idPattern.test(scenarioRunId);
+}
+
+function cardVisibilityChangeAtError() {
+    let runtimeCard = $("#c-runtime");
+    if (!runtimeCard.hasClass("not-displayed")) {
+            runtimeCard.addClass("not-displayed");
+            $("#c-scenario").removeClass("not-displayed");
+    }
 }
 
 
