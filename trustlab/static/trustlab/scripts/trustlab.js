@@ -3,6 +3,8 @@
 This file includes the business logic and workflow for a user-agent surfing aTLAS.
  */
 
+let scenarios;
+let scenario_groups = [];
 let scenarioSelector = $("#selector-scenario");
 let labSocket;
 
@@ -11,6 +13,11 @@ function openLabSocket() {
     labSocket = new WebSocket(ws_scheme + window.location.host + LAB_URL);
     labSocket.onmessage = onLabSocketMessage;
     labSocket.onclose = onLabSocketClose;
+    labSocket.onopen = function() {
+        if (!scenarios) {
+            getScenarios();
+        }
+    };
 }
 
 function onLabSocketClose(closingEvent){
@@ -32,6 +39,8 @@ function onLabSocketMessage(messageEvent){
      * @property {int} supervisor_amount
      * @property {string} atlas_times
      * @property {string} message
+     * @property {string} scenarios
+     * @property {string} scenario_groups
      */
     /** @type {webSocketMsg} */
     let data = JSON.parse(messageEvent.data);
@@ -67,6 +76,16 @@ function onLabSocketMessage(messageEvent){
         }
     } else if (data.type === "scenario_run_id") {
         showScenarioRunId(data.scenario_run_id);
+    } else if (data.type === "scenarios") {
+        scenarios = JSON.parse(data.scenarios);
+        scenario_groups = JSON.parse(data.scenario_groups);
+        for (const [key, value] of Object.entries(scenario_groups)) {
+            scenarioSelector.append(`<optgroup label="${key}">`);
+            for (const scenario of value) {
+                scenarioSelector.append(`<option value="${scenario}">${scenario}</option>`);
+            }
+            scenarioSelector.append(`</optgroup>`);
+        }
     } else if (data.type === "scenario_result_error") {
         cancelScenarioResults();
         snackMessage(true, data.message);
@@ -74,6 +93,16 @@ function onLabSocketMessage(messageEvent){
         snackMessage(true, data.message);
         cardVisibilityChangeAtError();
     }
+}
+
+function getScenarios() {
+    let getScenariosMessage = {'type': 'get_scenarios'};
+    waitForSocketConnection(labSocket, function(){
+            labSocket.send(JSON.stringify(getScenariosMessage));
+        }, function(){
+            snackMessage(true, "No socket connection ready for getting scenarios.");
+            openLabSocket();
+        });
 }
 
 function startLabRuntime() {
@@ -86,7 +115,7 @@ function startLabRuntime() {
             labSocket.send(JSON.stringify(scenarioMessage));
             openLabRuntimeCard();
         }, function(){
-            snackMessage(true, "No socket connection ready");
+            snackMessage(true, "No socket connection ready to start the scenario.");
             openLabSocket();
         });
     }
@@ -271,9 +300,6 @@ function r(f){/in/.test(document.readyState)?setTimeout('r('+f+')',9):f()} // js
 r(function(){
     // dynamic URL changes for deploy with enabled ProxyPass
     $("#header-index-anchor").attr("href", window.location.pathname);
-    if (scenario_load_error) {
-        snackMessage(true, scenario_load_error);
-    }
     openLabSocket();
     if(window.location.hash) {
         let scenarioRunId = window.location.hash.substring(1);

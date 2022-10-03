@@ -2,6 +2,7 @@ import json
 import trustlab.lab.config as config
 import time
 from asgiref.sync import sync_to_async
+from rest_framework.renderers import JSONRenderer
 from trustlab.consumers.chunk_consumer import ChunkAsyncJsonWebsocketConsumer
 from trustlab.models import *
 from trustlab.serializers.scenario_serializer import ScenarioSerializer
@@ -22,7 +23,20 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
             config.EVALUATION_SCRIPT_RUNS = False
 
     async def receive_json(self, content, **kwargs):
-        if content['type'] == 'run_scenario':
+        if content['type'] == 'get_scenarios':
+            try:
+                scenarios_message = {'type': 'scenarios'}
+                # ScenarioFactory throws AssertionError if no predefined scenarios could be loaded
+                scenario_factory = ScenarioFactory(lazy_load=True)
+                scenarios_message['scenario_groups'] = JSONRenderer().render(
+                    scenario_factory.get_scenarios_in_categories()).decode('utf-8')
+                # for manipulation of scenarios via JS, send them also as JSON
+                scenario_serializer = ScenarioSerializer(scenario_factory.scenarios, many=True)
+                scenarios_message["scenarios"] = JSONRenderer().render(scenario_serializer.data).decode('utf-8')
+                await self.send_json(scenarios_message)
+            except AssertionError:
+                await self.send_json({'type': 'error', 'message': 'No predefined scenarios could be loaded!'})
+        elif content['type'] == 'run_scenario':
             if 'agents' in content['scenario'].keys():
                 try:
                     Scenario.correct_number_types(content['scenario'])

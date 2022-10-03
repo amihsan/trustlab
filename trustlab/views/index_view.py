@@ -1,7 +1,4 @@
 from django.views import generic
-from trustlab.models import *
-from trustlab.serializers.scenario_serializer import ScenarioSerializer
-from rest_framework.renderers import JSONRenderer
 from rest_framework.reverse import reverse
 from trustlab_host.config import ATLAS_VERSION
 import trustlab.lab.config as config
@@ -18,19 +15,9 @@ class IndexView(generic.TemplateView):
             context['eval_run'] = True
         else:
             context['eval_run'] = False
-            # add saved Scenarios
-            try:
-                # ScenarioFactory throws AssertionError if no predefined scenarios could be loaded
-                scenario_factory = ScenarioFactory(lazy_load=True)
-                context['scenario_categories'] = scenario_factory.get_scenarios_in_categories()
-                # for manipulation of scenarios via JS, send them also as JSON
-                scenario_serializer = ScenarioSerializer(scenario_factory.scenarios, many=True)
-                context["scenarios_JSON"] = JSONRenderer().render(scenario_serializer.data).decode('utf-8')
-                # add URL of index.html to PUT scenario
-                context["index_url"] = reverse('index')
-                context["lab_url"] = reverse('lab')
-            except AssertionError:
-                context["ScenarioLoadError"] = f"No predefined scenarios could be loaded!"
+            # add URL of index.html to PUT scenario
+            context["index_url"] = reverse('index')
+            context["lab_url"] = reverse('lab')
         return context
 
     # currently unused method
