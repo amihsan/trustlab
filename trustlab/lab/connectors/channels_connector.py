@@ -45,7 +45,6 @@ class ChannelsConnector(BasicConnector):
             supervisor.save()
 
     async def reserve_agents(self, distribution, scenario_run_id, scenario_name):
-        print(1)
         discovery = {}
         for channel_name in distribution.keys():
             # init agents at supervisors

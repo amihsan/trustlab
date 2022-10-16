@@ -1,6 +1,7 @@
 from trustlab.consumers.chunk_consumer import ChunkAsyncJsonWebsocketConsumer
 from trustlab.models import Supervisor
-from trustlab.serializers.MongoDbConnector import MongoDbConnector
+from trustlab.serializers.mogno_db_connector import MongoDbConnector
+from trustlab.lab.config import CONNECTIONSTRING
 import time
 
 
@@ -37,8 +38,6 @@ class SupervisorsConsumer(ChunkAsyncJsonWebsocketConsumer):
         #    "scenario_status": event["scenario_status"],
         #    "scenario_name": event["scenario_name"]
         #})
-        time.sleep(1)
-        print("start!")
         await self.send_new_agent_data(event["scenario_run_id"], event["scenario_name"])
 
     async def observation_done(self, event):
@@ -151,7 +150,6 @@ class SupervisorsConsumer(ChunkAsyncJsonWebsocketConsumer):
                 await self.send_websocket_message(content)
 
     def get_database(self):
-        if not hasattr(self, "dbConnecor"):
-            CONNECTIONSTRING = "mongodb://localhost:27017"
-            self.dbConnecor = MongoDbConnector(CONNECTIONSTRING)
-        return self.dbConnecor
+        if not hasattr(self, "db_connector"):
+            self.db_connector = MongoDbConnector(CONNECTIONSTRING)
+        return self.db_connector

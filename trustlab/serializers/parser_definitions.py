@@ -4,7 +4,6 @@ import uuid
 import json
 from collections import deque
 
-
 class AGENTS:
     object = None
     doneobjects = []
@@ -122,10 +121,10 @@ class HISTORY:
         else:
             resstring = ""
             index = 0
-            untilEnd = False
+            until_end = False
 
             if line[0] not in ['{', '[', '(', '\'']:
-                untilEnd = True
+                until_end = True
 
             while index < len(line):
                 if line[index] in ['{', '[', '(']:
@@ -155,11 +154,11 @@ class HISTORY:
                 resstring += line[index]
                 index += 1
 
-                if len(self.tq) == 0 and (not untilEnd or (len(line) > index and line[index] in ['}', ']', ')', ','])):
-                    untilEnd = False
+                if len(self.tq) == 0 and (not until_end or (len(line) > index and line[index] in ['}', ']', ')', ','])):
+                    until_end = False
                     break
 
-            if len(self.tq) > 0 or untilEnd:
+            if len(self.tq) > 0 or until_end:
                 self.storedString = self.storedString + line
                 return ""
 
@@ -205,8 +204,8 @@ class DETAILS:
 
     q = deque()
 
-    def __init__(self, parentId):
-        self.parentId = parentId
+    def __init__(self, parent_id):
+        self.parentId = parent_id
         self.object = None
         self.doneobjects = []
 
@@ -259,10 +258,10 @@ class DETAILS:
             resstring = ""
             index = 0
             tq = deque()
-            untilEnd = False
+            until_end = False
 
             if line[0] not in ['{', '[', '(', '\'']:
-                untilEnd = True
+                until_end = True
 
             while index < len(line):
                 if line[index] in ['{', '[', '(']:
@@ -292,11 +291,11 @@ class DETAILS:
                 resstring += line[index]
                 index += 1
 
-                if len(tq) == 0 and (not untilEnd or (len(line) > index and line[index] in ['}', ']', ')', ','])):
-                    untilEnd = False
+                if len(tq) == 0 and (not until_end or (len(line) > index and line[index] in ['}', ']', ')', ','])):
+                    until_end = False
                     break
 
-            if len(tq) > 0 or untilEnd:
+            if len(tq) > 0 or until_end:
                 self.storedString = line
                 return ""
 
@@ -385,10 +384,10 @@ class OBSERVATIONS:
             resstring = ""
             index = 0
             tq = deque()
-            untilEnd = False
+            until_end = False
 
             if line[0] not in ['{', '[', '(', '\'']:
-                untilEnd = True
+                until_end = True
 
             while index < len(line):
                 if line[index] in ['{', '[', '(']:
@@ -418,11 +417,11 @@ class OBSERVATIONS:
                 resstring += line[index]
                 index += 1
 
-                if len(tq) == 0 and (not untilEnd or (len(line) > index and line[index] in ['}', ']', ')', ','])):
-                    untilEnd = False
+                if len(tq) == 0 and (not until_end or (len(line) > index and line[index] in ['}', ']', ')', ','])):
+                    until_end = False
                     break
 
-            if len(tq) > 0 or untilEnd:
+            if len(tq) > 0 or until_end:
                 self.storedString = line
                 return ""
 
@@ -525,10 +524,10 @@ class SCALES_PER_AGENT:
                 resstring = ""
                 index = 0
                 tq = deque()
-                untilEnd = False
+                until_end = False
 
                 if line[0] not in ['{', '[', '(', '\'']:
-                    untilEnd = True
+                    until_end = True
 
                 while index < len(line):
                     if line[index] in ['{', '[', '(']:
@@ -558,11 +557,11 @@ class SCALES_PER_AGENT:
                     resstring += line[index]
                     index += 1
 
-                    if len(tq) == 0 and (not untilEnd or (len(line) > index and line[index] in ['}', ']', ')', ','])):
-                        untilEnd = False
+                    if len(tq) == 0 and (not until_end or (len(line) > index and line[index] in ['}', ']', ')', ','])):
+                        until_end = False
                         break
 
-                if len(tq) > 0 or untilEnd:
+                if len(tq) > 0 or until_end:
                     self.storedString = line
                     return ""
 
@@ -647,10 +646,6 @@ class METRICS_PER_AGENT:
         if self.parent is None:
             parts = re.split("^'([^']{1,})':(?:,|)(.*)", line)
 
-            #if len(parts) <= 2:
-            #    self.storedString[0] = self.storedString[0] + line
-            #    return ""
-
             self.parent = parts[1]
 
             return parts[2]
@@ -658,20 +653,16 @@ class METRICS_PER_AGENT:
             if self.storedKey is None:
                 parts = re.split("^'([^']{1,})':(?:,|)(.*)", line)
 
-                #if len(parts) <= 2:
-                #    self.storedString[0] = self.storedString[0] + line
-                #    return ""
-
                 self.storedKey = parts[1]
 
                 return parts[2]
             else:
                 resstring = ""
                 index = 0
-                untilEnd = False
+                until_end = False
 
                 if line[0] not in ['{', '[', '(', '\'']:
-                    untilEnd = True
+                    until_end = True
 
                 while index < len(line):
                     if line[index] in ['{', '[', '(']:
@@ -708,12 +699,11 @@ class METRICS_PER_AGENT:
                     resstring += line[index]
                     index += 1
 
-                    if self.tqcount == 0 and (not untilEnd or (len(line) > index and line[index] in ['}', ']', ')', ','])):
-                        untilEnd = False
+                    if self.tqcount == 0 and (not until_end or (len(line) > index and line[index] in ['}', ']', ')', ','])):
+                        until_end = False
                         break
 
-                if self.tqcount > 0 or untilEnd:
-                    #self.storedString = "".join(self.storedString, line)
+                if self.tqcount > 0 or until_end:
                     self.storedStrings.append(line)
                     return ""
 
@@ -741,10 +731,4 @@ class METRICS_PER_AGENT:
 
     def is_done(self):
         return self.isdone
-
-
-if __name__ == "__main__":
-    agent = AGENTS()
-    print(agent.is_complex("name"))
-    print(agent.is_complex("name2"))
 

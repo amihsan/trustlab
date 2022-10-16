@@ -6,8 +6,9 @@ from trustlab.consumers.chunk_consumer import ChunkAsyncJsonWebsocketConsumer
 from trustlab.models import *
 from trustlab.serializers.scenario_serializer import ScenarioSerializer
 from trustlab.lab.director import Director
-from trustlab.serializers.MongoDbConnector import MongoDbConnector
+from trustlab.serializers.mogno_db_connector import MongoDbConnector
 from trustlab.serializers.scenario_file_reader import ScenarioReader
+from trustlab.lab.config import CONNECTIONSTRING
 
 
 class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
@@ -38,18 +39,24 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
 
             serializer = ScenarioSerializer(data=content['scenario'])
             if serializer.is_valid():
+                director = Director(content['scenario']['name'])
                 try:
-                    scenario_factory = ScenarioFactory(lazy_load=True, names_only_load=True)
+                    if config.TIME_MEASURE:
+                        reader_start_timer = time.time()
+                    if 'scenario_reset' in content and content['scenario_reset']:
+                        self.get_database().reset_scenario(content['scenario']['name'])
+                    if not self.get_database().check_if_scenario_exists(content['scenario']['name']):
+                        scenario_name_handler = ScenarioFileNames()
+                        files_for_names = scenario_name_handler.get_files_for_names()
+                        reader = ScenarioReader(content['scenario']['name'], files_for_names[content['scenario']['name']], self.get_database())
+                        reader.read()
+                    if config.TIME_MEASURE:
+                        reader_end_timer = time.time()
+                        # noinspection PyUnboundLocalVariable
+                        reader_time = reader_end_timer - reader_start_timer
+                        await sync_to_async(config.write_scenario_status)(director.scenario_run_id,
+                                                                          f"Database-Preparation took {reader_time} s")
 
-                    for scenario in scenario_factory.scenarios:
-                        if scenario.name == content['scenario']['name']:
-                            print(scenario.file_name)
-                            #self.get_database().reset_scenario(content['scenario']['name'])
-                            if not self.get_database().check_if_scenario_exists(content['scenario']['name']):
-                                reader = ScenarioReader(content['scenario']['name'], "trustlab/lab/scenarios/" + scenario.file_name, self.get_database())
-                                reader.read()
-
-                    #scenario = serializer.create(serializer.data)
                 except (ValueError, AttributeError, TypeError, ModuleNotFoundError, SyntaxError) as error:
                     await self.send_json({
                         'message': f'Scenario Error: {str(error)}',
@@ -75,7 +82,6 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                 #        return
                 #    # TODO: implement save for new scenario as currently it won't be saved due to name only load
                 #    scenario_factory.scenarios.append(scenario)
-                director = Director(content['scenario']['name'])
                 try:
                     supervisor_amount = 0
                     async with config.PREPARE_SCENARIO_SEMAPHORE:
@@ -101,6 +107,7 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                                                                           f"Execution took {execution_time} s")
                         cleanup_start_timer = time.time()
                     await director.end_scenario()
+                    self.get_database().cleanup(content['scenario']['name'], director.scenario_run_id)
                     if config.TIME_MEASURE:
                         cleanup_end_timer = time.time()
                         # noinspection PyUnboundLocalVariable
@@ -204,7 +211,6 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
             await self.send_json(content)
 
     def get_database(self):
-        if not hasattr(self, "dbConnecor"):
-            CONNECTIONSTRING = "mongodb://localhost:27017"
-            self.dbConnecor = MongoDbConnector(CONNECTIONSTRING)
-        return self.dbConnecor
+        if not hasattr(self, "db_connector"):
+            self.db_connector = MongoDbConnector(CONNECTIONSTRING)
+        return self.db_connector

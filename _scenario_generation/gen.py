@@ -1,6 +1,6 @@
 import getopt
 import sys
-from models.scenario_ct_random import Scenario
+from models.scenario_ct_random_without_pop_rec import Scenario
 
 
 def main(argv):

@@ -339,6 +339,52 @@ class ScenarioFactory(ObjectFactory):
         if not self.large_file_size and not self.names_only_load:
             self.save_scenarios()
 
+class ScenarioFileNames:
+
+    def get_scenario_files(self):
+        """
+        To categorize scenarios, this method scans for scenarios in direct subdirs of the scenario dir.
+
+        :return: All scenario files as tuples with their package name.
+        :rtype: list
+        """
+        scenario_file_names = [file for file in listdir(self.scenario_path)
+                               if isfile(self.scenario_path / file) and file.endswith("_scenario.py")]
+        subpackages = [self.scenario_path / sub for sub in listdir(self.scenario_path)
+                       if isdir(self.scenario_path / sub) and '__init__.py' in listdir(self.scenario_path / sub)]
+        for subpackage in subpackages:
+            subpackage_scenarios = [f'{basename(subpackage)}/{file}' for file in listdir(subpackage)
+                                    if isfile(subpackage / file) and file.endswith("_scenario.py")]
+            scenario_file_names += subpackage_scenarios
+        scenario_files = [(file, self.get_package(file)) for file in scenario_file_names]
+        return scenario_files
+
+    def get_files_for_names(self):
+        result = {}
+        files = self.get_scenario_files()
+        for filedef in files:
+            with open(self.scenario_path / filedef[0]) as file:
+                for line in file:
+                    parts = re.split("^NAME.*=.*'(.*)'$", line)
+                    if len(parts) > 1 and parts[1] is not None:
+                        result[parts[1]] = self.scenario_path / filedef[0]
+                        break
+        return result
+
+    @staticmethod
+    def get_package(file_name):
+        """
+        Returns the package name of the scenario with the given file name.
+
+        :param file_name: Name of the scenario file.
+        :type file_name: str
+        :return: Package name of the scenario.
+        :rtype: str
+        """
+        return file_name.split(".")[0].replace('/', '.')
+
+    def __init__(self):
+        self.scenario_path = SCENARIO_PATH
 
 class ScenarioResult:
     """

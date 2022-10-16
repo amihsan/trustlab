@@ -1,4 +1,5 @@
 import socket
+import time
 
 import trustlab.lab.config as config
 from asgiref.sync import sync_to_async
@@ -6,7 +7,8 @@ from trustlab.lab.connectors.channels_connector import ChannelsConnector
 from trustlab.lab.distributors.greedy_distributor import GreedyDistributor
 from trustlab.lab.distributors.round_robin_distributor import RoundRobinDistributor
 from trustlab.models import ResultFactory, ScenarioResult
-from trustlab.serializers.MongoDbConnector import MongoDbConnector
+from trustlab.serializers.mogno_db_connector import MongoDbConnector
+from trustlab.lab.config import CONNECTIONSTRING
 
 
 class Director:
@@ -65,9 +67,6 @@ class Director:
             await sync_to_async(config.write_scenario_status)(self.scenario_run_id,
                                                               f"Did observation {done_dict['observation_id']}")
             done_observations_with_id.append(done_dict['observation_id'])
-            supervisors_to_inform = await self.connector.get_supervisors_without_given(done_dict["channel_name"])
-            await self.connector.broadcast_done_observation(self.scenario_run_id, done_observations_with_id,
-                                                            supervisors_to_inform)
             # merge send logs to saved results
             obs_receiver = done_dict['receiver']
             recv_trust_log = done_dict['trust_log'].split('<br>')
@@ -129,7 +128,6 @@ class Director:
         self.discovery = None
 
     def get_database(self):
-        if not hasattr(self, "dbConnecor"):
-            CONNECTIONSTRING = "mongodb://localhost:27017"
-            self.dbConnecor = MongoDbConnector(CONNECTIONSTRING)
-        return self.dbConnecor
+        if not hasattr(self, "db_connector"):
+            self.db_connector = MongoDbConnector(CONNECTIONSTRING)
+        return self.db_connector
