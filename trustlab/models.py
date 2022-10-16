@@ -257,7 +257,7 @@ class ScenarioFactory(ObjectFactory):
         Creates a dict of categories as keys and list of scenario names as values to visualize in scenario.hmtl card.
 
         :return: Dictionary items of categories as keys, and list of scenario's names related to the scenario.
-        :rtype: list
+        :rtype: dict
         """
         scenario_categories = {}
         for scenario in self.scenarios:
@@ -274,7 +274,8 @@ class ScenarioFactory(ObjectFactory):
         category_sort = SCENARIO_CATEGORY_SORT + sorted([c for c in scenario_categories.keys() if c not in
                                                          SCENARIO_CATEGORY_SORT and c != 'Misc']) + ['Misc']
         index_map = {v: i for i, v in enumerate(category_sort)}
-        return sorted(scenario_categories.items(), key=lambda pair: index_map[pair[0]])
+        # for index_view / index.html it was a list wihtout the dict cast
+        return dict(sorted(scenario_categories.items(), key=lambda pair: index_map[pair[0]]))
 
     def get_scenario(self, name):
         """
