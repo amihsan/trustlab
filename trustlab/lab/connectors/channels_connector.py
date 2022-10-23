@@ -1,6 +1,3 @@
-import json
-import time
-
 from asgiref.sync import sync_to_async
 from trustlab.lab.connectors.basic_connector import BasicConnector
 from django.db import transaction
@@ -76,7 +73,6 @@ class ChannelsConnector(BasicConnector):
             "scenario_name": scenario_name,
             "scenario_status": "started"
         }
-
         for channel_name in involved_supervisors:
             await self.send_message_to_supervisor(channel_name, start_message)
 

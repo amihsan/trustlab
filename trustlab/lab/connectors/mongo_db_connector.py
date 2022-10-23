@@ -1,35 +1,28 @@
-from pymongo import MongoClient
-from trustlab.lab.config import CONNECTIONSTRING
-import pymongo
-import time
-import json
 import gridfs
-import ast
-from trustlab.lab.config import LOG_SCENARIO_READER_DETAILS
+import json
+import pymongo
+import pymongo.errors
+import time
+from trustlab.lab.config import MONGODB_URI, LOG_SCENARIO_READER_DETAILS
+
 
 class MongoDbConnector:
-
-    def __init__(self, connection_string):
-        self.connectionString = connection_string
-        self.client = MongoClient(connection_string)
-
+    def __init__(self, uri):
+        self.client = pymongo.MongoClient(uri)
         try:
             self.client.server_info()
         except pymongo.errors.ServerSelectionTimeoutError:
             raise TimeoutError("Invalid API")
-
-        self.database = self.client["testdatabase"]
+        self.database = self.client["trustlab"]
         self.fs = gridfs.GridFS(self.database)
 
     def reset_scenario(self, scenario_name):
         self.database.drop_collection(scenario_name)
-
-        querry = {
+        query = {
             "type": "metrics_per_agent",
             "scenario_name": scenario_name
         }
-
-        for gridout in self.fs.find(querry):
+        for gridout in self.fs.find(query):
             self.fs.delete(gridout._id)
 
     def add_metrics_grid_data(self, scenario_name, type, data):
@@ -58,10 +51,8 @@ class MongoDbConnector:
                 self.add_metrics_grid_data(scenario_name, "metrics_per_agent", data)
             else:
                 newdatas.append(data)
-
         if len(newdatas) == 0:
             return
-
         collection = self.database[scenario_name]
         if LOG_SCENARIO_READER_DETAILS:
             t = time.localtime()
@@ -71,12 +62,10 @@ class MongoDbConnector:
 
     def get_observations(self, scenario_name, scenario_id, agents):
         collection = self.database[scenario_name]
-
         observations_not_done = collection.find_one({
             "Type": "observations_to_do",
             "scenario_id": scenario_id
         })
-
         aggregates = collection.aggregate(
             [
                 {
@@ -111,7 +100,6 @@ class MongoDbConnector:
                 }
             ]
         )
-
         observations = []
         for o in aggregates:
             if o["_id"] is None:
@@ -131,7 +119,6 @@ class MongoDbConnector:
             observations.append(o['first'])
 
             observations_not_done['observations_already_send'].append(o['first']["observation_id"])
-
         if len(observations) > 0:
             collection.update_one({
                 "Type": "observations_to_do",
@@ -139,31 +126,25 @@ class MongoDbConnector:
             }, {
                 "$set": {'observations_already_send': observations_not_done['observations_already_send']}
             })
-
         return observations
 
     def get_details(self, scenario_name, observation_id):
         collection = self.database[scenario_name]
-
         finds = collection.find(
             {
                 "Type": "details",
                 "observation_id": observation_id
             })
-
         return list(finds)
 
     def set_observation_done(self, scenario_name, scenario_id, observaion_id):
         collection = self.database[scenario_name]
-
         find = collection.find_one({
             "Type": "observations_to_do",
             "scenario_id": scenario_id
         })
-
         if observaion_id in find['observations_todo']:
             find['observations_todo'].remove(observaion_id)
-
             collection.update_one({
                 "Type": "observations_to_do",
                 "scenario_id": scenario_id
@@ -173,7 +154,6 @@ class MongoDbConnector:
 
     def set_all_observations_not_done(self, scenario_name, scenario_id):
         collection = self.database[scenario_name]
-
         finds = collection.find(
             {
                 "Type": "observations",
@@ -183,28 +163,23 @@ class MongoDbConnector:
                 "observation_id": 1
             }
         )
-
         ids = []
         for i in finds:
             ids.append(i['observation_id'])
-
         collection.delete_one({
             "Type": "observations_to_do",
             "scenario_id": scenario_id
         })
-
         data = {
             "Type": "observations_to_do",
             "scenario_id": scenario_id,
             "observations_todo": ids,
             "observations_already_send": []
         }
-
         collection.insert_one(data)
 
     def set_all_agents_nothing_to_do(self, scenario_name, scenario_id):
         collection = self.database[scenario_name]
-
         finds = collection.find(
             {
                 "Type": "agents",
@@ -214,63 +189,50 @@ class MongoDbConnector:
                 "name": 1
             }
         )
-
         ids = []
         for i in finds:
             ids.append(i['name'])
-
         collection.delete_one({
             "Type": "agents_nothing_to_do",
             "scenario_id": scenario_id
         })
-
         data = {
             "Type": "agents_nothing_to_do",
             "scenario_id": scenario_id,
             "agents": ids
         }
-
         collection.insert_one(data)
 
     def get_metrics(self, scenario_name, agent):
-
         finds = []
-
         querry = {
             "type": "metrics_per_agent",
             "parent": agent,
             "scenario_name": scenario_name
         }
-
         for gridout in self.fs.find(querry):
             data = gridout.read()
             finds.append(json.loads(data))
-
         if finds:
             return list(finds)[0]
         return None
 
     def get_agents_nothing_to_do(self, scenario_name, scenario_id):
         agents = self.database[scenario_name]
-
         find = agents.find_one({
             "Type": "agents_nothing_to_do",
             "scenario_id": scenario_id
         })
-
         return list(find['agents'])
 
     def set_agent_has_something_todo(self, scenario_name, scenario_id, agent):
         collection = self.database[scenario_name]
-
         find = collection.find_one({
             "Type": "agents_nothing_to_do",
             "scenario_id": scenario_id
         })
-
         if agent in find['agents']:
             find['agents'].remove(agent)
-
             collection.update_one({
                 "Type": "agents_nothing_to_do",
                 "scenario_id": scenario_id
@@ -280,15 +242,12 @@ class MongoDbConnector:
 
     def set_agent_nothing_todo(self, scenario_name, scenario_id, agent):
         collection = self.database[scenario_name]
-
         find = collection.find_one({
             "Type": "agents_nothing_to_do",
             "scenario_id": scenario_id
         })
-
         if agent not in find['agents']:
             find['agents'].append(agent)
-
             collection.update_one({
                 "Type": "agents_nothing_to_do",
                 "scenario_id": scenario_id
@@ -298,12 +257,10 @@ class MongoDbConnector:
 
     def get_scales(self, scenario_name, agent):
         agents = self.database[scenario_name]
-
         finds = agents.find({
             "Type": "scales_per_agent",
             "parent": agent
         })
-
         if finds:
             flist = list(finds)
             if len(flist) > 0:
@@ -312,23 +269,19 @@ class MongoDbConnector:
 
     def get_history(self, scenario_name, agent):
         agents = self.database[scenario_name]
-
         finds = agents.find({
             "Type": "history",
             "parent": agent
         })
-
         if finds:
             return list(finds)
         return None
 
     def get_agents(self, scenario_name):
         agents = self.database[scenario_name]
-
         finds = agents.find({
             "Type": "agents"
         })
-
         if finds:
             return list(finds)
         return None
@@ -337,33 +290,27 @@ class MongoDbConnector:
         all_agents = []
         for agentdefinition in self.get_agents(scenario_name):
             all_agents.append(agentdefinition['name'])
-
         return all_agents
 
     def check_if_scenario_exists(self, scenario_name):
         names = self.database.list_collection_names()
-
         return scenario_name in names
 
     def get_observations_count(self, scenario_name):
         collection = self.database[scenario_name]
-
         count = collection.count_documents(
             {
                 "Type": "observations",
             }
         )
-
         return count
 
     def cleanup(self, scenario_name, scenario_id):
         collection = self.database[scenario_name]
-
         collection.delete_one({
             "Type": "agents_nothing_to_do",
             "scenario_id": scenario_id
         })
-
         collection.delete_one({
             "Type": "observations_to_do",
             "scenario_id": scenario_id
@@ -371,4 +318,4 @@ class MongoDbConnector:
 
 
 if __name__ == "__main__":
-    connector = MongoDbConnector(CONNECTIONSTRING)
+    connector = MongoDbConnector(MONGODB_URI)

@@ -7,9 +7,9 @@ from trustlab.consumers.chunk_consumer import ChunkAsyncJsonWebsocketConsumer
 from trustlab.models import *
 from trustlab.serializers.scenario_serializer import ScenarioSerializer
 from trustlab.lab.director import Director
-from trustlab.serializers.mogno_db_connector import MongoDbConnector
+from trustlab.lab.connectors.mongo_db_connector import MongoDbConnector
 from trustlab.serializers.scenario_file_reader import ScenarioReader
-from trustlab.lab.config import CONNECTIONSTRING
+from trustlab.lab.config import MONGODB_URI
 
 
 class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
@@ -22,7 +22,7 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, close_code):
-        if hasattr(self, 'changed_evaluation_status') and self.changed_evaluation_status:
+        if self.changed_evaluation_status:
             config.EVALUATION_SCRIPT_RUNS = False
 
     async def receive_json(self, content, **kwargs):
@@ -50,7 +50,6 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                     })
                     return
             print(content['scenario']['name'])
-
             serializer = ScenarioSerializer(data=content['scenario'])
             if serializer.is_valid():
                 director = Director(content['scenario']['name'])
@@ -58,11 +57,12 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                     if config.TIME_MEASURE:
                         reader_start_timer = time.time()
                     if 'scenario_reset' in content and content['scenario_reset']:
-                        self.get_database().reset_scenario(content['scenario']['name'])
-                    if not self.get_database().check_if_scenario_exists(content['scenario']['name']):
+                        self.db_connector.reset_scenario(content['scenario']['name'])
+                    if not self.db_connector.check_if_scenario_exists(content['scenario']['name']):
                         scenario_name_handler = ScenarioFileNames()
                         files_for_names = scenario_name_handler.get_files_for_names()
-                        reader = ScenarioReader(content['scenario']['name'], files_for_names[content['scenario']['name']], self.get_database())
+                        reader = ScenarioReader(content['scenario']['name'],
+                                                files_for_names[content['scenario']['name']], self.db_connector)
                         reader.read()
                     if config.TIME_MEASURE:
                         reader_end_timer = time.time()
@@ -70,14 +70,13 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                         reader_time = reader_end_timer - reader_start_timer
                         await sync_to_async(config.write_scenario_status)(director.scenario_run_id,
                                                                           f"Database-Preparation took {reader_time} s")
-
                 except (ValueError, AttributeError, TypeError, ModuleNotFoundError, SyntaxError) as error:
                     await self.send_json({
                         'message': f'Scenario Error: {str(error)}',
                         'type': 'error'
                     })
                     return
-                #if scenario_factory.scenario_exists(scenario.name):
+                # if scenario_factory.scenario_exists(scenario.name):
                 #    try:
                 #        scenario = scenario_factory.get_scenario(scenario.name)
                 #    except RuntimeError as error:
@@ -87,7 +86,7 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                 #        })
                 #        return
                 #    # TODO: implement what happens if scenario is updated
-                #else:
+                # else:
                 #    if len(scenario.agents) == 0:
                 #        await self.send_json({
                 #            'message': f'Scenario Error: Scenario transmitted is empty and not known.',
@@ -97,7 +96,6 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                 #    # TODO: implement save for new scenario as currently it won't be saved due to name only load
                 #    scenario_factory.scenarios.append(scenario)
                 try:
-                    supervisor_amount = 0
                     async with config.PREPARE_SCENARIO_SEMAPHORE:
                         if config.TIME_MEASURE:
                             preparation_start_timer = time.time()
@@ -121,7 +119,7 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                                                                           f"Execution took {execution_time} s")
                         cleanup_start_timer = time.time()
                     await director.end_scenario()
-                    self.get_database().cleanup(content['scenario']['name'], director.scenario_run_id)
+                    self.db_connector.cleanup(content['scenario']['name'], director.scenario_run_id)
                     if config.TIME_MEASURE:
                         cleanup_end_timer = time.time()
                         # noinspection PyUnboundLocalVariable
@@ -152,7 +150,7 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                         scenario_result = result_factory.get_result(director.scenario_run_id)
                         scenario_result.atlas_times = atlas_times
                         result_factory.save_dict_log_result(scenario_result)
-                    if hasattr(self, 'copy_result_pys') and self.copy_result_pys:
+                    if self.copy_result_pys:
                         result_factory = ResultFactory()
                         result_factory.copy_result_pys(director.scenario_run_id)
                     if 'is_evaluator' in content and content['is_evaluator']:
@@ -224,7 +222,8 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
         elif content['type'] == 'end_socket':
             await self.send_json(content)
 
-    def get_database(self):
-        if not hasattr(self, "db_connector"):
-            self.db_connector = MongoDbConnector(CONNECTIONSTRING)
-        return self.db_connector
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.changed_evaluation_status = False
+        self.copy_result_pys = False
+        self.db_connector = MongoDbConnector(MONGODB_URI)

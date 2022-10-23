@@ -17,14 +17,14 @@ RESULT_PACKAGE = "trustlab.lab.results"
 LOG_PATH = PROJECT_PATH / 'trustlab' / 'lab' / 'log'
 # determines the file size of scenario files which are declared as large in bytes
 SCENARIO_LARGE_SIZE = 1000000
-CONNECTIONSTRING = "mongodb://localhost:27017"
+
+MONGODB_URI = "mongodb://localhost:27017"
 
 SCENARIO_CATEGORY_SORT = ['ConTED_WI-IAT22', 'aTLAS_WI-IAT20']
 
 TIME_MEASURE = True
-
-EVALUATION_SCRIPT_RUNS = False
-LOG_SCENARIO_STATUS = True
+EVALUATION_SCRIPT_RUNS = False  # for evaluator.py - determining if one is connected
+LOG_SCENARIO_STATUS = True  # only for writing scenario status to file
 LOG_SCENARIO_READER = True
 LOG_SCENARIO_READER_DETAILS = False
 

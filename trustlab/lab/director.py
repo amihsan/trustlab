@@ -1,14 +1,11 @@
 import socket
-import time
-
 import trustlab.lab.config as config
 from asgiref.sync import sync_to_async
 from trustlab.lab.connectors.channels_connector import ChannelsConnector
 from trustlab.lab.distributors.greedy_distributor import GreedyDistributor
 from trustlab.lab.distributors.round_robin_distributor import RoundRobinDistributor
 from trustlab.models import ResultFactory, ScenarioResult
-from trustlab.serializers.mogno_db_connector import MongoDbConnector
-from trustlab.lab.config import CONNECTIONSTRING
+from trustlab.lab.connectors.mongo_db_connector import MongoDbConnector
 
 
 class Director:
@@ -29,7 +26,7 @@ class Director:
         :return: The amount of supervisors used for this scenario run.
         :rtype: int
         """
-        agents = self.get_database().get_agents_list(self.scenario_name)
+        agents = self.db_connector.get_agents_list(self.scenario_name)
         # check if enough agents are free to work
         sum_max_agents, sum_agents_in_use = await self.connector.sums_agent_numbers()
         free_agents = sum_max_agents - sum_agents_in_use
@@ -51,16 +48,16 @@ class Director:
     async def run_scenario(self):
         """
         Runs the scenario and manages the correct observation sequence by broadcasting end of observation signal
-        from one supervisor to all other involved ones.
+        from one supervisor to all other supervisors involved.
         Further, it manages the scenario run results and initiates the save.
         """
         await self.connector.start_scenario(self.distribution.keys(), self.scenario_run_id, self.scenario_name)
         trust_log, trust_log_dict = [], []
-        agents = self.get_database().get_agents_list(self.scenario_name)
+        agents = self.db_connector.get_agents_list(self.scenario_name)
         agent_trust_logs = dict((agent, []) for agent in agents)
         agent_trust_logs_dict = dict((agent, []) for agent in agents)
         scenario_runs = True
-        observations_to_do_amount = self.get_database().get_observations_count(self.scenario_name)
+        observations_to_do_amount = self.db_connector.get_observations_count(self.scenario_name)
         done_observations_with_id = []
         while scenario_runs:
             done_dict = await self.connector.get_next_done_observation(self.scenario_run_id)
@@ -126,8 +123,4 @@ class Director:
             self.distributor = GreedyDistributor()
         self.distribution = None
         self.discovery = None
-
-    def get_database(self):
-        if not hasattr(self, "db_connector"):
-            self.db_connector = MongoDbConnector(CONNECTIONSTRING)
-        return self.db_connector
+        self.db_connector = MongoDbConnector(config.MONGODB_URI)
