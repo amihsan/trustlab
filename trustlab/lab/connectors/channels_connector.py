@@ -95,6 +95,10 @@ class ChannelsConnector(BasicConnector):
             supervisor.agents_in_use -= len(distribution[channel_name])
             supervisor.save()
 
+    async def get_ram_usage(self, scenario_run_id):
+        response = await self.receive_with_scenario_run_id(scenario_run_id)
+        return response['ram_usage']
+
     async def end_scenario(self, distribution, scenario_run_id):
         end_message = {
             "type": "scenario.end",

@@ -6,6 +6,7 @@ from trustlab.lab.distributors.greedy_distributor import GreedyDistributor
 from trustlab.lab.distributors.round_robin_distributor import RoundRobinDistributor
 from trustlab.serializers.scenario_serializer import ScenarioSerializer
 from trustlab.models import ResultFactory, ScenarioResult
+from trustlab_host.config import TRACK_RAM
 from trustlab_host.models import Scenario
 
 
@@ -83,6 +84,8 @@ class Director:
             if len(done_observations_with_id) == observations_to_do_amount:
                 scenario_runs = False
                 await sync_to_async(config.write_scenario_status)(self.scenario_run_id, f"Scenario finished.")
+        if TRACK_RAM:
+            await self.connector.get_ram_usage(self.scenario_run_id)
         for agent, log in agent_trust_logs.items():
             if len(log) == 0:
                 agent_trust_logs[agent].append("The scenario reported no agent trust log for this agent.")
