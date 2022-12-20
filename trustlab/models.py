@@ -257,7 +257,7 @@ class ScenarioFactory(ObjectFactory):
         Creates a dict of categories as keys and list of scenario names as values to visualize in scenario.hmtl card.
 
         :return: Dictionary items of categories as keys, and list of scenario's names related to the scenario.
-        :rtype: list
+        :rtype: dict
         """
         scenario_categories = {}
         for scenario in self.scenarios:
@@ -274,7 +274,8 @@ class ScenarioFactory(ObjectFactory):
         category_sort = SCENARIO_CATEGORY_SORT + sorted([c for c in scenario_categories.keys() if c not in
                                                          SCENARIO_CATEGORY_SORT and c != 'Misc']) + ['Misc']
         index_map = {v: i for i, v in enumerate(category_sort)}
-        return sorted(scenario_categories.items(), key=lambda pair: index_map[pair[0]])
+        # for index_view / index.html it was a list wihtout the dict cast
+        return dict(sorted(scenario_categories.items(), key=lambda pair: index_map[pair[0]]))
 
     def get_scenario(self, name):
         """
@@ -345,7 +346,7 @@ class ScenarioResult:
     Represents the results of one scenario run with its id.
     """
     def __init__(self, scenario_run_id, scenario_name, supervisor_amount, trust_log, trust_log_dict, agent_trust_logs,
-                 agent_trust_logs_dict, atlas_times=None):
+                 agent_trust_logs_dict, atlas_times=None, ram_usages=None):
         self.scenario_run_id = scenario_run_id
         self.scenario_name = scenario_name
         self.supervisor_amount = supervisor_amount
@@ -354,6 +355,7 @@ class ScenarioResult:
         self.agent_trust_logs = agent_trust_logs
         self.agent_trust_logs_dict = agent_trust_logs_dict
         self.atlas_times = atlas_times
+        self.ram_usages = ram_usages
 
 
 class ResultFactory(ObjectFactory):
@@ -455,7 +457,8 @@ class ResultFactory(ObjectFactory):
         super().__init__()
         # adding dict log parameters for loading and saving, is in SimpleNameSpace for object with args variable
         self.dict_log_params = SimpleNamespace(args=['self', 'scenario_name', 'supervisor_amount', 'trust_log_dict',
-                                                     'agent_trust_logs_dict', 'atlas_times'], defaults=tuple([None]))
+                                                     'agent_trust_logs_dict', 'atlas_times', 'ram_usages'],
+                                               defaults=tuple([None]))
         self.result_path = RESULT_PATH
         self.result_package = RESULT_PACKAGE
         if not exists(RESULT_PATH) or not isdir(RESULT_PATH):
