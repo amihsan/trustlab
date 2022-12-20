@@ -6,7 +6,6 @@ from trustlab.lab.distributors.greedy_distributor import GreedyDistributor
 from trustlab.lab.distributors.round_robin_distributor import RoundRobinDistributor
 from trustlab.serializers.scenario_serializer import ScenarioSerializer
 from trustlab.models import ResultFactory, ScenarioResult
-from trustlab_host.config import TRACK_RAM
 from trustlab_host.models import Scenario
 
 
@@ -84,8 +83,6 @@ class Director:
             if len(done_observations_with_id) == observations_to_do_amount:
                 scenario_runs = False
                 await sync_to_async(config.write_scenario_status)(self.scenario_run_id, f"Scenario finished.")
-        if TRACK_RAM:
-            await self.connector.get_ram_usage(self.scenario_run_id)
         for agent, log in agent_trust_logs.items():
             if len(log) == 0:
                 agent_trust_logs[agent].append("The scenario reported no agent trust log for this agent.")
@@ -93,7 +90,7 @@ class Director:
         return trust_log, trust_log_dict, agent_trust_logs, agent_trust_logs_dict
 
     @sync_to_async
-    def save_scenario_run_results(self, trust_log, trust_log_dict, agent_trust_logs, agent_trust_logs_dict):
+    def save_scenario_run_results(self, trust_log, trust_log_dict, agent_trust_logs, agent_trust_logs_dict, rams=None):
         """
         Saves the scenario run results with the usage of ScenarioResult and ResultFactory.
 
@@ -105,17 +102,34 @@ class Director:
         :type agent_trust_logs: dict
         :param agent_trust_logs_dict: Trust logs per agent in dictionaries.
         :type agent_trust_logs_dict: dict
+        :param rams: RAM usages of all supervisors.
+        :type rams: list
         """
         result_factory = ResultFactory()
         result = ScenarioResult(self.scenario_run_id, self.scenario.name, len(self.distribution.keys()), trust_log,
-                                trust_log_dict, agent_trust_logs, agent_trust_logs_dict)
+                                trust_log_dict, agent_trust_logs, agent_trust_logs_dict, ram_usages=rams)
         result_factory.save_result(result)
+
+    @sync_to_async
+    def save_ram_usages(self, rams):
+        """
+        Saves the RAM usages of all supervisors.
+
+        :param rams: RAM usages of all supervisors.
+        :type rams: list
+        """
+        result_factory = ResultFactory()
+        scenario_result = result_factory.get_result(self.scenario_run_id)
+        scenario_result.ram_usages = rams
+        result_factory.save_dict_log_result(scenario_result)
 
     async def end_scenario(self):
         """
         Signals the end of the scenario run to all involved supervisors.
         """
-        await self.connector.end_scenario(self.distribution, self.scenario_run_id)
+        rams = await self.connector.end_scenario(self.distribution, self.scenario_run_id)
+        if rams is not None:
+            await self.save_ram_usages(rams)
 
     def __init__(self, scenario):
         self.HOST = socket.gethostname()
