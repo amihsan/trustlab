@@ -61,7 +61,7 @@ class SupervisorsConsumer(ChunkAsyncJsonWebsocketConsumer):
                 await self.send_websocket_message(answer)
             elif content["type"] and (content["type"] == "agent_discovery" or content["type"] == "scenario_end"):
                 await self.channel_layer.send(content["scenario_run_id"], content)
-            elif content["type"] and content["type"] == "observation_done":
+            elif content["type"] and (content["type"] == "observation_done" or content["type"] == "ram_usage"):
                 content["channel_name"] = self.channel_name
                 await self.channel_layer.send(content["scenario_run_id"], content)
             else:
