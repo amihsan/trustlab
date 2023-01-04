@@ -134,6 +134,9 @@ class SupervisorsConsumer(ChunkAsyncJsonWebsocketConsumer):
                 content["channel_name"] = self.channel_name
                 await self.channel_layer.send(content["scenario_run_id"], content)
                 await self.send_new_agent_data(content["scenario_run_id"], content["scenario_name"])
+            elif content["type"] and content["type"] == "ram_usage":
+                content["channel_name"] = self.channel_name
+                await self.channel_layer.send(content["scenario_run_id"], content)
             else:
                 print("Could not resolve message and pinged back.")
                 await self.send_websocket_message(content)
