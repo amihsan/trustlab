@@ -25,6 +25,10 @@ class ChannelsConnector(BasicConnector):
     def get_supervisors_without_given(self, given_channel_name):
         return list(set(Supervisor.objects.exclude(channel_name=given_channel_name)))
 
+    @sync_to_async
+    def get_supervisor_hostname(self, given_channel_name):
+        return Supervisor.objects.get(channel_name=given_channel_name).hostname
+
     async def send_message_to_supervisor(self, channel_name, message):
         channel_layer = get_channel_layer()
         await channel_layer.send(channel_name, message)
@@ -106,7 +110,11 @@ class ChannelsConnector(BasicConnector):
             await self.send_message_to_supervisor(channel_name, end_message)
             response = await self.receive_with_scenario_run_id(scenario_run_id)
             if response["type"] == "ram_usage":
-                ram_usage[channel_name] = response["ram_usage"]
+                hostname = await self.get_supervisor_hostname(channel_name)
+                if hostname:
+                    ram_usage[hostname] = response["ram_usage"]
+                else:
+                    ram_usage[channel_name] = response["ram_usage"]
                 response = await self.receive_with_scenario_run_id(scenario_run_id)
             # print(f"Scenario ended at supervisor '{channel_name}' with message: {response}")
         await self.free_agents_in_db(distribution)
