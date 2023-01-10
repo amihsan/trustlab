@@ -18,7 +18,7 @@ LOG_PATH = PROJECT_PATH / 'trustlab' / 'lab' / 'log'
 # determines the file size of scenario files which are declared as large in bytes
 SCENARIO_LARGE_SIZE = 1000000
 
-MONGODB_URI = "mongodb://localhost:27017"
+MONGODB_URI = 'mongodb://localhost:27017'
 
 SCENARIO_CATEGORY_SORT = ['ConTED_WI-IAT22', 'aTLAS_WI-IAT20']
 
