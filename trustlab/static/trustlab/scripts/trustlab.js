@@ -110,7 +110,7 @@ function startLabRuntime() {
     if (scenarioName !== "")
     {
         let scenario = scenarios.filter(scenario => scenario.name === scenarioName)[0];
-        let scenarioMessage = {'type': 'run_scenario', 'scenario': scenario};
+        let scenarioMessage = {'type': 'run_scenario', 'scenario': scenario, 'scenario_name': scenarioName};
         waitForSocketConnection(labSocket, function(){
             labSocket.send(JSON.stringify(scenarioMessage));
             openLabRuntimeCard();

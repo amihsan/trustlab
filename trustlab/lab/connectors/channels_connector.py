@@ -1,4 +1,3 @@
-import json
 from asgiref.sync import sync_to_async
 from trustlab.lab.connectors.basic_connector import BasicConnector
 from django.db import transaction
@@ -46,14 +45,14 @@ class ChannelsConnector(BasicConnector):
             supervisor.agents_in_use += len(distribution[channel_name])
             supervisor.save()
 
-    async def reserve_agents(self, distribution, scenario_run_id, scenario_data):
+    async def reserve_agents(self, distribution, scenario_run_id, scenario_name):
         discovery = {}
         for channel_name in distribution.keys():
             # init agents at supervisors
             registration_message = {
                 "type": "scenario.registration",
-                "scenario": scenario_data,
                 "scenario_run_id": scenario_run_id,
+                "scenario_name": scenario_name,
                 "agents_at_supervisor": distribution[channel_name]
             }
             await self.send_message_to_supervisor(channel_name, registration_message)
@@ -64,16 +63,18 @@ class ChannelsConnector(BasicConnector):
         discovery_message = {
             "type": "scenario.discovery",
             "scenario_run_id": scenario_run_id,
+            "scenario_name": scenario_name,
             "discovery": discovery
         }
         for channel_name in distribution.keys():
             await self.send_message_to_supervisor(channel_name, discovery_message)
         return discovery
 
-    async def start_scenario(self, involved_supervisors, scenario_run_id):
+    async def start_scenario(self, involved_supervisors, scenario_run_id, scenario_name):
         start_message = {
             "type": "scenario.start",
             "scenario_run_id": scenario_run_id,
+            "scenario_name": scenario_name,
             "scenario_status": "started"
         }
         for channel_name in involved_supervisors:

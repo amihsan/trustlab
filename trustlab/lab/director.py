@@ -4,9 +4,8 @@ from asgiref.sync import sync_to_async
 from trustlab.lab.connectors.channels_connector import ChannelsConnector
 from trustlab.lab.distributors.greedy_distributor import GreedyDistributor
 from trustlab.lab.distributors.round_robin_distributor import RoundRobinDistributor
-from trustlab.serializers.scenario_serializer import ScenarioSerializer
 from trustlab.models import ResultFactory, ScenarioResult
-from trustlab_host.models import Scenario
+from trustlab.lab.connectors.mongo_db_connector import MongoDbConnector
 
 
 class Director:
@@ -27,20 +26,21 @@ class Director:
         :return: The amount of supervisors used for this scenario run.
         :rtype: int
         """
-        agents = self.scenario.agents
+        agents = self.db_connector.get_agents_list(self.scenario_name)
         # check if enough agents are free to work
         sum_max_agents, sum_agents_in_use = await self.connector.sums_agent_numbers()
         free_agents = sum_max_agents - sum_agents_in_use
         if free_agents < len(agents):
+            print(free_agents)
+            print(len(agents))
             raise Exception('Currently there are not enough agents free for the chosen scenario.')
         # distribute agents on supervisors
         supervisors_with_free_agents = await self.connector.list_supervisors_with_free_agents()
         self.distribution = await self.distributor.distribute(agents, supervisors_with_free_agents)
         # reserve agents at supervisors
-        scenario_serializer = ScenarioSerializer(self.scenario)
         await sync_to_async(config.write_scenario_status)(self.scenario_run_id, f"Reserving Agents..")
         self.discovery = await self.connector.reserve_agents(self.distribution, self.scenario_run_id,
-                                                             scenario_serializer.data)
+                                                             self.scenario_name)
         await sync_to_async(config.write_scenario_status)(self.scenario_run_id,
                                                           f"Scenario Distribution:\n{self.discovery}")
         return len(self.distribution.keys())
@@ -48,24 +48,22 @@ class Director:
     async def run_scenario(self):
         """
         Runs the scenario and manages the correct observation sequence by broadcasting end of observation signal
-        from one supervisor to all other involved ones.
+        from one supervisor to all other supervisors involved.
         Further, it manages the scenario run results and initiates the save.
         """
-        await self.connector.start_scenario(self.distribution.keys(), self.scenario_run_id)
+        await self.connector.start_scenario(self.distribution.keys(), self.scenario_run_id, self.scenario_name)
         trust_log, trust_log_dict = [], []
-        agent_trust_logs = dict((agent, []) for agent in self.scenario.agents)
-        agent_trust_logs_dict = dict((agent, []) for agent in self.scenario.agents)
+        agents = self.db_connector.get_agents_list(self.scenario_name)
+        agent_trust_logs = dict((agent, []) for agent in agents)
+        agent_trust_logs_dict = dict((agent, []) for agent in agents)
         scenario_runs = True
-        observations_to_do_amount = len([observation["observation_id"] for observation in self.scenario.observations])
+        observations_to_do_amount = self.db_connector.get_observations_count(self.scenario_name)
         done_observations_with_id = []
         while scenario_runs:
             done_dict = await self.connector.get_next_done_observation(self.scenario_run_id)
             await sync_to_async(config.write_scenario_status)(self.scenario_run_id,
                                                               f"Did observation {done_dict['observation_id']}")
             done_observations_with_id.append(done_dict['observation_id'])
-            supervisors_to_inform = await self.connector.get_supervisors_without_given(done_dict["channel_name"])
-            await self.connector.broadcast_done_observation(self.scenario_run_id, done_observations_with_id,
-                                                            supervisors_to_inform)
             # merge send logs to saved results
             obs_receiver = done_dict['receiver']
             recv_trust_log = done_dict['trust_log'].split('<br>')
@@ -106,7 +104,7 @@ class Director:
         :type rams: list
         """
         result_factory = ResultFactory()
-        result = ScenarioResult(self.scenario_run_id, self.scenario.name, len(self.distribution.keys()), trust_log,
+        result = ScenarioResult(self.scenario_run_id, self.scenario_name, len(self.distribution.keys()), trust_log,
                                 trust_log_dict, agent_trust_logs, agent_trust_logs_dict, ram_usages=rams)
         result_factory.save_result(result)
 
@@ -131,10 +129,10 @@ class Director:
         if rams is not None:
             await self.save_ram_usages(rams)
 
-    def __init__(self, scenario):
+    def __init__(self, scenario_name):
         self.HOST = socket.gethostname()
         self.scenario_run_id = config.create_scenario_run_id()
-        self.scenario = scenario
+        self.scenario_name = scenario_name
         self.connector = ChannelsConnector()
         if config.DISTRIBUTOR == "round_robin":
             self.distributor = RoundRobinDistributor()
@@ -142,3 +140,4 @@ class Director:
             self.distributor = GreedyDistributor()
         self.distribution = None
         self.discovery = None
+        self.db_connector = MongoDbConnector(config.MONGODB_URI)
