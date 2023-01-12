@@ -78,15 +78,8 @@ WSGI_APPLICATION = 'djtrustlab.wsgi.application'
 
 DATABASES = {
     'default': {
-        'NAME': 'trustlab-dev',
-        'ENGINE': 'sql_server.pyodbc',
-        'HOST': 'stratus.informatik.tu-chemnitz.de',
-        'PORT': '1433',
-        'USER': 'trustlab-dev',
-        'PASSWORD': 'dev@17092019#',
-        'OPTIONS': {
-                'driver': 'ODBC Driver 17 for SQL Server',
-        }
+        'NAME': os.path.join(BASE_DIR, 'trustlab.sqlite3'),
+        'ENGINE': 'django.db.backends.sqlite3',
     }
 }
 
