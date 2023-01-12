@@ -488,13 +488,13 @@ class METRICS_PER_AGENT:
     next_object = None
     q = deque()
     tq = deque()
-    tqcount = 0
+    tq_count = 0
 
     def add_line(self, line):
         line = line.strip()
         if len(line) == 0:
             return
-        if self.tqcount == 0:
+        if self.tq_count == 0:
             if line[:1] == '}' and len(self.q) == 1:
                 self.done = True
                 self.q.pop()
@@ -521,12 +521,12 @@ class METRICS_PER_AGENT:
                 self.storedKey = None
                 return line[1:].strip()
         if self.parent is None:
-            parts = re.split("^'([^']{1,})':(?:,|)(.*)", line)
+            parts = re.split("^'([^']+)':(?:,|)(.*)", line)
             self.parent = parts[1]
             return parts[2]
         else:
             if self.storedKey is None:
-                parts = re.split("^'([^']{1,})':(?:,|)(.*)", line)
+                parts = re.split("^'([^']+)':(?:,|)(.*)", line)
                 self.storedKey = parts[1]
                 return parts[2]
             else:
@@ -538,36 +538,37 @@ class METRICS_PER_AGENT:
                 while index < len(line):
                     if line[index] in ['{', '[', '(']:
                         self.tq.append(line[index])
-                        self.tqcount+=1
+                        self.tq_count += 1
                     if line[index] == '}':
                         if self.tq.pop() != '{':
                             raise Exception("Configuration not valid!")
-                        self.tqcount-=1
+                        self.tq_count -= 1
                     if line[index] == ')':
                         if self.tq.pop() != '(':
                             raise Exception("Configuration not valid!")
-                        self.tqcount-=1
+                        self.tq_count -= 1
                     if line[index] == ']':
                         if self.tq.pop() != '[':
                             raise Exception("Configuration not valid!")
-                        self.tqcount-=1
+                        self.tq_count -= 1
                     if line[index] == "'":
-                        if self.tqcount == 0:
+                        if self.tq_count == 0:
                             self.tq.append("'")
-                            self.tqcount+=1
+                            self.tq_count += 1
                         else:
                             last = self.tq.pop()
-                            self.tqcount-=1
+                            self.tq_count -= 1
                             if not last == "'":
                                 self.tq.append(last)
                                 self.tq.append("'")
-                                self.tqcount+=2
+                                self.tq_count += 2
                     resstring += line[index]
                     index += 1
-                    if self.tqcount == 0 and (not until_end or (len(line) > index and line[index] in ['}', ']', ')', ','])):
+                    if self.tq_count == 0 and (
+                            not until_end or (len(line) > index and line[index] in ['}', ']', ')', ','])):
                         until_end = False
                         break
-                if self.tqcount > 0 or until_end:
+                if self.tq_count > 0 or until_end:
                     self.storedStrings.append(line)
                     return ""
                 self.storedStrings.append(resstring)
