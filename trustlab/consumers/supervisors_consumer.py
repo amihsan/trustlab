@@ -1,3 +1,4 @@
+from trustlab.lab.connectors.channels_connector import ChannelsConnector
 from trustlab.consumers.chunk_consumer import ChunkAsyncJsonWebsocketConsumer
 from trustlab.lab.connectors.mongo_db_connector import MongoDbConnector
 from trustlab.lab.config import MONGODB_URI
@@ -24,6 +25,7 @@ class SupervisorsConsumer(ChunkAsyncJsonWebsocketConsumer):
         })
 
     async def scenario_discovery(self, event):
+        self.distribution = event["distribution"]  # to send later observation to correct supervisor
         await self.send_websocket_message({
             "type": "scenario_discovery",
             "scenario_run_id": event["scenario_run_id"],
@@ -47,6 +49,20 @@ class SupervisorsConsumer(ChunkAsyncJsonWebsocketConsumer):
             "scenario_status": event["scenario_status"]
         })
 
+    async def send_observation(self, event):
+        await self.send_websocket_message({
+            "type": "new_observation",
+            "scenario_run_id": event['scenario_run_id'],
+            "scenario_name": event['scenario_name'],
+            "data": event['data']
+        })
+
+    async def get_channel_for_agent(self, agent):
+        for channel_name, agents in self.distribution.items():
+            if agent in agents:
+                return channel_name
+        return None  # TODO: handle exception that suddenly agent is not in distribution
+
     async def send_new_agent_data(self, scenario_id, scenario_name):
         agents = self.db_connector.get_agents_nothing_to_do(scenario_name, scenario_id)
         if agents is not None and len(agents) > 0:
@@ -60,7 +76,12 @@ class SupervisorsConsumer(ChunkAsyncJsonWebsocketConsumer):
                         "scenario_run_id": scenario_id,
                         "scenario_name": scenario_name,
                         "data": observation}
-                    await self.send_websocket_message(answer)
+                    channel_to_send_obs = await self.get_channel_for_agent(observation['sender'])
+                    if channel_to_send_obs == self.channel_name:
+                        await self.send_websocket_message(answer)
+                    else:
+                        answer['type'] = "send.observation"
+                        await ChannelsConnector.send_message_to_supervisor(channel_to_send_obs, answer)
                     self.db_connector.set_agent_has_something_todo(scenario_name, scenario_id, observation["sender"])
 
     async def receive_json(self, content, **kwargs):
@@ -144,3 +165,4 @@ class SupervisorsConsumer(ChunkAsyncJsonWebsocketConsumer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.db_connector = MongoDbConnector(MONGODB_URI)
+        self.distribution = None

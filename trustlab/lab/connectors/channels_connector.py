@@ -28,11 +28,13 @@ class ChannelsConnector(BasicConnector):
     def get_supervisor_hostname(self, given_channel_name):
         return Supervisor.objects.get(channel_name=given_channel_name).hostname
 
-    async def send_message_to_supervisor(self, channel_name, message):
+    @staticmethod
+    async def send_message_to_supervisor(channel_name, message):
         channel_layer = get_channel_layer()
         await channel_layer.send(channel_name, message)
 
-    async def receive_with_scenario_run_id(self, scenario_run_id):
+    @staticmethod
+    async def receive_with_scenario_run_id(scenario_run_id):
         channel_layer = get_channel_layer()
         response = await channel_layer.receive(scenario_run_id)
         return response
@@ -64,7 +66,8 @@ class ChannelsConnector(BasicConnector):
             "type": "scenario.discovery",
             "scenario_run_id": scenario_run_id,
             "scenario_name": scenario_name,
-            "discovery": discovery
+            "discovery": discovery,
+            "distribution": distribution
         }
         for channel_name in distribution.keys():
             await self.send_message_to_supervisor(channel_name, discovery_message)
