@@ -75,13 +75,15 @@ class ScenarioReader:
     def analyze_line(self, line):
         line = line.strip()
         if len(line) == 0:
-            return
+            return ""
         if len(self.definitions) == 0:
             if '=' in line:
                 classification_parts = line.split('=', 1)
                 user_defined_classes = [i for i in dir(parser_definitions) if type(getattr(parser_definitions, i)) is type.__class__]
                 if classification_parts[0].strip() in user_defined_classes:
-                    self.definitions.append(eval("parser_definitions." + classification_parts[0].strip()))
+                    new_definition = eval("parser_definitions." + classification_parts[0].strip())
+                    new_definition.__init__(new_definition)
+                    self.definitions.append(new_definition)
                     if LOG_SCENARIO_READER:
                         t = time.localtime()
                         current_time = time.strftime("%H:%M:%S", t)

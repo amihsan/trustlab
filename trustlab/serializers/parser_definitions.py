@@ -5,16 +5,17 @@ from collections import deque
 
 
 class AGENTS:
-    object = None
-    done_objects = []
-    storedString = ""
-    done = False
+    def __init__(self):
+        self.object = None
+        self.done_objects = []
+        self.storedString = ""
+        self.done = False
 
     def add_line(self, line):
         line = self.storedString + line
         self.storedString = ""
         if len(line) == 0:
-            return
+            return ""
         if line[:1] == ']':
             self.done = True
             return line[1:].strip()
@@ -50,13 +51,14 @@ class AGENTS:
 
 
 class HISTORY:
-    object = None
-    done_objects = []
-    storedString = ""
-    done = False
-    storedKey = None
-    q = deque()
-    tq = deque()
+    def __init__(self):
+        self.object = None
+        self.done_objects = []
+        self.storedString = ""
+        self.done = False
+        self.storedKey = None
+        self.q = deque()
+        self.tq = deque()
 
     def add_line(self, line):
         line = line.strip()
@@ -155,14 +157,6 @@ class HISTORY:
 
 
 class DETAILS:
-    object = None
-    done_objects = []
-    storedString = ""
-    storedKey = None
-    done = False
-    parentId = ""
-    q = deque()
-
     def __init__(self, parent_id):
         self.parentId = parent_id
         self.object = None
@@ -170,7 +164,7 @@ class DETAILS:
         self.storedString = ""
         self.storedKey = None
         self.done = False
-        q = deque()
+        self.q = deque()
 
     def add_line(self, line):
         line = (self.storedString + line).strip()
@@ -259,14 +253,15 @@ class DETAILS:
 
 
 class OBSERVATIONS:
-    object = None
-    done_objects = []
-    storedString = ""
-    storedKey = None
-    done = False
-    next_object = None
-    details = "DETAILS"
-    q = deque()
+    def __init__(self):
+        self.object = None
+        self.done_objects = []
+        self.storedString = ""
+        self.storedKey = None
+        self.done = False
+        self.next_object = None
+        self.details = "DETAILS"
+        self.q = deque()
 
     def add_line(self, line):
         line = (self.storedString + line).strip()
@@ -364,14 +359,15 @@ class OBSERVATIONS:
 
 
 class SCALES_PER_AGENT:
-    object = None
-    done_objects = []
-    storedString = ""
-    storedKey = None
-    parent = None
-    done = False
-    next_object = None
-    q = deque()
+    def __init__(self):
+        self.object = None
+        self.done_objects = []
+        self.storedString = ""
+        self.storedKey = None
+        self.parent = None
+        self.done = False
+        self.next_object = None
+        self.q = deque()
 
     def add_line(self, line):
         line = (self.storedString + line).strip()
@@ -477,16 +473,17 @@ class SCALES_PER_AGENT:
 
 
 class METRICS_PER_AGENT:
-    object = None
-    done_objects = []
-    storedStrings = []
-    storedKey = None
-    parent = None
-    done = False
-    next_object = None
-    q = deque()
-    tq = deque()
-    tq_count = 0
+    def __init__(self):
+        self.object = None
+        self.done_objects = []
+        self.storedStrings = []
+        self.storedKey = None
+        self.parent = None
+        self.done = False
+        self.next_object = None
+        self.q = deque()
+        self.tq = deque()
+        self.tq_count = 0
 
     def add_line(self, line):
         line = line.strip()
