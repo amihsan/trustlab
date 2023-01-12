@@ -49,7 +49,6 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                         'type': 'error'
                     })
                     return
-            print(content['scenario']['name'])
             serializer = ScenarioSerializer(data=content['scenario'])
             if serializer.is_valid():
                 director = Director(content['scenario']['name'])

@@ -20,13 +20,11 @@ class AGENTS:
             return line[1:].strip()
         if line[:1] == '[':
             return line[1:].strip()
-        parts = re.split("^'([^']{1,})'(?:,|)(.*)", line)
+        parts = re.split("^'([^']+)'(?:,|)(.*)", line)
         if len(parts) <= 2:
             self.storedString = line
             return ""
-        self.object = {}
-        self.object["name"] = parts[1]
-        self.object["_id"] = uuid.uuid4().hex
+        self.object = {"name": parts[1], "_id": uuid.uuid4().hex}
         self.done_objects.append(self.object)
         self.object = None
         return parts[2]
@@ -88,7 +86,7 @@ class HISTORY:
             self.storedKey = None
             return line[1:].strip()
         if self.storedKey is None:
-            parts = re.split("^'([^']{1,})':(?:,|)(.*)", line)
+            parts = re.split("^'([^']+)':(?:,|)(.*)", line)
             if len(parts) <= 2:
                 self.storedString = line
                 return ""
@@ -195,7 +193,7 @@ class DETAILS:
             self.storedKey = None
             return line[1:].strip()
         if self.storedKey is None:
-            parts = re.split("^'([^']{1,})':(?:,|)(.*)", line)
+            parts = re.split("^'([^']+)':(?:,|)(.*)", line)
             if len(parts) <= 2:
                 self.storedString = line
                 return ""
@@ -295,7 +293,7 @@ class OBSERVATIONS:
             self.next_object = None
             return line[1:].strip()
         if self.storedKey is None:
-            parts = re.split("^'([^']{1,})':(?:,|)(.*)", line)
+            parts = re.split("^'([^']+)':(?:,|)(.*)", line)
             if len(parts) <= 2:
                 self.storedString = line
                 return ""

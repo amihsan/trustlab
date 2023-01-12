@@ -62,13 +62,13 @@ class ScenarioReader:
                 while line is not None and len(line) > 0:
                     line = self.analyze_line(line)
         while len(self.doneItems) > 0:
-            None
+            pass
         self.running = False
+        # a non-blocking threads join alternative:
         while len(self.threads) > 0:
             for t in self.threads:
                 if not t.is_alive():
                     self.threads.remove(t)
-            None
         if LOG_SCENARIO_READER:
             print("reading done!")
 
@@ -98,7 +98,7 @@ class ScenarioReader:
                         self.doneItems.append([self.scenario_name, current_object.__name__.lower(), obj])
                 current_object.clear_objects(current_object)
                 while len(self.doneItems) > 400:
-                    None
+                    pass
             if not current_object.is_done(current_object):
                 self.definitions.append(current_object)
             if not current_object.get_next_object(current_object) is None:
