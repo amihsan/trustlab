@@ -197,9 +197,7 @@ class DETAILS:
             if len(parts) <= 2:
                 self.storedString = line
                 return ""
-            self.object = {}
-            self.object["_id"] = uuid.uuid4().hex
-            self.object["observation_id"] = self.parentId
+            self.object = {"_id": uuid.uuid4().hex, "observation_id": self.parentId}
             self.storedKey = parts[1]
             return parts[2]
         else:
