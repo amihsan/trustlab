@@ -49,13 +49,13 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                         'type': 'error'
                     })
                     return
-            print(content['scenario']['name'])
             serializer = ScenarioSerializer(data=content['scenario'])
             if serializer.is_valid():
                 director = Director(content['scenario']['name'])
                 try:
                     if config.TIME_MEASURE:
                         reader_start_timer = time.time()
+                        reader_read = False
                     if 'scenario_reset' in content and content['scenario_reset']:
                         self.db_connector.reset_scenario(content['scenario']['name'])
                     if not self.db_connector.check_if_scenario_exists(content['scenario']['name']):
@@ -64,10 +64,12 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                         reader = ScenarioReader(content['scenario']['name'],
                                                 files_for_names[content['scenario']['name']], self.db_connector)
                         reader.read()
+                        if config.TIME_MEASURE:
+                            reader_read = True
                     if config.TIME_MEASURE:
                         reader_end_timer = time.time()
                         # noinspection PyUnboundLocalVariable
-                        reader_time = reader_end_timer - reader_start_timer
+                        reader_time = reader_end_timer - reader_start_timer if reader_read else -1
                         await sync_to_async(config.write_scenario_status)(director.scenario_run_id,
                                                                           f"Database-Preparation took {reader_time} s")
                 except (ValueError, AttributeError, TypeError, ModuleNotFoundError, SyntaxError) as error:
@@ -145,6 +147,8 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                             'execution_time': execution_time,
                             'cleanup_time': cleanup_time
                         }
+                        if reader_read:
+                            atlas_times['reader_time'] = reader_time
                         log_message['atlas_times'] = atlas_times
                         result_factory = ResultFactory()
                         scenario_result = result_factory.get_result(director.scenario_run_id)

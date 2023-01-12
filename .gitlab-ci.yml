@@ -34,6 +34,7 @@ build:
   - sed -i "s#STATIC_URL = '.*'#STATIC_URL = '/trustlab/static/'#" djtrustlab/settings.py
   - sed -i "s#MEDIA_ROOT = '.*'#MEDIA_ROOT = 'deploy/trustlab/media'#" djtrustlab/settings.py
   - sed -i "s#MEDIA_URL = '.*'#MEDIA_URL = '/trustlab/media/'#" djtrustlab/settings.py
+  - sed -i "s#MONGODB_URI = '.*'#MONGODB_URI = '"$MONGO_DBKEY"'#" trustlab/lab/config.py
   - cd ..
   - /bin/mv -f src/Pipfile trustlab-env/Pipfile
   - /bin/mv -f src/Pipfile.lock trustlab-env/Pipfile.lock
