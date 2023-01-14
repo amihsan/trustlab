@@ -137,14 +137,14 @@ class MongoDbConnector:
             })
         return list(finds)
 
-    def set_observation_done(self, scenario_name, scenario_id, observaion_id):
+    def set_observation_done(self, scenario_name, scenario_id, observation_id):
         collection = self.database[scenario_name]
         find = collection.find_one({
             "Type": "observations_to_do",
             "scenario_id": scenario_id
         })
-        if observaion_id in find['observations_todo']:
-            find['observations_todo'].remove(observaion_id)
+        if observation_id in find['observations_todo']:
+            find['observations_todo'].remove(observation_id)
             collection.update_one({
                 "Type": "observations_to_do",
                 "scenario_id": scenario_id
@@ -178,7 +178,7 @@ class MongoDbConnector:
         }
         collection.insert_one(data)
 
-    def set_all_agents_nothing_to_do(self, scenario_name, scenario_id):
+    def set_all_agents_available(self, scenario_name, scenario_id):
         collection = self.database[scenario_name]
         finds = collection.find(
             {
@@ -217,7 +217,7 @@ class MongoDbConnector:
             return list(finds)[0]
         return None
 
-    def get_agents_nothing_to_do(self, scenario_name, scenario_id):
+    def get_agents_available(self, scenario_name, scenario_id):
         agents = self.database[scenario_name]
         find = agents.find_one({
             "Type": "agents_nothing_to_do",
@@ -225,7 +225,7 @@ class MongoDbConnector:
         })
         return list(find['agents'])
 
-    def set_agent_has_something_todo(self, scenario_name, scenario_id, agent):
+    def set_agent_busy(self, scenario_name, scenario_id, agent):
         collection = self.database[scenario_name]
         find = collection.find_one({
             "Type": "agents_nothing_to_do",
@@ -240,7 +240,7 @@ class MongoDbConnector:
                 "$set": {'agents': find['agents']}
             })
 
-    def set_agent_nothing_todo(self, scenario_name, scenario_id, agent):
+    def set_agent_available(self, scenario_name, scenario_id, agent):
         collection = self.database[scenario_name]
         find = collection.find_one({
             "Type": "agents_nothing_to_do",

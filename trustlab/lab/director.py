@@ -26,21 +26,21 @@ class Director:
         :return: The amount of supervisors used for this scenario run.
         :rtype: int
         """
-        agents = self.db_connector.get_agents_list(self.scenario_name)
+        agents = self.mongodb_connector.get_agents_list(self.scenario_name)
         # check if enough agents are free to work
-        sum_max_agents, sum_agents_in_use = await self.connector.sums_agent_numbers()
+        sum_max_agents, sum_agents_in_use = await self.channels_connector.sums_agent_numbers()
         free_agents = sum_max_agents - sum_agents_in_use
         if free_agents < len(agents):
             print(free_agents)
             print(len(agents))
             raise Exception('Currently there are not enough agents free for the chosen scenario.')
         # distribute agents on supervisors
-        supervisors_with_free_agents = await self.connector.list_supervisors_with_free_agents()
+        supervisors_with_free_agents = await self.channels_connector.list_supervisors_with_free_agents()
         self.distribution = await self.distributor.distribute(agents, supervisors_with_free_agents)
         # reserve agents at supervisors
         await sync_to_async(config.write_scenario_status)(self.scenario_run_id, f"Reserving Agents..")
-        self.discovery = await self.connector.reserve_agents(self.distribution, self.scenario_run_id,
-                                                             self.scenario_name)
+        self.discovery = await self.channels_connector.reserve_agents(self.distribution, self.scenario_run_id,
+                                                                      self.scenario_name)
         await sync_to_async(config.write_scenario_status)(self.scenario_run_id,
                                                           f"Scenario Distribution:\n{self.discovery}")
         return len(self.distribution.keys())
@@ -51,36 +51,39 @@ class Director:
         from one supervisor to all other supervisors involved.
         Further, it manages the scenario run results and initiates the save.
         """
-        await self.connector.start_scenario(self.distribution.keys(), self.scenario_run_id, self.scenario_name)
+        # await self.channels_connector.start_scenario(self.distribution.keys(), self.scenario_run_id, self.scenario_name)
+        await self.send_next_observation(self.scenario_run_id, self.scenario_name)
         trust_log, trust_log_dict = [], []
-        agents = self.db_connector.get_agents_list(self.scenario_name)
+        agents = self.mongodb_connector.get_agents_list(self.scenario_name)
         agent_trust_logs = dict((agent, []) for agent in agents)
         agent_trust_logs_dict = dict((agent, []) for agent in agents)
         scenario_runs = True
-        observations_to_do_amount = self.db_connector.get_observations_count(self.scenario_name)
+        observations_to_do_amount = self.mongodb_connector.get_observations_count(self.scenario_name)
         done_observations_with_id = []
         while scenario_runs:
-            done_dict = await self.connector.get_next_done_observation(self.scenario_run_id)
-            await sync_to_async(config.write_scenario_status)(self.scenario_run_id,
-                                                              f"Did observation {done_dict['observation_id']}")
-            done_observations_with_id.append(done_dict['observation_id'])
-            # merge send logs to saved results
-            obs_receiver = done_dict['receiver']
-            recv_trust_log = done_dict['trust_log'].split('<br>')
-            new_trust_log = [line for line in recv_trust_log if line not in trust_log]
-            recv_trust_dict = done_dict['trust_log_dict']
-            new_trust_log_dict = [d for d in recv_trust_dict if d not in trust_log_dict]
-            recv_receiver_log = done_dict['receiver_trust_log'].split('<br>')
-            new_receiver_log = [line for line in recv_receiver_log if line not in agent_trust_logs[obs_receiver]]
-            recv_receiver_log_dict = done_dict['receiver_trust_log_dict']
-            new_receiver_log_dict = [d for d in recv_receiver_log_dict if d not in agent_trust_logs_dict[obs_receiver]]
-            trust_log.extend(new_trust_log)
-            trust_log_dict.extend(new_trust_log_dict)
-            agent_trust_logs[obs_receiver].extend(new_receiver_log)
-            agent_trust_logs_dict[obs_receiver].extend(new_receiver_log_dict)
-            if len(done_observations_with_id) == observations_to_do_amount:
-                scenario_runs = False
-                await sync_to_async(config.write_scenario_status)(self.scenario_run_id, f"Scenario finished.")
+            message = await self.channels_connector.receive_with_scenario_run_id(self.scenario_run_id)
+            await self.send_next_observation(self.scenario_run_id, self.scenario_name)
+            if message['type'] == 'observation_done':
+                await sync_to_async(config.write_scenario_status)(self.scenario_run_id,
+                                                                  f"Did observation {message['observation_id']}")
+                done_observations_with_id.append(message['observation_id'])
+                # merge send logs to saved results
+                obs_receiver = message['receiver']
+                recv_trust_log = message['trust_log'].split('<br>')
+                new_trust_log = [line for line in recv_trust_log if line not in trust_log]
+                recv_trust_dict = message['trust_log_dict']
+                new_trust_log_dict = [d for d in recv_trust_dict if d not in trust_log_dict]
+                recv_receiver_log = message['receiver_trust_log'].split('<br>')
+                new_receiver_log = [line for line in recv_receiver_log if line not in agent_trust_logs[obs_receiver]]
+                recv_receiver_log_dict = message['receiver_trust_log_dict']
+                new_receiver_log_dict = [d for d in recv_receiver_log_dict if d not in agent_trust_logs_dict[obs_receiver]]
+                trust_log.extend(new_trust_log)
+                trust_log_dict.extend(new_trust_log_dict)
+                agent_trust_logs[obs_receiver].extend(new_receiver_log)
+                agent_trust_logs_dict[obs_receiver].extend(new_receiver_log_dict)
+                if len(done_observations_with_id) == observations_to_do_amount:
+                    scenario_runs = False
+                    await sync_to_async(config.write_scenario_status)(self.scenario_run_id, f"Scenario finished.")
         for agent, log in agent_trust_logs.items():
             if len(log) == 0:
                 agent_trust_logs[agent].append("The scenario reported no agent trust log for this agent.")
@@ -125,19 +128,59 @@ class Director:
         """
         Signals the end of the scenario run to all involved supervisors.
         """
-        rams = await self.connector.end_scenario(self.distribution, self.scenario_run_id)
+        rams = await self.channels_connector.end_scenario(self.distribution, self.scenario_run_id)
         if rams is not None:
             await self.save_ram_usages(rams)
+
+    async def get_channel_for_agent(self, agent):
+        """
+        Looks up the supervisor's channel name hosting the given agent.
+
+        :param agent: The agent for which the supervisor's channel name shall be returned.
+        :type agent: str
+        :return: The channel name or None if not found in distribution.
+        :rtype: str
+        """
+        for channel_name, agents in self.distribution.items():
+            if agent in agents:
+                return channel_name
+        return None  # TODO: handle exception that suddenly agent is not in distribution
+
+    async def send_next_observation(self, scenario_id, scenario_name):
+        """
+        In the context of the given scenario's id and name, the next observation to be
+        executed is sent to the correct supervisor.
+
+        :param scenario_id: The scenario ID.
+        :type scenario_id: str
+        :param scenario_name: The scenario name.
+        :type scenario_name: str
+        """
+        agents = self.mongodb_connector.get_agents_available(scenario_name, scenario_id)
+        if agents is not None and len(agents) > 0:
+            observations = self.mongodb_connector.get_observations(scenario_name, scenario_id, agents)
+            if observations is not None:
+                for observation in observations:
+                    del(observation["_id"])
+                    del(observation["Type"])
+                    next_observation_msg = {
+                        "type": "send.observation",
+                        "scenario_run_id": scenario_id,
+                        "scenario_name": scenario_name,
+                        "data": observation}
+                    channel_to_send_obs = await self.get_channel_for_agent(observation['sender'])
+                    await self.channels_connector.send_message_to_supervisor(channel_to_send_obs, next_observation_msg)
+                    self.mongodb_connector.set_agent_busy(scenario_name, scenario_id, observation["sender"])
 
     def __init__(self, scenario_name):
         self.HOST = socket.gethostname()
         self.scenario_run_id = config.create_scenario_run_id()
         self.scenario_name = scenario_name
-        self.connector = ChannelsConnector()
+        self.channels_connector = ChannelsConnector()
         if config.DISTRIBUTOR == "round_robin":
             self.distributor = RoundRobinDistributor()
         else:
             self.distributor = GreedyDistributor()
         self.distribution = None
         self.discovery = None
-        self.db_connector = MongoDbConnector(config.MONGODB_URI)
+        self.mongodb_connector = MongoDbConnector(config.MONGODB_URI)

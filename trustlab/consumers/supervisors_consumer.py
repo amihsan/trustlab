@@ -14,9 +14,8 @@ class SupervisorsConsumer(ChunkAsyncJsonWebsocketConsumer):
         Supervisor.objects.filter(channel_name__exact=self.channel_name).delete()
 
     async def scenario_registration(self, event):
-        print(event["scenario_name"])
-        self.db_connector.set_all_observations_not_done(event["scenario_name"], event["scenario_run_id"])
-        self.db_connector.set_all_agents_nothing_to_do(event["scenario_name"], event["scenario_run_id"])
+        self.mongodb_connector.set_all_observations_not_done(event["scenario_name"], event["scenario_run_id"])
+        self.mongodb_connector.set_all_agents_available(event["scenario_name"], event["scenario_run_id"])
         await self.send_websocket_message({
             "type": "scenario_registration",
             "scenario_run_id": event["scenario_run_id"],
@@ -25,15 +24,11 @@ class SupervisorsConsumer(ChunkAsyncJsonWebsocketConsumer):
         })
 
     async def scenario_discovery(self, event):
-        self.distribution = event["distribution"]  # to send later observation to correct supervisor
         await self.send_websocket_message({
             "type": "scenario_discovery",
             "scenario_run_id": event["scenario_run_id"],
             "discovery": event["discovery"]
         })
-
-    async def scenario_start(self, event):
-        await self.send_new_agent_data(event["scenario_run_id"], event["scenario_name"])
 
     async def observation_done(self, event):
         await self.send_websocket_message({
@@ -57,33 +52,6 @@ class SupervisorsConsumer(ChunkAsyncJsonWebsocketConsumer):
             "data": event['data']
         })
 
-    async def get_channel_for_agent(self, agent):
-        for channel_name, agents in self.distribution.items():
-            if agent in agents:
-                return channel_name
-        return None  # TODO: handle exception that suddenly agent is not in distribution
-
-    async def send_new_agent_data(self, scenario_id, scenario_name):
-        agents = self.db_connector.get_agents_nothing_to_do(scenario_name, scenario_id)
-        if agents is not None and len(agents) > 0:
-            observations = self.db_connector.get_observations(scenario_name, scenario_id, agents)
-            if observations is not None:
-                for observation in observations:
-                    del(observation["_id"])
-                    del(observation["Type"])
-                    answer = {
-                        "type": "new_observation",
-                        "scenario_run_id": scenario_id,
-                        "scenario_name": scenario_name,
-                        "data": observation}
-                    channel_to_send_obs = await self.get_channel_for_agent(observation['sender'])
-                    if channel_to_send_obs == self.channel_name:
-                        await self.send_websocket_message(answer)
-                    else:
-                        answer['type'] = "send.observation"
-                        await ChannelsConnector.send_message_to_supervisor(channel_to_send_obs, answer)
-                    self.db_connector.set_agent_has_something_todo(scenario_name, scenario_id, observation["sender"])
-
     async def receive_json(self, content, **kwargs):
         handled, new_content = await super().receive_chunk_traffic(content)
         content = new_content if new_content else content
@@ -99,7 +67,7 @@ class SupervisorsConsumer(ChunkAsyncJsonWebsocketConsumer):
                 await self.send_json(answer)
             elif content["type"] and content["type"] == "get_scales_per_agent":
                 agent = content["agent"]
-                data = self.db_connector.get_scales(content["scenario_name"], agent)
+                data = self.mongodb_connector.get_scales(content["scenario_name"], agent)
                 del data['_id']
                 del data['parent']
                 del data['Type']
@@ -112,7 +80,7 @@ class SupervisorsConsumer(ChunkAsyncJsonWebsocketConsumer):
                 await self.send_websocket_message(answer)
             elif content["type"] and content["type"] == "get_history_per_agent":
                 agent = content["agent"]
-                data = self.db_connector.get_history(content["scenario_name"], agent)
+                data = self.mongodb_connector.get_history(content["scenario_name"], agent)
                 for entry in data:
                     del entry['_id']
                     del entry['parent']
@@ -125,7 +93,7 @@ class SupervisorsConsumer(ChunkAsyncJsonWebsocketConsumer):
                     "data": data}
                 await self.send_websocket_message(answer)
             elif content["type"] and content["type"] == "get_all_agents":
-                data = self.db_connector.get_agents(content["scenario_name"])
+                data = self.mongodb_connector.get_agents(content["scenario_name"])
                 for entry in data:
                     del entry['_id']
                     del entry['Type']
@@ -135,12 +103,9 @@ class SupervisorsConsumer(ChunkAsyncJsonWebsocketConsumer):
                     "scenario_name": content["scenario_name"],
                     "data": data}
                 await self.send_websocket_message(answer)
-            elif content["type"] and content["type"] == "agent_free":
-                self.db_connector.set_agent_nothing_todo(content["scenario_name"], content["scenario_run_id"], content["agent"])
-                await self.send_new_agent_data(content["scenario_run_id"], content["scenario_name"])
             elif content["type"] and content["type"] == "get_metrics_per_agent":
                 agent = content["agent"]
-                data = self.db_connector.get_metrics(content["scenario_name"], agent)
+                data = self.mongodb_connector.get_metrics(content["scenario_name"], agent)
                 answer = {
                     "type": "get_metrics_per_agent",
                     "scenario_run_id": content["scenario_run_id"],
@@ -150,11 +115,14 @@ class SupervisorsConsumer(ChunkAsyncJsonWebsocketConsumer):
                 await self.send_websocket_message(answer)
             elif content["type"] and (content["type"] == "agent_discovery" or content["type"] == "scenario_end"):
                 await self.channel_layer.send(content["scenario_run_id"], content)
-            elif content["type"] and content["type"] == "observation_done":
-                self.db_connector.set_observation_done(content["scenario_name"], content["scenario_run_id"], content["observation_id"])
-                content["channel_name"] = self.channel_name
+            elif content["type"] and (content["type"] == "observation_done" or content["type"] == "agent_free"):
+                if content["type"] == "observation_done":
+                    self.mongodb_connector.set_observation_done(content["scenario_name"], content["scenario_run_id"], content["observation_id"])
+                    content["channel_name"] = self.channel_name
+                elif content["type"] == "agent_free":
+                    self.mongodb_connector.set_agent_available(content["scenario_name"], content["scenario_run_id"],
+                                                               content["agent"])
                 await self.channel_layer.send(content["scenario_run_id"], content)
-                await self.send_new_agent_data(content["scenario_run_id"], content["scenario_name"])
             elif content["type"] and content["type"] == "ram_usage":
                 content["channel_name"] = self.channel_name
                 await self.channel_layer.send(content["scenario_run_id"], content)
@@ -164,5 +132,4 @@ class SupervisorsConsumer(ChunkAsyncJsonWebsocketConsumer):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.db_connector = MongoDbConnector(MONGODB_URI)
-        self.distribution = None
+        self.mongodb_connector = MongoDbConnector(MONGODB_URI)

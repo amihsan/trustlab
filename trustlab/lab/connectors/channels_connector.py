@@ -9,7 +9,7 @@ from channels.layers import get_channel_layer
 class ChannelsConnector(BasicConnector):
     """
     Manages the supervisor connections with expecting all supervisors to connect via websockets and thus using
-    Django Channels as well as the data base to store active channel connections.
+    Django Channels as well as the database to store active channel connections.
     """
     @sync_to_async
     def sums_agent_numbers(self):
@@ -82,9 +82,6 @@ class ChannelsConnector(BasicConnector):
         }
         for channel_name in involved_supervisors:
             await self.send_message_to_supervisor(channel_name, start_message)
-
-    async def get_next_done_observation(self, scenario_run_id):
-        return await self.receive_with_scenario_run_id(scenario_run_id)
 
     async def broadcast_done_observation(self, scenario_run_id, done_observations_with_id, supervisors_to_inform):
         done_message = {
