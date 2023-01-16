@@ -39,11 +39,42 @@ class Director:
         self.distribution = await self.distributor.distribute(agents, supervisors_with_free_agents)
         # reserve agents at supervisors
         await sync_to_async(config.write_scenario_status)(self.scenario_run_id, f"Reserving Agents..")
-        self.discovery = await self.channels_connector.reserve_agents(self.distribution, self.scenario_run_id,
-                                                                      self.scenario_name)
+        self.mongodb_connector.set_all_observations_not_done(self.scenario_name, self.scenario_run_id)
+        self.mongodb_connector.set_all_agents_available(self.scenario_name, self.scenario_run_id)
+        await self.reserve_agents()
         await sync_to_async(config.write_scenario_status)(self.scenario_run_id,
                                                           f"Scenario Distribution:\n{self.discovery}")
         return len(self.distribution.keys())
+
+    async def reserve_agents(self):
+        self.discovery = {}
+        for channel_name in self.distribution.keys():
+            # init agents at supervisors
+            registration_message = {
+                "type": "scenario.registration",
+                "scenario_run_id": self.scenario_run_id,
+                "scenario_name": self.scenario_name,
+                "agents_at_supervisor": self.distribution[channel_name]
+            }
+            await self.channels_connector.send_message_to_supervisor(channel_name, registration_message)
+            received_discovery = False
+            while not received_discovery:
+                message = await self.channels_connector.receive_with_scenario_run_id(self.scenario_run_id)
+                if message['type'] == 'agent_discovery':
+                    received_discovery = True
+                    self.discovery = {**self.discovery, **message["discovery"]}
+                else:
+                    await self.handle_agent_request(message)
+        await self.channels_connector.reserve_agents_in_db(self.distribution)
+        # after registration and discovery knowledge share discovery with all involved supervisors
+        discovery_message = {
+            "type": "scenario.discovery",
+            "scenario_run_id": self.scenario_run_id,
+            "discovery": self.discovery,
+            "distribution": self.distribution
+        }
+        for channel_name in self.distribution.keys():
+            await self.channels_connector.send_message_to_supervisor(channel_name, discovery_message)
 
     async def run_scenario(self):
         """
@@ -52,7 +83,7 @@ class Director:
         Further, it manages the scenario run results and initiates the save.
         """
         # await self.channels_connector.start_scenario(self.distribution.keys(), self.scenario_run_id, self.scenario_name)
-        await self.send_next_observation(self.scenario_run_id, self.scenario_name)
+        await self.send_next_observation()
         trust_log, trust_log_dict = [], []
         agents = self.mongodb_connector.get_agents_list(self.scenario_name)
         agent_trust_logs = dict((agent, []) for agent in agents)
@@ -62,7 +93,17 @@ class Director:
         done_observations_with_id = []
         while scenario_runs:
             message = await self.channels_connector.receive_with_scenario_run_id(self.scenario_run_id)
-            await self.send_next_observation(self.scenario_run_id, self.scenario_name)
+            if message['type'] in ['observation_done', 'agent_free']:
+                if message['type'] == 'agent_free':
+                    self.mongodb_connector.set_agent_available(self.scenario_name, self.scenario_run_id,
+                                                               message['agent'])
+                else:
+                    self.mongodb_connector.set_observation_done(self.scenario_name, self.scenario_run_id,
+                                                                message["observation_id"])
+                await self.send_next_observation()
+            elif message['type'] in ['get_scales_per_agent', 'get_history_per_agent', 'get_all_agents',
+                                     'get_metrics_per_agent']:
+                await self.handle_agent_request(message)
             if message['type'] == 'observation_done':
                 await sync_to_async(config.write_scenario_status)(self.scenario_run_id,
                                                                   f"Did observation {message['observation_id']}")
@@ -146,7 +187,7 @@ class Director:
                 return channel_name
         return None  # TODO: handle exception that suddenly agent is not in distribution
 
-    async def send_next_observation(self, scenario_id, scenario_name):
+    async def send_next_observation(self):
         """
         In the context of the given scenario's id and name, the next observation to be
         executed is sent to the correct supervisor.
@@ -156,21 +197,64 @@ class Director:
         :param scenario_name: The scenario name.
         :type scenario_name: str
         """
-        agents = self.mongodb_connector.get_agents_available(scenario_name, scenario_id)
+        agents = self.mongodb_connector.get_agents_available(self.scenario_name, self.scenario_run_id)
         if agents is not None and len(agents) > 0:
-            observations = self.mongodb_connector.get_observations(scenario_name, scenario_id, agents)
+            observations = self.mongodb_connector.get_observations(self.scenario_name, self.scenario_run_id, agents)
             if observations is not None:
                 for observation in observations:
                     del(observation["_id"])
                     del(observation["Type"])
                     next_observation_msg = {
-                        "type": "send.observation",
-                        "scenario_run_id": scenario_id,
-                        "scenario_name": scenario_name,
-                        "data": observation}
+                        'type': 'send.data',
+                        'new_type': 'new_observation',
+                        'scenario_run_id': self.scenario_run_id,
+                        'data': observation}
                     channel_to_send_obs = await self.get_channel_for_agent(observation['sender'])
                     await self.channels_connector.send_message_to_supervisor(channel_to_send_obs, next_observation_msg)
-                    self.mongodb_connector.set_agent_busy(scenario_name, scenario_id, observation["sender"])
+                    self.mongodb_connector.set_agent_busy(self.scenario_name, self.scenario_run_id,
+                                                          observation["sender"])
+
+    async def handle_agent_request(self, message):
+        """
+        Handles a supervisor's request for agent data.
+
+        :param message: The message.
+        :type message: dict
+        """
+        agent = message["agent"] if message['type'] != 'get_all_agents' else None
+        answer = {
+            'type': 'send.data',
+            'new_type': None,
+            'scenario_run_id': self.scenario_run_id,
+        }
+        if agent is not None:
+            answer['agent'] = agent
+        data = None
+        if message['type'] == 'get_scales_per_agent':
+            data = self.mongodb_connector.get_scales(self.scenario_name, agent)
+            del data['_id']
+            del data['parent']
+            del data['Type']
+            answer['new_type'] = 'get_scales_per_agent'
+        elif message['type'] == 'get_history_per_agent':
+            data = self.mongodb_connector.get_history(self.scenario_name, agent)
+            for entry in data:
+                del entry['_id']
+                del entry['parent']
+                del entry['Type']
+            answer['new_type'] = 'get_history_per_agent'
+        elif message['type'] == 'get_metrics_per_agent':
+            data = self.mongodb_connector.get_metrics(self.scenario_name, agent)
+            answer['new_type'] = 'get_metrics_per_agent'
+        elif message['type'] == 'get_all_agents':
+            data = self.mongodb_connector.get_agents(self.scenario_name)
+            for entry in data:
+                del entry['_id']
+                del entry['Type']
+            answer['new_type'] = 'get_all_agents'
+        answer['data'] = data
+        if answer['new_type'] is not None:
+            await self.channels_connector.send_message_to_supervisor(message['response_channel'], answer)
 
     def __init__(self, scenario_name):
         self.HOST = socket.gethostname()

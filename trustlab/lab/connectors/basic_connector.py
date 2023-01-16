@@ -22,10 +22,6 @@ class BasicConnector(ABC):
         pass
 
     @abstractmethod
-    async def reserve_agents(self, distribution, scenario_run_id, scenario_name):
-        pass
-
-    @abstractmethod
     async def start_scenario(self, distribution, scenario_run_id, scenario_name):
         pass
 
