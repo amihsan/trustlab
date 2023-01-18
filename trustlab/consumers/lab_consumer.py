@@ -63,7 +63,7 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                         files_for_names = scenario_name_handler.get_files_for_names()
                         reader = ScenarioReader(content['scenario']['name'],
                                                 files_for_names[content['scenario']['name']], self.db_connector)
-                        reader.read()
+                        await reader.read()
                         if config.TIME_MEASURE:
                             reader_read = True
                     if config.TIME_MEASURE:

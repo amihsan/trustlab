@@ -4,6 +4,7 @@ import time
 import trustlab.serializers.parser_definitions as parser_definitions
 from collections import deque
 from trustlab.lab.config import LOG_SCENARIO_READER
+from asgiref.sync import sync_to_async
 
 
 class ScenarioReader:
@@ -38,6 +39,7 @@ class ScenarioReader:
             if len(items) > 0:
                 self.connector.add_many_data(self.scenario_name, items)
 
+    @sync_to_async
     def read(self):
         self.running = True
         for n in range(0, 4):

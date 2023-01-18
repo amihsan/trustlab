@@ -277,20 +277,12 @@ class MongoDbConnector:
             return list(finds)
         return None
 
-    def get_agents(self, scenario_name):
-        agents = self.database[scenario_name]
-        finds = agents.find({
-            "Type": "agents"
-        })
-        if finds:
-            return list(finds)
-        return None
-
     def get_agents_list(self, scenario_name):
-        all_agents = []
-        for agentdefinition in self.get_agents(scenario_name):
-            all_agents.append(agentdefinition['name'])
-        return all_agents
+        agents = self.database[scenario_name]
+        finds = agents.find({"Type": "agents"}, {"_id": 0, "name": 1})
+        if finds:
+            return [f['name'] for f in finds]
+        return None
 
     def check_if_scenario_exists(self, scenario_name):
         names = self.database.list_collection_names()

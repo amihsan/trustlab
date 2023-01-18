@@ -247,10 +247,7 @@ class Director:
             data = self.mongodb_connector.get_metrics(self.scenario_name, agent)
             answer['new_type'] = 'get_metrics_per_agent'
         elif message['type'] == 'get_all_agents':
-            data = self.mongodb_connector.get_agents(self.scenario_name)
-            for entry in data:
-                del entry['_id']
-                del entry['Type']
+            data = self.mongodb_connector.get_agents_list(self.scenario_name)
             answer['new_type'] = 'get_all_agents'
         answer['data'] = data
         if answer['new_type'] is not None:
