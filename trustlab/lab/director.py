@@ -26,7 +26,7 @@ class Director:
         :return: The amount of supervisors used for this scenario run.
         :rtype: int
         """
-        agents = self.mongodb_connector.get_agents_list(self.scenario_name)
+        agents = await self.mongodb_connector.get_agents_list(self.scenario_name)
         # check if enough agents are free to work
         sum_max_agents, sum_agents_in_use = await self.channels_connector.sums_agent_numbers()
         free_agents = sum_max_agents - sum_agents_in_use
@@ -39,8 +39,8 @@ class Director:
         self.distribution = await self.distributor.distribute(agents, supervisors_with_free_agents)
         # reserve agents at supervisors
         await sync_to_async(config.write_scenario_status)(self.scenario_run_id, f"Reserving Agents..")
-        self.mongodb_connector.set_all_observations_not_done(self.scenario_name, self.scenario_run_id)
-        self.mongodb_connector.set_all_agents_available(self.scenario_name, self.scenario_run_id)
+        await self.mongodb_connector.set_all_observations_to_do(self.scenario_name, self.scenario_run_id)
+        await self.mongodb_connector.set_all_agents_available(self.scenario_name, self.scenario_run_id)
         await self.reserve_agents()
         await sync_to_async(config.write_scenario_status)(self.scenario_run_id,
                                                           f"Scenario Distribution:\n{self.discovery}")
@@ -85,21 +85,21 @@ class Director:
         # await self.channels_connector.start_scenario(self.distribution.keys(), self.scenario_run_id, self.scenario_name)
         await self.send_next_observation()
         trust_log, trust_log_dict = [], []
-        agents = self.mongodb_connector.get_agents_list(self.scenario_name)
+        agents = await self.mongodb_connector.get_agents_list(self.scenario_name)
         agent_trust_logs = dict((agent, []) for agent in agents)
         agent_trust_logs_dict = dict((agent, []) for agent in agents)
         scenario_runs = True
-        observations_to_do_amount = self.mongodb_connector.get_observations_count(self.scenario_name)
+        observations_to_do_amount = await self.mongodb_connector.get_observations_count(self.scenario_name)
         done_observations_with_id = []
         while scenario_runs:
             message = await self.channels_connector.receive_with_scenario_run_id(self.scenario_run_id)
             if message['type'] in ['observation_done', 'agent_free']:
                 if message['type'] == 'agent_free':
-                    self.mongodb_connector.set_agent_available(self.scenario_name, self.scenario_run_id,
-                                                               message['agent'])
+                    await self.mongodb_connector.set_agent_available(self.scenario_name, self.scenario_run_id,
+                                                                     message['agent'])
                 else:
-                    self.mongodb_connector.set_observation_done(self.scenario_name, self.scenario_run_id,
-                                                                message["observation_id"])
+                    await self.mongodb_connector.set_observation_done(self.scenario_name, self.scenario_run_id,
+                                                                      message["observation_id"])
                 await self.send_next_observation()
             elif message['type'] in ['get_scales_per_agent', 'get_history_per_agent', 'get_all_agents',
                                      'get_metrics_per_agent']:
@@ -197,9 +197,10 @@ class Director:
         :param scenario_name: The scenario name.
         :type scenario_name: str
         """
-        agents = self.mongodb_connector.get_agents_available(self.scenario_name, self.scenario_run_id)
+        agents = await self.mongodb_connector.get_agents_available(self.scenario_name, self.scenario_run_id)
         if agents is not None and len(agents) > 0:
-            observations = self.mongodb_connector.get_observations(self.scenario_name, self.scenario_run_id, agents)
+            observations = await self.mongodb_connector.get_observations(self.scenario_name, self.scenario_run_id,
+                                                                         agents)
             if observations is not None:
                 for observation in observations:
                     del(observation["_id"])
@@ -211,8 +212,8 @@ class Director:
                         'data': observation}
                     channel_to_send_obs = await self.get_channel_for_agent(observation['sender'])
                     await self.channels_connector.send_message_to_supervisor(channel_to_send_obs, next_observation_msg)
-                    self.mongodb_connector.set_agent_busy(self.scenario_name, self.scenario_run_id,
-                                                          observation["sender"])
+                    await self.mongodb_connector.set_agent_busy(self.scenario_name, self.scenario_run_id,
+                                                                observation["sender"])
 
     async def handle_agent_request(self, message):
         """
@@ -231,23 +232,16 @@ class Director:
             answer['agent'] = agent
         data = None
         if message['type'] == 'get_scales_per_agent':
-            data = self.mongodb_connector.get_scales(self.scenario_name, agent)
-            del data['_id']
-            del data['parent']
-            del data['Type']
+            data = await self.mongodb_connector.get_scales(self.scenario_name, agent)
             answer['new_type'] = 'get_scales_per_agent'
         elif message['type'] == 'get_history_per_agent':
-            data = self.mongodb_connector.get_history(self.scenario_name, agent)
-            for entry in data:
-                del entry['_id']
-                del entry['parent']
-                del entry['Type']
+            data = await self.mongodb_connector.get_history(self.scenario_name, agent)
             answer['new_type'] = 'get_history_per_agent'
         elif message['type'] == 'get_metrics_per_agent':
-            data = self.mongodb_connector.get_metrics(self.scenario_name, agent)
+            data = await self.mongodb_connector.get_metrics(self.scenario_name, agent)
             answer['new_type'] = 'get_metrics_per_agent'
         elif message['type'] == 'get_all_agents':
-            data = self.mongodb_connector.get_agents_list(self.scenario_name)
+            data = await self.mongodb_connector.get_agents_list(self.scenario_name)
             answer['new_type'] = 'get_all_agents'
         answer['data'] = data
         if answer['new_type'] is not None:

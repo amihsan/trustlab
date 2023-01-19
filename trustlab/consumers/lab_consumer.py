@@ -57,12 +57,13 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                         reader_start_timer = time.time()
                         reader_read = False
                     if 'scenario_reset' in content and content['scenario_reset']:
-                        self.db_connector.reset_scenario(content['scenario']['name'])
-                    if not self.db_connector.check_if_scenario_exists(content['scenario']['name']):
+                        await self.mongodb_connector.reset_scenario(content['scenario']['name'])
+                    scenario_exists = await self.mongodb_connector.scenario_exists(content['scenario']['name'])
+                    if not scenario_exists:
                         scenario_name_handler = ScenarioFileNames()
                         files_for_names = scenario_name_handler.get_files_for_names()
                         reader = ScenarioReader(content['scenario']['name'],
-                                                files_for_names[content['scenario']['name']], self.db_connector)
+                                                files_for_names[content['scenario']['name']], self.mongodb_connector)
                         await reader.read()
                         if config.TIME_MEASURE:
                             reader_read = True
@@ -121,7 +122,7 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                                                                           f"Execution took {execution_time} s")
                         cleanup_start_timer = time.time()
                     await director.end_scenario()
-                    self.db_connector.cleanup(content['scenario']['name'], director.scenario_run_id)
+                    await self.mongodb_connector.cleanup(content['scenario']['name'], director.scenario_run_id)
                     if config.TIME_MEASURE:
                         cleanup_end_timer = time.time()
                         # noinspection PyUnboundLocalVariable
@@ -148,6 +149,7 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                             'cleanup_time': cleanup_time
                         }
                         if reader_read:
+                            # noinspection PyUnboundLocalVariable
                             atlas_times['reader_time'] = reader_time
                         log_message['atlas_times'] = atlas_times
                         result_factory = ResultFactory()
@@ -230,4 +232,4 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
         super().__init__(*args, **kwargs)
         self.changed_evaluation_status = False
         self.copy_result_pys = False
-        self.db_connector = MongoDbConnector(MONGODB_URI)
+        self.mongodb_connector = MongoDbConnector(MONGODB_URI)
