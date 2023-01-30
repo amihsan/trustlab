@@ -98,6 +98,12 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                 #        return
                 #    # TODO: implement save for new scenario as currently it won't be saved due to name only load
                 #    scenario_factory.scenarios.append(scenario)
+                if 'scenario_only_read' in content and content['scenario_only_read']:
+                    await self.send_json({
+                        'scenario_run_id': director.scenario_run_id,
+                        'type': 'read_only_done'
+                    })
+                    return
                 try:
                     async with config.PREPARE_SCENARIO_SEMAPHORE:
                         if config.TIME_MEASURE:
