@@ -63,7 +63,7 @@ class Scenario(object):
         self.generate_topics(self.n_observations)
 
         # add metadata to scenario file
-        if self.scenario_name is not None:
+        if self.scenario_name is None:
             self.write_named_object_to_output(
                 'NAME', f'Random_{self.n_agents}A-{self.n_observations}O_{int(round(random.random(), 6) * 1e6)}')
         else:
