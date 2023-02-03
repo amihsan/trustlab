@@ -4,6 +4,7 @@ import time
 import trustlab.serializers.parser_definitions as parser_definitions
 from collections import deque
 from trustlab.lab.config import LOG_SCENARIO_READER
+from asgiref.sync import sync_to_async
 
 
 class ScenarioReader:
@@ -38,6 +39,7 @@ class ScenarioReader:
             if len(items) > 0:
                 self.connector.add_many_data(self.scenario_name, items)
 
+    @sync_to_async
     def read(self):
         self.running = True
         for n in range(0, 4):
@@ -62,26 +64,28 @@ class ScenarioReader:
                 while line is not None and len(line) > 0:
                     line = self.analyze_line(line)
         while len(self.doneItems) > 0:
-            None
+            pass
         self.running = False
+        # a non-blocking threads join alternative:
         while len(self.threads) > 0:
             for t in self.threads:
                 if not t.is_alive():
                     self.threads.remove(t)
-            None
         if LOG_SCENARIO_READER:
             print("reading done!")
 
     def analyze_line(self, line):
         line = line.strip()
         if len(line) == 0:
-            return
+            return ""
         if len(self.definitions) == 0:
             if '=' in line:
                 classification_parts = line.split('=', 1)
                 user_defined_classes = [i for i in dir(parser_definitions) if type(getattr(parser_definitions, i)) is type.__class__]
                 if classification_parts[0].strip() in user_defined_classes:
-                    self.definitions.append(eval("parser_definitions." + classification_parts[0].strip()))
+                    new_definition = eval("parser_definitions." + classification_parts[0].strip())
+                    new_definition.__init__(new_definition)
+                    self.definitions.append(new_definition)
                     if LOG_SCENARIO_READER:
                         t = time.localtime()
                         current_time = time.strftime("%H:%M:%S", t)
@@ -98,7 +102,7 @@ class ScenarioReader:
                         self.doneItems.append([self.scenario_name, current_object.__name__.lower(), obj])
                 current_object.clear_objects(current_object)
                 while len(self.doneItems) > 400:
-                    None
+                    pass
             if not current_object.is_done(current_object):
                 self.definitions.append(current_object)
             if not current_object.get_next_object(current_object) is None:

@@ -9,7 +9,7 @@ from channels.layers import get_channel_layer
 class ChannelsConnector(BasicConnector):
     """
     Manages the supervisor connections with expecting all supervisors to connect via websockets and thus using
-    Django Channels as well as the data base to store active channel connections.
+    Django Channels as well as the database to store active channel connections.
     """
     @sync_to_async
     def sums_agent_numbers(self):
@@ -28,11 +28,13 @@ class ChannelsConnector(BasicConnector):
     def get_supervisor_hostname(self, given_channel_name):
         return Supervisor.objects.get(channel_name=given_channel_name).hostname
 
-    async def send_message_to_supervisor(self, channel_name, message):
+    @staticmethod
+    async def send_message_to_supervisor(channel_name, message):
         channel_layer = get_channel_layer()
         await channel_layer.send(channel_name, message)
 
-    async def receive_with_scenario_run_id(self, scenario_run_id):
+    @staticmethod
+    async def receive_with_scenario_run_id(scenario_run_id):
         channel_layer = get_channel_layer()
         response = await channel_layer.receive(scenario_run_id)
         return response
@@ -45,31 +47,6 @@ class ChannelsConnector(BasicConnector):
             supervisor.agents_in_use += len(distribution[channel_name])
             supervisor.save()
 
-    async def reserve_agents(self, distribution, scenario_run_id, scenario_name):
-        discovery = {}
-        for channel_name in distribution.keys():
-            # init agents at supervisors
-            registration_message = {
-                "type": "scenario.registration",
-                "scenario_run_id": scenario_run_id,
-                "scenario_name": scenario_name,
-                "agents_at_supervisor": distribution[channel_name]
-            }
-            await self.send_message_to_supervisor(channel_name, registration_message)
-            agent_discovery = await self.receive_with_scenario_run_id(scenario_run_id)
-            discovery = {**discovery, **agent_discovery["discovery"]}
-        await self.reserve_agents_in_db(distribution)
-        # after registration and discovery knowledge share discovery with all involved supervisors
-        discovery_message = {
-            "type": "scenario.discovery",
-            "scenario_run_id": scenario_run_id,
-            "scenario_name": scenario_name,
-            "discovery": discovery
-        }
-        for channel_name in distribution.keys():
-            await self.send_message_to_supervisor(channel_name, discovery_message)
-        return discovery
-
     async def start_scenario(self, involved_supervisors, scenario_run_id, scenario_name):
         start_message = {
             "type": "scenario.start",
@@ -79,9 +56,6 @@ class ChannelsConnector(BasicConnector):
         }
         for channel_name in involved_supervisors:
             await self.send_message_to_supervisor(channel_name, start_message)
-
-    async def get_next_done_observation(self, scenario_run_id):
-        return await self.receive_with_scenario_run_id(scenario_run_id)
 
     async def broadcast_done_observation(self, scenario_run_id, done_observations_with_id, supervisors_to_inform):
         done_message = {

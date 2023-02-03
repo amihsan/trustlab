@@ -5,28 +5,27 @@ from collections import deque
 
 
 class AGENTS:
-    object = None
-    done_objects = []
-    storedString = ""
-    done = False
+    def __init__(self):
+        self.object = None
+        self.done_objects = []
+        self.storedString = ""
+        self.done = False
 
     def add_line(self, line):
         line = self.storedString + line
         self.storedString = ""
         if len(line) == 0:
-            return
+            return ""
         if line[:1] == ']':
             self.done = True
             return line[1:].strip()
         if line[:1] == '[':
             return line[1:].strip()
-        parts = re.split("^'([^']{1,})'(?:,|)(.*)", line)
+        parts = re.split("^'([^']+)'(?:,|)(.*)", line)
         if len(parts) <= 2:
             self.storedString = line
             return ""
-        self.object = {}
-        self.object["name"] = parts[1]
-        self.object["_id"] = uuid.uuid4().hex
+        self.object = {"name": parts[1], "_id": uuid.uuid4().hex}
         self.done_objects.append(self.object)
         self.object = None
         return parts[2]
@@ -52,13 +51,14 @@ class AGENTS:
 
 
 class HISTORY:
-    object = None
-    done_objects = []
-    storedString = ""
-    done = False
-    storedKey = None
-    q = deque()
-    tq = deque()
+    def __init__(self):
+        self.object = None
+        self.done_objects = []
+        self.storedString = ""
+        self.done = False
+        self.storedKey = None
+        self.q = deque()
+        self.tq = deque()
 
     def add_line(self, line):
         line = line.strip()
@@ -88,7 +88,7 @@ class HISTORY:
             self.storedKey = None
             return line[1:].strip()
         if self.storedKey is None:
-            parts = re.split("^'([^']{1,})':(?:,|)(.*)", line)
+            parts = re.split("^'([^']+)':(?:,|)(.*)", line)
             if len(parts) <= 2:
                 self.storedString = line
                 return ""
@@ -157,14 +157,6 @@ class HISTORY:
 
 
 class DETAILS:
-    object = None
-    done_objects = []
-    storedString = ""
-    storedKey = None
-    done = False
-    parentId = ""
-    q = deque()
-
     def __init__(self, parent_id):
         self.parentId = parent_id
         self.object = None
@@ -172,7 +164,7 @@ class DETAILS:
         self.storedString = ""
         self.storedKey = None
         self.done = False
-        q = deque()
+        self.q = deque()
 
     def add_line(self, line):
         line = (self.storedString + line).strip()
@@ -195,13 +187,11 @@ class DETAILS:
             self.storedKey = None
             return line[1:].strip()
         if self.storedKey is None:
-            parts = re.split("^'([^']{1,})':(?:,|)(.*)", line)
+            parts = re.split("^'([^']+)':(?:,|)(.*)", line)
             if len(parts) <= 2:
                 self.storedString = line
                 return ""
-            self.object = {}
-            self.object["_id"] = uuid.uuid4().hex
-            self.object["observation_id"] = self.parentId
+            self.object = {"_id": uuid.uuid4().hex, "observation_id": self.parentId}
             self.storedKey = parts[1]
             return parts[2]
         else:
@@ -263,14 +253,15 @@ class DETAILS:
 
 
 class OBSERVATIONS:
-    object = None
-    done_objects = []
-    storedString = ""
-    storedKey = None
-    done = False
-    next_object = None
-    details = "DETAILS"
-    q = deque()
+    def __init__(self):
+        self.object = None
+        self.done_objects = []
+        self.storedString = ""
+        self.storedKey = None
+        self.done = False
+        self.next_object = None
+        self.details = "DETAILS"
+        self.q = deque()
 
     def add_line(self, line):
         line = (self.storedString + line).strip()
@@ -295,7 +286,7 @@ class OBSERVATIONS:
             self.next_object = None
             return line[1:].strip()
         if self.storedKey is None:
-            parts = re.split("^'([^']{1,})':(?:,|)(.*)", line)
+            parts = re.split("^'([^']+)':(?:,|)(.*)", line)
             if len(parts) <= 2:
                 self.storedString = line
                 return ""
@@ -368,14 +359,15 @@ class OBSERVATIONS:
 
 
 class SCALES_PER_AGENT:
-    object = None
-    done_objects = []
-    storedString = ""
-    storedKey = None
-    parent = None
-    done = False
-    next_object = None
-    q = deque()
+    def __init__(self):
+        self.object = None
+        self.done_objects = []
+        self.storedString = ""
+        self.storedKey = None
+        self.parent = None
+        self.done = False
+        self.next_object = None
+        self.q = deque()
 
     def add_line(self, line):
         line = (self.storedString + line).strip()
@@ -481,22 +473,23 @@ class SCALES_PER_AGENT:
 
 
 class METRICS_PER_AGENT:
-    object = None
-    done_objects = []
-    storedStrings = []
-    storedKey = None
-    parent = None
-    done = False
-    next_object = None
-    q = deque()
-    tq = deque()
-    tqcount = 0
+    def __init__(self):
+        self.object = None
+        self.done_objects = []
+        self.storedStrings = []
+        self.storedKey = None
+        self.parent = None
+        self.done = False
+        self.next_object = None
+        self.q = deque()
+        self.tq = deque()
+        self.tq_count = 0
 
     def add_line(self, line):
         line = line.strip()
         if len(line) == 0:
             return
-        if self.tqcount == 0:
+        if self.tq_count == 0:
             if line[:1] == '}' and len(self.q) == 1:
                 self.done = True
                 self.q.pop()
@@ -523,12 +516,12 @@ class METRICS_PER_AGENT:
                 self.storedKey = None
                 return line[1:].strip()
         if self.parent is None:
-            parts = re.split("^'([^']{1,})':(?:,|)(.*)", line)
+            parts = re.split("^'([^']+)':(?:,|)(.*)", line)
             self.parent = parts[1]
             return parts[2]
         else:
             if self.storedKey is None:
-                parts = re.split("^'([^']{1,})':(?:,|)(.*)", line)
+                parts = re.split("^'([^']+)':(?:,|)(.*)", line)
                 self.storedKey = parts[1]
                 return parts[2]
             else:
@@ -540,36 +533,37 @@ class METRICS_PER_AGENT:
                 while index < len(line):
                     if line[index] in ['{', '[', '(']:
                         self.tq.append(line[index])
-                        self.tqcount+=1
+                        self.tq_count += 1
                     if line[index] == '}':
                         if self.tq.pop() != '{':
                             raise Exception("Configuration not valid!")
-                        self.tqcount-=1
+                        self.tq_count -= 1
                     if line[index] == ')':
                         if self.tq.pop() != '(':
                             raise Exception("Configuration not valid!")
-                        self.tqcount-=1
+                        self.tq_count -= 1
                     if line[index] == ']':
                         if self.tq.pop() != '[':
                             raise Exception("Configuration not valid!")
-                        self.tqcount-=1
+                        self.tq_count -= 1
                     if line[index] == "'":
-                        if self.tqcount == 0:
+                        if self.tq_count == 0:
                             self.tq.append("'")
-                            self.tqcount+=1
+                            self.tq_count += 1
                         else:
                             last = self.tq.pop()
-                            self.tqcount-=1
+                            self.tq_count -= 1
                             if not last == "'":
                                 self.tq.append(last)
                                 self.tq.append("'")
-                                self.tqcount+=2
+                                self.tq_count += 2
                     resstring += line[index]
                     index += 1
-                    if self.tqcount == 0 and (not until_end or (len(line) > index and line[index] in ['}', ']', ')', ','])):
+                    if self.tq_count == 0 and (
+                            not until_end or (len(line) > index and line[index] in ['}', ']', ')', ','])):
                         until_end = False
                         break
-                if self.tqcount > 0 or until_end:
+                if self.tq_count > 0 or until_end:
                     self.storedStrings.append(line)
                     return ""
                 self.storedStrings.append(resstring)

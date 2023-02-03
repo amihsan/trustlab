@@ -38,7 +38,7 @@ scales = {
 
 
 class Scenario(object):
-    def __init__(self, observations, agents, file) -> None:
+    def __init__(self, observations, agents, file, scenario_name=None) -> None:
         super().__init__()
         # contraints
         self.n_observations = observations
@@ -47,6 +47,7 @@ class Scenario(object):
         # output handles
         self.output_file_name = file
         self.output_file_handle = open(file, 'w+')
+        self.scenario_name = scenario_name
 
         # data
         self.agents = []
@@ -60,8 +61,11 @@ class Scenario(object):
         self.generate_topics(self.n_observations)
 
         # add metadata to scenario file
-        self.write_named_object_to_output(
-            'NAME', f'Random_{self.n_agents}A-{self.n_observations}O_{int(round(random.random(), 6) * 1e6)}')
+        if self.scenario_name is None:
+            self.write_named_object_to_output(
+                'NAME', f'Random_{self.n_agents}A-{self.n_observations}O_{int(round(random.random(), 6) * 1e6)}')
+        else:
+            self.write_named_object_to_output('NAME', self.scenario_name)
         self.write_named_object_to_output(
             'DESCRIPTION', f'Randomly generated scenario with {self.n_agents} agents and {self.n_observations} observations')
         self.write_named_object_to_output('AGENTS', self.agents)
