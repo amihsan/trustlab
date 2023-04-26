@@ -105,20 +105,22 @@ for a decentralized web has to be done manually with a high effort.
 
 1. Install [Redis][redis-quickstart].
 
-2. Clone Git Repository, [including all submodules][git-submodules].
+2. Install [MongoDB][mongodb-quickstart].
 
-3. Setup pipenv in project root:
+3. Clone Git Repository, [including all submodules][git-submodules].
+
+4. Setup pipenv in project root:
     ```shell
     pipenv install
     ```
    >For more information on pipenv, cf. [Pipenv: Python Dev Workflow for Humans][pipenv].
         
-4. Modify ``Additional Options`` of your django configuration (for no auto-reload after editing scenario files) with:
+5. Modify ``Additional Options`` of your django configuration (for no auto-reload after editing scenario files) with:
     ```shell
     --noreload
     ```
 
-5. Install also at least one supervisor, c.f. [submodule trustlab_host][trustlab-host-repo].
+6. Install also at least one supervisor, c.f. [submodule trustlab_host][trustlab-host-repo].
 
 ### 🏢 Setup for VSRians
 
@@ -127,14 +129,16 @@ for a decentralized web has to be done manually with a high effort.
 
 1. Install [Microsoft ODBC Driver 17][microsoft-odbc-driver] (Windows/Linux/MacOS)
 
-2. Clone Git Repository, [including all submodules][git-submodules].
+2. Install [MongoDB][mongodb-quickstart].
 
-3. Configure merge driver for dealing with ``.gitattributes`` or rather the merge strategy:
+3. Clone Git Repository, [including all submodules][git-submodules].
+
+4. Configure merge driver for dealing with ``.gitattributes`` or rather the merge strategy:
     ```shell
     git config merge.ours.driver true
     ```
 
-4. Setup pipenv in project root:
+5. Setup pipenv in project root:
     ```shell
     pipenv install
     ```
@@ -148,7 +152,7 @@ for a decentralized web has to be done manually with a high effort.
         odbcinst -u -d -n "ODBC Driver 17 for SQL Server"
         ```
         
-5. Modify ``Additional Options`` of your django configuration (for no auto-reload after editing scenario files) with:
+6. Modify ``Additional Options`` of your django configuration (for no auto-reload after editing scenario files) with:
     ```shell
     --noreload
     ```
@@ -164,6 +168,9 @@ for a decentralized web has to be done manually with a high effort.
     ```shell
     redis-server
     ```
+   
+2. Run local [MongoDB][mongodb-quickstart].  
+    >Dependent on your OS the execution instructions are part of the guide in the link above. 
 
 3. Run aTLAS:
     ```bash
@@ -178,12 +185,16 @@ for a decentralized web has to be done manually with a high effort.
 <details>
 <summary>For VSRians only</summary>
 
-1. Run aTLAS:
+1. Change MongoDBURI in [trustlab/lab/config.py](trustlab/lab/config.py) _OR_  
+   run local [MongoDB][mongodb-quickstart].  
+    >Dependent on your OS the execution instructions are part of the guide in the link above.
+
+2. Run aTLAS:
     ```bash
     python manage.py runserver 8000 --noreload
     ```
 
-2. Run at least on supervisor with the [submodule trustlab_host][trustlab-host-repo] and connect it to aTLAS director.
+3. Run at least on supervisor with the [submodule trustlab_host][trustlab-host-repo] and connect it to aTLAS director.
 
 </details>
 
@@ -221,8 +232,9 @@ for a decentralized web has to be done manually with a high effort.
 
 The original setup of this repository is by the first author [Valentin Siegert][valentin-siegert-website].
 
-All authors of this work in alphabetic order:
+All authors of this work in alphabetic surname order:
 
+- [Shovra Das](https://github.com/shovradas)
 - [Martin Gaedke](https://vsr.informatik.tu-chemnitz.de/people/gaedke)
 - Arved Kirchhoff
 - [Mahda Noura](https://vsr.informatik.tu-chemnitz.de/people/mahdanoura)
@@ -230,10 +242,11 @@ All authors of this work in alphabetic order:
 
 ## 👍 Acknowledgements
 
-The authors acknowledge the work of the following students:
+The authors acknowledge the work of the following students in alphabetic surname order:
 
 - Jun Li
 - Marten Rogall
+- Bastian Rose
 
 
 <!-- Identifiers, in alphabetical order -->
@@ -244,6 +257,7 @@ The authors acknowledge the work of the following students:
 [demo-intern]: https://vsr-dem0.informatik.tu-chemnitz.de/trustlab/
 [git-submodules]: https://git-scm.com/book/en/v2/Git-Tools-Submodules
 [microsoft-odbc-driver]: https://docs.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server?view=sql-server-2017
+[mongodb-quickstart]: https://www.mongodb.com/docs/manual/installation/
 [pipenv]: https://pipenv.pypa.io/en/latest/
 [redis-quickstart]: https://redis.io/topics/quickstart
 [trustlab-host-repo]: https://gitlab.hrz.tu-chemnitz.de/vsr/phd/siegert/trustlab_host
