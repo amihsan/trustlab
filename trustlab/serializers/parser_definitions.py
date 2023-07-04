@@ -128,11 +128,14 @@ class HISTORY:
             if len(self.tq) > 0 or until_end:
                 self.storedString = self.storedString + line
                 return ""
-            parts = re.split("^.'([^']*)',(?: |)'([^']*)',(?: |)((?:-|)\\d*[.]*\\d*).", self.storedString + resstring)
+            parts = re.match("^.'(?P<child>[^']*)',(?: |)'(?P<url>[^']*)',(?: |)(?P<value>((?:-|)\d*[.]*\d*)|.*).$", self.storedString + resstring)
             self.object["parent"] = self.storedKey
-            self.object["child"] = parts[1]
-            self.object["url"] = parts[2]
-            self.object["value"] = float(parts[3])
+            self.object["child"] = parts['child']
+            self.object["url"] = parts['url']
+            try:
+                self.object["value"] = float(parts['value'])
+            except ValueError:
+                self.object["value"] = parts['value']
             self.storedString = ""
             return line[index:]
 
