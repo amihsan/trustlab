@@ -5,23 +5,25 @@ import string
 import uuid
 from datetime import datetime
 
-context_levels = ['relaxed', 'important', 'critical']
+# context_levels = ['relaxed', 'important', 'critical']
 max_seconds_time_delay = 63072000
 max_lifetime_delay = 31536000
 
 factors = [
-    'content_trust.bias',
-    'content_trust.specificity',
-    'content_trust.likelihood',
-    'content_trust.incentive',
-    'content_trust.deception',
-    'content_trust.age',
-    'content_trust.authority',
-    'content_trust.topic',
-    'content_trust.provenance',
-    'content_trust.direct_experience',
-    'content_trust.related_resources',
-    'content_trust.user_expertise',
+    # 'content_trust.bias',
+    # 'content_trust.specificity',
+    # 'content_trust.likelihood',
+    # 'content_trust.incentive',
+    # 'content_trust.deception',
+    # 'content_trust.age',
+    # 'content_trust.authority',
+    # 'content_trust.topic',
+    # 'content_trust.provenance',
+    # 'content_trust.direct_experience',
+    # 'content_trust.related_resources',
+    # 'content_trust.user_expertise',
+    'travos.experience',
+    'travos.opinion',
 ]
 
 scales = {
@@ -112,17 +114,17 @@ class Scenario(object):
             # details
             observation['details'] = {
                 'uri': self.__uris__[i],
-                'content_trust.context_level': random.choice(context_levels),
-                'content_trust.bias': random.random() * 2 - 1,
-                'content_trust.deception': random.random() * 2 - 1,
-                'content_trust.incentive': random.random() * 2 - 1,
-                'content_trust.likelihood': random.random() * 2 - 1,
-                'content_trust.specificity': random.random() * 2 - 1,
-                'content_trust.topics': random.sample(self.__topics__, random.randint(1, min(len(self.__topics__), 5))),
-                'content_trust.related_resources': random.sample(self.__uris__,
-                                                                 random.randint(0, min(len(self.__uris__), 10))),
-                'content_trust.publication_date': datetime.now().timestamp() - (max_seconds_time_delay *
-                                                                                random.random())
+                # 'content_trust.context_level': random.choice(context_levels),
+                # 'content_trust.bias': random.random() * 2 - 1,
+                # 'content_trust.deception': random.random() * 2 - 1,
+                # 'content_trust.incentive': random.random() * 2 - 1,
+                # 'content_trust.likelihood': random.random() * 2 - 1,
+                # 'content_trust.specificity': random.random() * 2 - 1,
+                # 'content_trust.topics': random.sample(self.__topics__, random.randint(1, min(len(self.__topics__), 5))),
+                # 'content_trust.related_resources': random.sample(self.__uris__,
+                #                                                  random.randint(0, min(len(self.__uris__), 10))),
+                # 'content_trust.publication_date': datetime.now().timestamp() - (max_seconds_time_delay *
+                #                                                                 random.random())
             }
 
             self.write_string_to_output(pprint.pformat(observation))
@@ -140,8 +142,11 @@ class Scenario(object):
             agent_history = []
             for other_agent in self.agents:
                 if other_agent != agent:
+                    random_int = random.randint(0, 20)
+                    random_tuple = (random_int, 20 - random_int)
+                    tuple_string = f'({random_tuple[0]}, {random_tuple[1]})'
                     agent_history.append((other_agent, random.choice(
-                        self.__uris__), random.random() * 2 - 1))
+                        self.__uris__), tuple_string))
 
             if len(agent_history) > 0:
                 # even if i is smaller than len(self.agents), the randomness might prevent another entry
@@ -180,25 +185,15 @@ class Scenario(object):
                 weights[factor] = random.random()
             prefs = {
                 '__final__': {
-                    'name': 'weighted_average',
-                    'weights': weights
+                    'name': 'travos',
                 },
-                'content_trust.age_grace_period_seconds': random.random() * 5260000,  # 2 months * random
-                'content_trust.authority': random.sample(self.agents, random.randint(0, len(self.agents))),
-                'content_trust.context_values': {'critical': thresholds[2], 'important': thresholds[1],
-                                                 'relaxed': thresholds[0]},
-                'content_trust.deception': random.random() - 1,
-                'content_trust.direct_experience': {},
-                'content_trust.max_lifetime_seconds': datetime.now().timestamp() - max_lifetime_delay * random.random(),
-                'content_trust.provenance': random.sample(self.agents, random.randint(0, len(self.agents))),
-                'content_trust.recency_age_limit': datetime.now().timestamp() - max_lifetime_delay * random.random(),
-                'content_trust.related_resources': {},
-                'content_trust.topic': trusted_topics,
-                'content_trust.user_expertise': {}
+
+                'travos.experience': {},
+                'travos.opinion': {},
             }
-            # add enforce lifetime
-            if random.random() < 0.3:
-                prefs['content_trust.enforce_lifetime'] = {}
+            # # add enforce lifetime
+            # if random.random() < 0.3:
+            #     prefs['content_trust.enforce_lifetime'] = {}
 
             str = ',\n' if i > 0 else ''
             str += f"{pprint.pformat(agent)}: {pprint.pformat(prefs)}"

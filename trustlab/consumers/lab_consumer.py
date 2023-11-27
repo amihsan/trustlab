@@ -73,6 +73,9 @@ class LabConsumer(ChunkAsyncJsonWebsocketConsumer):
                         reader_time = reader_end_timer - reader_start_timer if reader_read else -1
                         await sync_to_async(config.write_scenario_status)(director.scenario_run_id,
                                                                           f"Database-Preparation took {reader_time} s")
+
+
+
                 except (ValueError, AttributeError, TypeError, ModuleNotFoundError, SyntaxError) as error:
                     await self.send_json({
                         'message': f'Scenario Error: {str(error)}',

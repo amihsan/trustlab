@@ -131,6 +131,8 @@ HISTORY = {'A': [['B', 'www.example.com/interactive-web-tutorial.html', 1.0],
         1.0],
        ['C', 'www.example.com/beginners-guide-semantic-web.pdf', 1.0]]}
 
+
+
 SCALES_PER_AGENT = {'A': {'cooperation': 0.5,
        'default': 0.0,
        'forgivability': -0.5,

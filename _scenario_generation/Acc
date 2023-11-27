@@ -1,0 +1,77 @@
+NAME = 'Random_5A-1O_415157'
+
+DESCRIPTION = 'Randomly generated scenario with 5 agents and 1 observations'
+
+AGENTS = ['A', 'B', 'C', 'D', 'E']
+
+OBSERVATIONS = [{'authors': ['E', 'A', 'C', 'B'],
+ 'before': [],
+ 'details': {'uri': '76dd039b-130f-4fc6-bb62-c25d8c0baaeb'},
+ 'message': 'klaibzsm',
+ 'observation_id': 0,
+ 'receiver': 'C',
+ 'sender': 'A'}]
+
+HISTORY = {'A': [('B', '76dd039b-130f-4fc6-bb62-c25d8c0baaeb', '(3, 17)'),
+ ('C', '76dd039b-130f-4fc6-bb62-c25d8c0baaeb', '(17, 3)'),
+ ('D', '76dd039b-130f-4fc6-bb62-c25d8c0baaeb', '(16, 4)'),
+ ('E', '76dd039b-130f-4fc6-bb62-c25d8c0baaeb', '(20, 0)')],
+'B': [('A', '76dd039b-130f-4fc6-bb62-c25d8c0baaeb', '(5, 15)'),
+ ('C', '76dd039b-130f-4fc6-bb62-c25d8c0baaeb', '(12, 8)'),
+ ('D', '76dd039b-130f-4fc6-bb62-c25d8c0baaeb', '(15, 5)'),
+ ('E', '76dd039b-130f-4fc6-bb62-c25d8c0baaeb', '(10, 10)')],
+'C': [('A', '76dd039b-130f-4fc6-bb62-c25d8c0baaeb', '(0, 20)'),
+ ('B', '76dd039b-130f-4fc6-bb62-c25d8c0baaeb', '(13, 7)'),
+ ('D', '76dd039b-130f-4fc6-bb62-c25d8c0baaeb', '(1, 19)'),
+ ('E', '76dd039b-130f-4fc6-bb62-c25d8c0baaeb', '(3, 17)')],
+'D': [('A', '76dd039b-130f-4fc6-bb62-c25d8c0baaeb', '(12, 8)'),
+ ('B', '76dd039b-130f-4fc6-bb62-c25d8c0baaeb', '(4, 16)'),
+ ('C', '76dd039b-130f-4fc6-bb62-c25d8c0baaeb', '(11, 9)'),
+ ('E', '76dd039b-130f-4fc6-bb62-c25d8c0baaeb', '(8, 12)')],
+'E': [('A', '76dd039b-130f-4fc6-bb62-c25d8c0baaeb', '(11, 9)'),
+ ('B', '76dd039b-130f-4fc6-bb62-c25d8c0baaeb', '(16, 4)'),
+ ('C', '76dd039b-130f-4fc6-bb62-c25d8c0baaeb', '(6, 14)'),
+ ('D', '76dd039b-130f-4fc6-bb62-c25d8c0baaeb', '(16, 4)')]}
+
+SCALES_PER_AGENT = {'A': {'cooperation': 0.5,
+ 'default': 0.0,
+ 'forgivability': -0.5,
+ 'maximum': 1.0,
+ 'minimum': -1.0,
+ 'name': 'Trust Scale by Marsh and Briggs (2009)',
+ 'package': 'marsh_briggs_scale'},
+'B': {'cooperation': 0.5,
+ 'default': 0.0,
+ 'forgivability': -0.5,
+ 'maximum': 1.0,
+ 'minimum': -1.0,
+ 'name': 'Trust Scale by Marsh and Briggs (2009)',
+ 'package': 'marsh_briggs_scale'},
+'C': {'cooperation': 0.5,
+ 'default': 0.0,
+ 'forgivability': -0.5,
+ 'maximum': 1.0,
+ 'minimum': -1.0,
+ 'name': 'Trust Scale by Marsh and Briggs (2009)',
+ 'package': 'marsh_briggs_scale'},
+'D': {'cooperation': 0.5,
+ 'default': 0.0,
+ 'forgivability': -0.5,
+ 'maximum': 1.0,
+ 'minimum': -1.0,
+ 'name': 'Trust Scale by Marsh and Briggs (2009)',
+ 'package': 'marsh_briggs_scale'},
+'E': {'cooperation': 0.5,
+ 'default': 0.0,
+ 'forgivability': -0.5,
+ 'maximum': 1.0,
+ 'minimum': -1.0,
+ 'name': 'Trust Scale by Marsh and Briggs (2009)',
+ 'package': 'marsh_briggs_scale'}}
+
+METRICS_PER_AGENT = {'A': {'__final__': {'name': 'travos'}, 'travos.experience': {}, 'travos.opinion': {}},
+'B': {'__final__': {'name': 'travos'}, 'travos.experience': {}, 'travos.opinion': {}},
+'C': {'__final__': {'name': 'travos'}, 'travos.experience': {}, 'travos.opinion': {}},
+'D': {'__final__': {'name': 'travos'}, 'travos.experience': {}, 'travos.opinion': {}},
+'E': {'__final__': {'name': 'travos'}, 'travos.experience': {}, 'travos.opinion': {}}}
+
