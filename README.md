@@ -122,41 +122,6 @@ for a decentralized web has to be done manually with a high effort.
 
 6. Install also at least one supervisor, c.f. [submodule trustlab_host][trustlab-host-repo].
 
-### 🏢 Setup for VSRians
-
-<details>
-<summary>For VSRians only</summary>
-
-1. Install [Microsoft ODBC Driver 17][microsoft-odbc-driver] (Windows/Linux/MacOS)
-
-2. Install [MongoDB][mongodb-quickstart].
-
-3. Clone Git Repository, [including all submodules][git-submodules].
-
-4. Configure merge driver for dealing with ``.gitattributes`` or rather the merge strategy:
-    ```shell
-    git config merge.ours.driver true
-    ```
-
-5. Setup pipenv in project root:
-    ```shell
-    pipenv install
-    ```
-   >For more information on pipenv, cf. [Pipenv: Python Dev Workflow for Humans][pipenv].
-
-   ODBC on MAC:
-    - If you installed this formula with the registration option (default), you'll need to manually remove
-    ``[ODBC Driver 17 for SQL Server]`` section from odbcinst.ini after the formula is uninstalled.
-    This can be done by executing:
-        ```shell
-        odbcinst -u -d -n "ODBC Driver 17 for SQL Server"
-        ```
-        
-6. Modify ``Additional Options`` of your django configuration (for no auto-reload after editing scenario files) with:
-    ```shell
-    --noreload
-    ```
-</details>
 
 ## 👟 Usage
 
@@ -178,25 +143,6 @@ for a decentralized web has to be done manually with a high effort.
     ```
 
 4. Run at least on supervisor with the [submodule trustlab_host][trustlab-host-repo] and connect it to aTLAS director.
-
-
-### 🏢 Usage for VSRians
-
-<details>
-<summary>For VSRians only</summary>
-
-1. Change MongoDBURI in [trustlab/lab/config.py](trustlab/lab/config.py) _OR_  
-   run local [MongoDB][mongodb-quickstart].  
-    >Dependent on your OS the execution instructions are part of the guide in the link above.
-
-2. Run aTLAS:
-    ```bash
-    python manage.py runserver 8000 --noreload
-    ```
-
-3. Run at least on supervisor with the [submodule trustlab_host][trustlab-host-repo] and connect it to aTLAS director.
-
-</details>
 
 ## 👀 Insights
 
@@ -222,11 +168,6 @@ for a decentralized web has to be done manually with a high effort.
 
 - You can make use of the scenario generation script at [_scenario_generation/](_scenario_generation/README.md) to generate larger scenarios.
 
-### ⌚ For Later
-
-- NetworkX for graph structure in backend: https://networkx.github.io/
-
-- NVD3 for graphs and diagrams in frontend: http://nvd3.org/
 
 ## ✍ Authors & Contributors
 
@@ -235,6 +176,7 @@ The original setup of this repository is by the first author [Valentin Siegert][
 All authors of this work in alphabetic surname order:
 
 - [Shovra Das](https://github.com/shovradas)
+- [Amimul Ihsan](https://github.com/amihsan)
 - [Martin Gaedke](https://vsr.informatik.tu-chemnitz.de/people/gaedke)
 - Arved Kirchhoff
 - [Mahda Noura](https://vsr.informatik.tu-chemnitz.de/people/mahdanoura)
